@@ -19,6 +19,8 @@ interface ApiStackProps extends cdk.StackProps {
   auditTable: dynamodb.Table;
   attendanceTable: dynamodb.Table;
   notificationTopic: sns.Topic;
+  vpc: ec2.IVpc;
+  database: rds.IDatabaseInstance;
 }
 
 export class ApiStack extends cdk.Stack {
@@ -139,6 +141,21 @@ export class ApiStack extends cdk.Stack {
 
     notificationRule.addTarget(new targets.LambdaFunction(notificationHandler));
 
+    // 11. DB Init Handler (VPC Required)
+    const dbInitHandler = new lambda.NodejsFunction(this, 'DbInitHandler', {
+      ...lambdaConfig,
+      entry: path.join(__dirname, '../../packages/functions/src/admin/db-init.ts'),
+      handler: 'handler',
+      vpc: props.vpc,
+      environment: {
+        DB_HOST: props.database.instanceEndpoint.hostname,
+        DB_NAME: 'prajna_analytics',
+        DB_USER: 'postgres',
+        DB_PASSWORD: props.database.secret?.secretValueFromJson('password').unsafeUnwrap() || '',
+      },
+      timeout: cdk.Duration.minutes(2),
+    });
+
     // --- PERMISSIONS ---
     props.table.grantReadWriteData(profileHandler);
     props.table.grantReadWriteData(researchHandler);
@@ -151,6 +168,12 @@ export class ApiStack extends cdk.Stack {
       actions: ['ses:SendEmail', 'ses:SendRawEmail'],
       resources: ['*'], // Tighten to specific identity ARN in prod
     }));
+
+    // RDS Permissions
+    props.database.connections.allowFrom(dbInitHandler, ec2.Port.tcp(5432));
+    if (props.database.secret) {
+      props.database.secret.grantRead(dbInitHandler);
+    }
 
     // Keep EventBus export reference to prevent rollback errors
     props.eventBus.grantPutEventsTo(researchHandler);
@@ -221,8 +244,15 @@ export class ApiStack extends cdk.Stack {
       allowMethods: apigateway.Cors.ALL_METHODS,
       allowHeaders: ['Content-Type', 'X-Amz-Date', 'Authorization', 'X-Api-Key', 'X-Amz-Security-Token'],
     });
-    admin.addMethod('GET', new apigateway.LambdaIntegration(adminHandler), authOptions);
     admin.addMethod('POST', new apigateway.LambdaIntegration(adminHandler), authOptions);
+    
+    const dbInit = admin.addResource('db-init');
+    dbInit.addCorsPreflight({
+      allowOrigins: apigateway.Cors.ALL_ORIGINS,
+      allowMethods: apigateway.Cors.ALL_METHODS,
+      allowHeaders: ['Content-Type', 'X-Amz-Date', 'Authorization', 'X-Api-Key', 'X-Amz-Security-Token'],
+    });
+    dbInit.addMethod('POST', new apigateway.LambdaIntegration(dbInitHandler), authOptions);
 
     // /documents
     const documents = api.root.addResource('documents');
