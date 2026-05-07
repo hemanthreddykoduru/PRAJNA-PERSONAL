@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+@source "../index.html";
+@source "./**/*.{js,ts,jsx,tsx}";
+@config "../tailwind.config.js";
+
+@theme {
+  --color-primary: #007366;
+  --color-primary-hover: #00594C;
+  --color-secondary: #F0E0C1;
+  --color-accent: #E33A0C;
+  --color-background: #FFFFFF;
+  --color-text: #1A1A1A;
+  --color-border: #EDEDED;
+}
+
+body {
+  @apply bg-background text-text font-sans antialiased;
+}

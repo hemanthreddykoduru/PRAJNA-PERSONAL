@@ -1,0 +1,7 @@
+*.env
+node_modules
+.sst
+.sst-runtime
+dist
+.cdk.staging
+cdk.out
