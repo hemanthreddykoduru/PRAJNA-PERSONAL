@@ -1,87 +1,80 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, QueryCommand, UpdateCommand, PutCommand } from '@aws-sdk/lib-dynamodb';
+import {
+  DynamoDBDocumentClient,
+  ScanCommand,
+  UpdateCommand,
+} from '@aws-sdk/lib-dynamodb';
 
 const client = new DynamoDBClient({});
-const docClient = DynamoDBDocumentClient.from(client);
-const TABLE_NAME = process.env.TABLE_NAME || '';
+const db = DynamoDBDocumentClient.from(client);
+const TABLE = process.env.TABLE_NAME!;
+
+const CORS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+  'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+};
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   const method = event.httpMethod;
   const path = event.path;
-  const authPayload = event.requestContext.authorizer?.claims;
-  const userId = authPayload?.sub;
-  const userRole = authPayload?.['cognito:groups']?.[0] || 'Faculty';
-
-  console.log(`Approvals Engine: ${method} ${path} for user ${userId} (${userRole})`);
 
   try {
-    // 1. GET /approvals - List pending requests for HoD/Director
+    // ── GET /approvals ── list all pending items
     if (method === 'GET') {
-      // HoDs see their department's requests, Directors see their school's requests
-      // For now, we query by the specific HoD/Director ID
-      const response = await docClient.send(new QueryCommand({
-        TableName: TABLE_NAME,
-        KeyConditionExpression: 'PK = :pk AND begins_with(SK, :sk)',
-        ExpressionAttributeValues: {
-          ':pk': `APPROVAL#${userId}`,
-          ':sk': 'STATUS#PENDING'
-        }
-      }));
+      const result = await db.send(
+        new ScanCommand({
+          TableName: TABLE,
+          FilterExpression: '#s = :status',
+          ExpressionAttributeNames: { '#s': 'status' },
+          ExpressionAttributeValues: { ':status': 'PENDING' },
+        })
+      );
 
       return {
         statusCode: 200,
-        headers: { "Access-Control-Allow-Origin": "*" },
-        body: JSON.stringify(response.Items || [])
+        headers: CORS,
+        body: JSON.stringify(result.Items ?? []),
       };
     }
 
-    // 2. POST /approvals/{id}/action - Approve or Reject
+    // ── POST /approvals/{id}/action ── approve/reject
     if (method === 'POST') {
-      const approvalId = event.pathParameters?.id;
-      const body = JSON.parse(event.body || '{}');
-      const { action, comment } = body; // action = 'APPROVED' | 'REJECTED'
+      const body = JSON.parse(event.body ?? '{}');
+      const { pk, sk, action } = body; // action: 'APPROVED' or 'REJECTED'
 
-      if (!approvalId || !['APPROVED', 'REJECTED'].includes(action)) {
-        return { statusCode: 400, body: 'Invalid action or missing ID' };
+      if (!pk || !sk || !action) {
+        return { statusCode: 400, headers: CORS, body: 'pk, sk, and action are required' };
       }
 
-      // Update the approval record
-      await docClient.send(new UpdateCommand({
-        TableName: TABLE_NAME,
-        Key: { 
-          PK: `APPROVAL#${userId}`, 
-          SK: `STATUS#PENDING#${approvalId}` 
-        },
-        UpdateExpression: 'SET #s = :newStatus, #c = :comment, #t = :updatedAt',
-        ExpressionAttributeNames: {
-          '#s': 'status',
-          '#c': 'approverComment',
-          '#t': 'updatedAt'
-        },
-        ExpressionAttributeValues: {
-          ':newStatus': action,
-          ':comment': comment || '',
-          ':updatedAt': Date.now()
-        }
-      }));
+      await db.send(
+        new UpdateCommand({
+          TableName: TABLE,
+          Key: { PK: pk, SK: sk },
+          UpdateExpression: 'SET #s = :status, processedAt = :ts',
+          ExpressionAttributeNames: { '#s': 'status' },
+          ExpressionAttributeValues: {
+            ':status': action,
+            ':ts': new Date().toISOString(),
+          },
+        })
+      );
 
-      // TODO: Fire EventBridge event for notifications/downstream processing
-      
       return {
         statusCode: 200,
-        headers: { "Access-Control-Allow-Origin": "*" },
-        body: JSON.stringify({ message: `Request ${action.toLowerCase()} successfully` })
+        headers: CORS,
+        body: JSON.stringify({ message: `Item ${action} successfully` }),
       };
     }
 
-    return { statusCode: 404, body: 'Not Found' };
-  } catch (err: any) {
-    console.error('Approvals Error:', err);
+    return { statusCode: 405, headers: CORS, body: 'Method not allowed' };
+  } catch (e: any) {
+    console.error('ApprovalsHandler error:', e);
     return {
       statusCode: 500,
-      headers: { "Access-Control-Allow-Origin": "*" },
-      body: JSON.stringify({ error: err.message })
+      headers: CORS,
+      body: JSON.stringify({ error: e.message }),
     };
   }
 };

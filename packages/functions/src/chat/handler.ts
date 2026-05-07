@@ -55,13 +55,18 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       }));
 
       const profileData = profileRes.Items?.find(i => i.SK === 'PROFILE') || {};
-      const researchData = profileRes.Items?.filter(i => i.SK.startsWith('RESEARCH#')).slice(0, 3) || [];
+      const researchData = profileRes.Items?.filter(i => i.SK.startsWith('PUB#')) || [];
 
       const contextFacts = `
         FACULTY_PROFILE:
+        - Name: ${profileData.name || 'GITAM Faculty'}
+        - Department: ${profileData.department || 'N/A'}
         - PRAJNA Score: ${profileData.prajnaScore || 0}
         - Tier: ${profileData.tier || 'BRONZE'}
-        - Recent Papers: ${researchData.map(r => r.title).join(', ') || 'None yet'}
+        - Total Publications: ${researchData.length}
+        - Indexed Publications: ${researchData.filter(r => r.indexing !== 'Other').length}
+        - Top Journals: ${researchData.slice(0, 5).map(r => r.journal).join(', ')}
+        - Last Published: ${researchData[0]?.year || 'N/A'}
       `;
 
       // C. Build Messages with Role Alternation
@@ -82,8 +87,16 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       const payload = {
         inferenceConfig: { maxNewTokens: 1000, temperature: 0.7 },
         messages: messages,
-        system: [{ text: `You are PRAJNA, the AI Career Companion for GITAM faculty. 
-                           Context: ${contextFacts}. Help the user improve their score.` }]
+        system: [{ text: `You are PRAJNA, the official AI Career Companion for faculty at GITAM University. 
+                           Your goal is to help faculty improve their research impact, teaching delivery, and overall PRAJNA score.
+                           Use the following context to provide DATA-DRIVEN advice:
+                           ${contextFacts}
+                           
+                           Guidelines:
+                           1. If a faculty member has low indexed publications, suggest focusing on Scopus/Web of Science journals.
+                           2. Reference NAAC and NIRF standards when suggesting improvements.
+                           3. Be encouraging, professional, and GITAM-centric.
+                           4. If they ask about their score, analyze their Tier and suggest specific steps to reach the next one.` }]
       };
 
       try {
