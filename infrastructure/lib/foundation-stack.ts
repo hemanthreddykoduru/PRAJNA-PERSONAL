@@ -5,6 +5,11 @@ import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as events from 'aws-cdk-lib/aws-events';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
 
+import * as sns from 'aws-cdk-lib/aws-sns';
+import * as ses from 'aws-cdk-lib/aws-ses';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as rds from 'aws-cdk-lib/aws-rds';
+
 export class FoundationStack extends cdk.Stack {
   public readonly table: dynamodb.Table;
   public readonly bucket: s3.Bucket;
@@ -12,6 +17,9 @@ export class FoundationStack extends cdk.Stack {
   public readonly userPool: cognito.UserPool;
   public readonly auditTable: dynamodb.Table;
   public readonly attendanceTable: dynamodb.Table;
+  public readonly notificationTopic: sns.Topic;
+  public readonly vpc: ec2.Vpc;
+  public readonly database: rds.DatabaseInstance;
 
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
@@ -66,7 +74,45 @@ export class FoundationStack extends cdk.Stack {
       eventBusName: 'PrajnaBus',
     });
 
-    // 4. Cognito - User Management
+    // 6. SNS - Notification Layer
+    this.notificationTopic = new sns.Topic(this, 'PrajnaNotifications', {
+      topicName: 'PrajnaSystemNotifications',
+    });
+
+    // 7. VPC & Aurora Analytics Layer (Using RDS Instance for Credit Safety)
+    this.vpc = new ec2.Vpc(this, 'PrajnaVpc', {
+      maxAzs: 2,
+      natGateways: 0,
+      subnetConfiguration: [
+        {
+          name: 'Public',
+          subnetType: ec2.SubnetType.PUBLIC,
+        },
+        {
+          name: 'Isolated',
+          subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
+        }
+      ],
+    });
+
+    this.database = new rds.DatabaseInstance(this, 'PrajnaAnalyticsDb', {
+      engine: rds.DatabaseInstanceEngine.postgres({
+        version: rds.PostgresEngineVersion.VER_15,
+      }),
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.T4G, ec2.InstanceSize.MICRO),
+      vpc: this.vpc,
+      vpcSubnets: {
+        subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
+      },
+      databaseName: 'prajna_analytics',
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      publiclyAccessible: false,
+    });
+
+    // 8. SES - Email Identity
+    new ses.EmailIdentity(this, 'PrajnaEmailIdentity', {
+      identity: ses.Identity.email('hemanth.reddyk@gmail.com'),
+    });
     this.userPool = new cognito.UserPool(this, 'PrajnaUserPool', {
       userPoolName: 'prajna-users',
       selfSignUpEnabled: false,

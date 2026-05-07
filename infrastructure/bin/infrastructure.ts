@@ -25,6 +25,7 @@ new ApiStack(app, 'PrajnaApiStack', {
   bucket: foundation.bucket,
   auditTable: foundation.auditTable,
   attendanceTable: foundation.attendanceTable,
+  notificationTopic: foundation.notificationTopic,
 });
 
 // 3. Website Hosting

@@ -7,6 +7,8 @@ import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as events from 'aws-cdk-lib/aws-events';
+import * as targets from 'aws-cdk-lib/aws-events-targets';
+import * as sns from 'aws-cdk-lib/aws-sns';
 import * as path from 'path';
 
 interface ApiStackProps extends cdk.StackProps {
@@ -16,6 +18,7 @@ interface ApiStackProps extends cdk.StackProps {
   bucket: s3.Bucket;
   auditTable: dynamodb.Table;
   attendanceTable: dynamodb.Table;
+  notificationTopic: sns.Topic;
 }
 
 export class ApiStack extends cdk.Stack {
@@ -36,9 +39,15 @@ export class ApiStack extends cdk.Stack {
 
     // --- LAMBDA HANDLERS ---
 
+    const lambdaConfig = {
+      runtime: lam.Runtime.NODEJS_20_X,
+      architecture: lam.Architecture.ARM_64,
+      tracing: lam.Tracing.ACTIVE,
+    };
+
     // 3. Profile Handler
     const profileHandler = new lambda.NodejsFunction(this, 'ProfileHandler', {
-      runtime: lam.Runtime.NODEJS_20_X,
+      ...lambdaConfig,
       entry: path.join(__dirname, '../../packages/functions/src/profile/handler.ts'),
       handler: 'handler',
       environment: {
@@ -48,18 +57,19 @@ export class ApiStack extends cdk.Stack {
 
     // 4. Research Handler
     const researchHandler = new lambda.NodejsFunction(this, 'ResearchHandler', {
-      runtime: lam.Runtime.NODEJS_20_X,
+      ...lambdaConfig,
       entry: path.join(__dirname, '../../packages/functions/src/research/handler.ts'),
       handler: 'handler',
       environment: {
         TABLE_NAME: props.table.tableName,
+        EVENT_BUS_NAME: props.eventBus.eventBusName,
       },
       timeout: cdk.Duration.seconds(30),
     });
 
     // 5. Research Lookup Handler (CrossRef)
     const researchLookupHandler = new lambda.NodejsFunction(this, 'ResearchLookupHandler', {
-      runtime: lam.Runtime.NODEJS_20_X,
+      ...lambdaConfig,
       entry: path.join(__dirname, '../../packages/functions/src/research/lookup.ts'),
       handler: 'handler',
       timeout: cdk.Duration.seconds(30),
@@ -67,7 +77,7 @@ export class ApiStack extends cdk.Stack {
 
     // 6. Document Upload Handler
     const documentUploadHandler = new lambda.NodejsFunction(this, 'DocumentUploadHandler', {
-      runtime: lam.Runtime.NODEJS_20_X,
+      ...lambdaConfig,
       entry: path.join(__dirname, '../../packages/functions/src/documents/get-presigned-url.ts'),
       handler: 'handler',
       environment: {
@@ -78,7 +88,7 @@ export class ApiStack extends cdk.Stack {
 
     // 7. Admin Handler
     const adminHandler = new lambda.NodejsFunction(this, 'AdminHandler', {
-      runtime: lam.Runtime.NODEJS_20_X,
+      ...lambdaConfig,
       entry: path.join(__dirname, '../../packages/functions/src/admin/handler.ts'),
       handler: 'handler',
       environment: {
@@ -90,7 +100,7 @@ export class ApiStack extends cdk.Stack {
 
     // 8. Attendance Handler
     const attendanceHandler = new lambda.NodejsFunction(this, 'AttendanceHandler', {
-      runtime: lam.Runtime.NODEJS_20_X,
+      ...lambdaConfig,
       entry: path.join(__dirname, '../../packages/functions/src/attendance/handler.ts'),
       handler: 'handler',
       environment: {
@@ -100,7 +110,7 @@ export class ApiStack extends cdk.Stack {
 
     // 9. Approvals Handler
     const approvalsHandler = new lambda.NodejsFunction(this, 'ApprovalsHandler', {
-      runtime: lam.Runtime.NODEJS_20_X,
+      ...lambdaConfig,
       entry: path.join(__dirname, '../../packages/functions/src/approvals/handler.ts'),
       handler: 'handler',
       environment: {
@@ -109,6 +119,26 @@ export class ApiStack extends cdk.Stack {
       timeout: cdk.Duration.seconds(30),
     });
 
+    // 10. Notification Handler
+    const notificationHandler = new lambda.NodejsFunction(this, 'NotificationHandler', {
+      ...lambdaConfig,
+      entry: path.join(__dirname, '../../packages/functions/src/notifications/handler.ts'),
+      handler: 'handler',
+      environment: {
+        TOPIC_ARN: props.notificationTopic.topicArn,
+      },
+    });
+
+    // --- EVENTBRIDGE RULES ---
+    const notificationRule = new events.Rule(this, 'NotificationRule', {
+      eventBus: props.eventBus,
+      eventPattern: {
+        detailType: ['RESEARCH_SUBMITTED', 'APPROVAL_REQUIRED'],
+      },
+    });
+
+    notificationRule.addTarget(new targets.LambdaFunction(notificationHandler));
+
     // --- PERMISSIONS ---
     props.table.grantReadWriteData(profileHandler);
     props.table.grantReadWriteData(researchHandler);
@@ -116,6 +146,11 @@ export class ApiStack extends cdk.Stack {
     props.attendanceTable.grantReadWriteData(attendanceHandler);
     props.auditTable.grantReadWriteData(adminHandler);
     props.bucket.grantWrite(documentUploadHandler);
+    props.notificationTopic.grantPublish(notificationHandler);
+    notificationHandler.addToRolePolicy(new cdk.aws_iam.PolicyStatement({
+      actions: ['ses:SendEmail', 'ses:SendRawEmail'],
+      resources: ['*'], // Tighten to specific identity ARN in prod
+    }));
 
     // Keep EventBus export reference to prevent rollback errors
     props.eventBus.grantPutEventsTo(researchHandler);

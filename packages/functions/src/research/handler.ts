@@ -6,9 +6,13 @@ import {
   PutCommand,
 } from '@aws-sdk/lib-dynamodb';
 
+import { EventBridgeClient, PutEventsCommand } from '@aws-sdk/client-eventbridge';
+
 const client = new DynamoDBClient({});
 const db = DynamoDBDocumentClient.from(client);
+const eventBridge = new EventBridgeClient({});
 const TABLE = process.env.TABLE_NAME!;
+const EVENT_BUS = process.env.EVENT_BUS_NAME || 'PrajnaBus';
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -99,6 +103,26 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       };
 
       await db.send(new PutCommand({ TableName: TABLE, Item: item }));
+
+      // --- EMIT EVENT ---
+      try {
+        await eventBridge.send(new PutEventsCommand({
+          Entries: [{
+            Source: 'prajna.research',
+            DetailType: 'RESEARCH_SUBMITTED',
+            Detail: JSON.stringify({
+              userId: facultyId,
+              title: item.title,
+              doi: item.doi,
+              authors: item.authors
+            }),
+            EventBusName: EVENT_BUS
+          }]
+        }));
+      } catch (eventError) {
+        console.error('Failed to emit research event:', eventError);
+      }
+
       return ok({ message: 'Publication submitted for approval', publication: item }, 201);
     }
 
