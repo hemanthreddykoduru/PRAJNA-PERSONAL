@@ -20,7 +20,7 @@ jobs:
       - name: Install Dependencies
         run: |
           npm install -g aws-cdk
-          cd infrastructure && npm install
+          npm install --workspace infrastructure --include-workspace-root
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
