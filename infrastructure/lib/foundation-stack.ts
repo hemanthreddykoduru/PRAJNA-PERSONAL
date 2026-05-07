@@ -111,7 +111,7 @@ export class FoundationStack extends cdk.Stack {
 
     // 8. SES - Email Identity
     new ses.EmailIdentity(this, 'PrajnaEmailIdentity', {
-      identity: ses.Identity.email('hemanth.reddyk@gmail.com'),
+      identity: ses.Identity.email('hemanth.reddyk@yahoo.com'),
     });
     this.userPool = new cognito.UserPool(this, 'PrajnaUserPool', {
       userPoolName: 'prajna-users',

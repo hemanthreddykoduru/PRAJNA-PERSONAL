@@ -6,7 +6,7 @@ const snsClient = new SNSClient({});
 const sesClient = new SESClient({});
 
 const TOPIC_ARN = process.env.TOPIC_ARN || '';
-const FROM_EMAIL = 'hemanth.reddyk@gmail.com';
+const FROM_EMAIL = 'hemanth.reddyk@yahoo.com';
 
 export const handler = async (event: EventBridgeEvent<string, any>, context: Context) => {
   console.log('Event Received:', JSON.stringify(event, null, 2));
