@@ -1,28 +1,29 @@
-#!/usr/bin/env node
-import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
 import { FoundationStack } from '../lib/foundation-stack';
 import { ApiStack } from '../lib/api-stack';
 import { WebsiteStack } from '../lib/website-stack';
 import { PrajnaChatBackendStack } from '../lib/chat-backend-stack';
+import * as ssm from 'aws-cdk-lib/aws-ssm';
+import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as events from 'aws-cdk-lib/aws-events';
+import * as cognito from 'aws-cdk-lib/aws-cognito';
 
 const app = new cdk.App();
 
-const env = { 
-  account: process.env.CDK_DEFAULT_ACCOUNT, 
-  region: process.env.CDK_DEFAULT_REGION || 'us-east-1' 
-};
+const foundation = new FoundationStack(app, 'PrajnaFoundationStack');
 
-// 1. Foundation
-const foundation = new FoundationStack(app, 'PrajnaFoundationStack', { env });
+// Use SSM Lookups to break stack dependencies for the API
+const tableName = ssm.StringParameter.valueForStringParameter(foundation, '/prajna/table-name');
+const bucketName = ssm.StringParameter.valueForStringParameter(foundation, '/prajna/bucket-name');
+const eventBusName = ssm.StringParameter.valueForStringParameter(foundation, '/prajna/event-bus-name');
+const userPoolId = ssm.StringParameter.valueForStringParameter(foundation, '/prajna/user-pool-id');
 
-// 2. API & Lambdas
 new ApiStack(app, 'PrajnaApiStack', {
-  env,
-  table: foundation.table,
-  userPool: foundation.userPool,
-  eventBus: foundation.eventBus,
-  bucket: foundation.bucket,
+  table: dynamodb.Table.fromTableName(foundation, 'ImportedTable', tableName) as any,
+  bucket: s3.Bucket.fromBucketName(foundation, 'ImportedBucket', bucketName),
+  eventBus: events.EventBus.fromEventBusName(foundation, 'ImportedBus', eventBusName),
+  userPool: cognito.UserPool.fromUserPoolId(foundation, 'ImportedPool', userPoolId) as any,
   auditTable: foundation.auditTable,
   attendanceTable: foundation.attendanceTable,
   notificationTopic: foundation.notificationTopic,
@@ -30,11 +31,6 @@ new ApiStack(app, 'PrajnaApiStack', {
   database: foundation.database,
 });
 
-// 3. Website Hosting
-new WebsiteStack(app, 'PrajnaWebsiteStack', { env });
+new WebsiteStack(app, 'PrajnaWebsiteStack');
 
-// 4. Chat Backend
-new PrajnaChatBackendStack(app, 'PrajnaChatBackendStack', { env });
-
-cdk.Tags.of(app).add('Project', 'PRAJNA');
-cdk.Tags.of(app).add('Environment', 'Dev');
+new PrajnaChatBackendStack(app, 'PrajnaChatBackendStack');
