@@ -11,13 +11,16 @@ const cognito = new CognitoIdentityProviderClient({});
 const USER_POOL_ID = process.env.USER_POOL_ID!;
 
 export const handler: APIGatewayProxyHandler = async (event: any) => {
+  console.log("Admin Event:", JSON.stringify(event));
   const adminId = event.requestContext?.authorizer?.claims?.sub || 'system-admin';
   const action = event.queryStringParameters?.action;
+  console.log("Action:", action, "UserPoolId:", USER_POOL_ID);
 
   try {
     switch (action) {
       case 'list':
         const listData = await cognito.send(new ListUsersCommand({ UserPoolId: USER_POOL_ID }));
+        console.log("Users found in Cognito:", listData.Users?.length);
         return {
           statusCode: 200,
           headers: { 
