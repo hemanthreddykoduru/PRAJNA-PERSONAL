@@ -127,6 +127,7 @@ export class ApiStack extends cdk.Stack {
       environment: {
         USER_POOL_ID: userPool.userPoolId,
         AUDIT_TABLE_NAME: props.auditTable.tableName,
+        DEPLOY_ID: Date.now().toString(),
       },
       timeout: cdk.Duration.seconds(15),
     });
