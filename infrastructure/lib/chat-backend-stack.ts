@@ -44,6 +44,11 @@ export class PrajnaChatBackendStack extends cdk.Stack {
 
     const api = new apigateway.RestApi(this, 'PrajnaChatAPI', {
       restApiName: 'PrajnaChatAPI',
+      defaultCorsPreflightOptions: {
+        allowOrigins: apigateway.Cors.ALL_ORIGINS,
+        allowMethods: apigateway.Cors.ALL_METHODS,
+        allowHeaders: ['*'],
+      },
     });
 
     const userPool = cdk.aws_cognito.UserPool.fromUserPoolId(this, 'ImportedUserPool', 'us-east-1_lxxysDfi1');
@@ -52,22 +57,12 @@ export class PrajnaChatBackendStack extends cdk.Stack {
     });
 
     const history = api.root.addResource('history');
-    history.addCorsPreflight({
-      allowOrigins: apigateway.Cors.ALL_ORIGINS,
-      allowMethods: apigateway.Cors.ALL_METHODS,
-    });
-
     const authOptions = { authorizer, authorizationType: apigateway.AuthorizationType.COGNITO };
 
     history.addMethod('GET', new apigateway.LambdaIntegration(chatHandler), authOptions);
     history.addMethod('POST', new apigateway.LambdaIntegration(chatHandler), authOptions);
 
     const userHistory = history.addResource('{userId}');
-    userHistory.addCorsPreflight({
-      allowOrigins: apigateway.Cors.ALL_ORIGINS,
-      allowMethods: apigateway.Cors.ALL_METHODS,
-    });
-
     userHistory.addMethod('GET', new apigateway.LambdaIntegration(chatHandler), authOptions);
   }
 }
