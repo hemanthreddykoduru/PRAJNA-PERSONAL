@@ -1,0 +1,16 @@
+{
+  "name": "prajna-root",
+  "private": true,
+  "workspaces": [
+    "infrastructure",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "cdk": "npm run cdk --workspace infrastructure"
+  },
+  "devDependencies": {
+    "aws-cdk": "^2.133.0",
+    "typescript": "^5.3.3"
+  }
+}
