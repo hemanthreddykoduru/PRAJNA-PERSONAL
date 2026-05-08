@@ -18,8 +18,8 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          npm install -g aws-cdk
-          npm install --workspace infrastructure --include-workspace-root
+          npm install
+          npm install -g aws-cdk ts-node typescript
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -30,4 +30,5 @@ jobs:
 
       - name: Deploy to AWS
         run: |
+          cd infrastructure
           npx cdk deploy --all --require-approval never
