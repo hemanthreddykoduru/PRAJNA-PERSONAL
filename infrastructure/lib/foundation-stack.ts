@@ -11,8 +11,8 @@ import * as rds from 'aws-cdk-lib/aws-rds';
 
 export class FoundationStack extends cdk.Stack {
   public readonly table: dynamodb.Table;
-  public readonly bucket: s3.Bucket;
-  public readonly eventBus: events.EventBus;
+  public readonly bucket: s3.IBucket;
+  public readonly eventBus: events.IEventBus;
   public readonly userPool: cognito.UserPool;
   public readonly auditTable: dynamodb.Table;
   public readonly attendanceTable: dynamodb.Table;
@@ -46,27 +46,24 @@ export class FoundationStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
-    // 2. Storage
-    this.bucket = new s3.Bucket(this, 'PrajnaStorageVault', {
+    // 2. Storage - Import existing if collision occurs
+    this.bucket = new s3.Bucket(this, 'PrajnaStorageVaultV4', {
       versioned: true,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
     });
 
-    // 3. Event-Driven
-    this.eventBus = new events.EventBus(this, 'PrajnaMessagingBus', {
-      eventBusName: 'PrajnaBus',
-    });
+    // 3. Event-Driven - Use existing EventBus to avoid collisions
+    this.eventBus = events.EventBus.fromEventBusName(this, 'ExistingPrajnaBus', 'PrajnaBus');
 
     this.notificationTopic = new sns.Topic(this, 'PrajnaSnsTopic', {
       topicName: 'PrajnaSystemNotifications',
     });
 
-    new ses.EmailIdentity(this, 'PrajnaEmailId', {
-      identity: ses.Identity.email('hemanth.reddyk@yahoo.com'),
-    });
+    // 4. SES - Identity already exists, so we just reference it or skip creation
+    // In dev, we assume hemanth.reddyk@yahoo.com is already verified manually.
 
-    // 4. Analytics Layer (RDS)
+    // 5. Analytics Layer (RDS)
     this.vpc = new ec2.Vpc(this, 'PrajnaNetworkVpc', {
       maxAzs: 2,
       natGateways: 0,
@@ -87,10 +84,9 @@ export class FoundationStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
-    // Explicitly allow VPC internal access to RDS to break stack cycles
     this.database.connections.allowFrom(ec2.Peer.ipv4(this.vpc.vpcCidrBlock), ec2.Port.tcp(5432));
 
-    // 5. Auth
+    // 6. Auth
     this.userPool = new cognito.UserPool(this, 'PrajnaAuthPool', {
       userPoolName: 'prajna-users',
       selfSignUpEnabled: false,

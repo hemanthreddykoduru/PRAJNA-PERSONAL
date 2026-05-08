@@ -16,8 +16,8 @@ import * as path from 'path';
 interface ApiStackProps extends cdk.StackProps {
   table: dynamodb.Table;
   userPool: cognito.UserPool;
-  eventBus: events.EventBus;
-  bucket: s3.Bucket;
+  eventBus: events.IEventBus;
+  bucket: s3.IBucket;
   auditTable: dynamodb.Table;
   attendanceTable: dynamodb.Table;
   notificationTopic: sns.Topic;
