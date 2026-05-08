@@ -39,13 +39,23 @@ jobs:
 
       - name: Build and Upload Frontend
         run: |
-          # 1. Get the Bucket Name from the NEW V3 SSM Parameter
+          # 1. Fetch ALL required parameters from SSM
           BUCKET_NAME=$(aws ssm get-parameter --name "/prajna/v3/bucket-name" --query "Parameter.Value" --output text)
+          USER_POOL_ID=$(aws ssm get-parameter --name "/prajna/user-pool-id" --query "Parameter.Value" --output text)
+          USER_POOL_CLIENT_ID=$(aws ssm get-parameter --name "/prajna/user-pool-client-id" --query "Parameter.Value" --output text)
+          API_URL=$(aws cloudformation describe-stacks --stack-name PrajnaApiStack --query "Stacks[0].Outputs[?OutputKey=='ApiUrl'].OutputValue" --output text)
           
-          # 2. Build Frontend
+          # 2. Build Frontend with Dynamic Environment Variables
           cd packages/frontend
           rm -rf node_modules
           npm install --platform=linux --arch=x64
+          
+          # Inject variables into .env before build
+          echo "VITE_API_URL=$API_URL" > .env
+          echo "VITE_COGNITO_USER_POOL_ID=$USER_POOL_ID" >> .env
+          echo "VITE_COGNITO_CLIENT_ID=$USER_POOL_CLIENT_ID" >> .env
+          echo "VITE_AWS_REGION=us-east-1" >> .env
+          
           npm run build
           
           # 3. Upload to S3

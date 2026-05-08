@@ -5,7 +5,6 @@ import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as events from 'aws-cdk-lib/aws-events';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
 import * as sns from 'aws-cdk-lib/aws-sns';
-import * as ses from 'aws-cdk-lib/aws-ses';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as rds from 'aws-cdk-lib/aws-rds';
 import * as ssm from 'aws-cdk-lib/aws-ssm';
@@ -20,6 +19,7 @@ export class FoundationStack extends cdk.Stack {
   public readonly notificationTopic: sns.Topic;
   public readonly vpc: ec2.Vpc;
   public readonly database: rds.DatabaseInstance;
+  public readonly userPoolClient: cognito.UserPoolClient;
 
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
@@ -93,6 +93,10 @@ export class FoundationStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
+    this.userPoolClient = this.userPool.addClient('PrajnaAppClientFinal', {
+      authFlows: { adminNoSrpa: true, custom: true, userPassword: true },
+    });
+
     // --- SSM PARAMETERS (Production Decoupling) ---
     new ssm.StringParameter(this, 'PrajnaTableNameParam', {
       parameterName: '/prajna/table-name',
@@ -105,6 +109,10 @@ export class FoundationStack extends cdk.Stack {
     new ssm.StringParameter(this, 'PrajnaUserPoolIdParam', {
       parameterName: '/prajna/user-pool-id',
       stringValue: this.userPool.userPoolId,
+    });
+    new ssm.StringParameter(this, 'PrajnaUserPoolClientIdParam', {
+      parameterName: '/prajna/user-pool-client-id',
+      stringValue: this.userPoolClient.userPoolClientId,
     });
   }
 }
