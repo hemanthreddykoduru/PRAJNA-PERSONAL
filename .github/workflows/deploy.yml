@@ -28,10 +28,8 @@ jobs:
 
       - name: Full Clean Install and Deploy Infrastructure
         run: |
-          # Clean slate to fix native binary mismatches
           rm -f package-lock.json
           rm -rf node_modules
-          # Ensure @types/node is present for ts-node
           npm install @types/node
           npm install
           
@@ -41,8 +39,8 @@ jobs:
 
       - name: Build and Upload Frontend
         run: |
-          # 1. Get the Bucket Name from SSM
-          BUCKET_NAME=$(aws ssm get-parameter --name "/prajna/table-name" --query "Parameter.Value" --output text | cut -d'-' -f1 | xargs -I {} aws ssm get-parameter --name "/prajna/bucket-name" --query "Parameter.Value" --output text)
+          # 1. Bucket Name
+          BUCKET_NAME="prajnafoundationstack-prajnavaultfinalcefa9764-l4j6zazkqjnz"
           
           # 2. Build Frontend
           cd packages/frontend
