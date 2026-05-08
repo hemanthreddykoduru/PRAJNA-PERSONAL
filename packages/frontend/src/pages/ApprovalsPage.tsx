@@ -38,7 +38,7 @@ const ApprovalsPage: React.FC = () => {
 
   const fetchPendingItems = async () => {
     try {
-      const data = await facultyApi.get('/approvals');
+      const data = await (facultyApi as any).get('/approvals');
       setItems(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Failed to fetch approvals:', err);
@@ -50,7 +50,7 @@ const ApprovalsPage: React.FC = () => {
   const handleAction = async (item: PendingItem, action: 'APPROVED' | 'REJECTED') => {
     setProcessingId(item.SK);
     try {
-      await facultyApi.post(`/approvals/${encodeURIComponent(item.SK)}/action`, {
+      await (facultyApi as any).post(`/approvals/${encodeURIComponent(item.SK)}/action`, {
         pk: item.PK,
         sk: item.SK,
         action
