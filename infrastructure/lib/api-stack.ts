@@ -11,13 +11,10 @@ import * as targets from 'aws-cdk-lib/aws-events-targets';
 import * as sns from 'aws-cdk-lib/aws-sns';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as rds from 'aws-cdk-lib/aws-rds';
+import * as ssm from 'aws-cdk-lib/aws-ssm';
 import * as path from 'path';
 
 interface ApiStackProps extends cdk.StackProps {
-  table: dynamodb.Table;
-  userPool: cognito.UserPool;
-  eventBus: events.IEventBus;
-  bucket: s3.IBucket;
   auditTable: dynamodb.Table;
   attendanceTable: dynamodb.Table;
   notificationTopic: sns.Topic;
@@ -29,6 +26,18 @@ export class ApiStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: ApiStackProps) {
     super(scope, id, props);
 
+    // --- SSM LOOKUPS (Self-Contained) ---
+    const tableName = ssm.StringParameter.valueForStringParameter(this, '/prajna/table-name');
+    const bucketName = ssm.StringParameter.valueForStringParameter(this, '/prajna/bucket-name');
+    const eventBusName = ssm.StringParameter.valueForStringParameter(this, '/prajna/event-bus-name');
+    const userPoolId = ssm.StringParameter.valueForStringParameter(this, '/prajna/user-pool-id');
+
+    // --- IMPORTED RESOURCES ---
+    const table = dynamodb.Table.fromTableName(this, 'ImportedTable', tableName);
+    const bucket = s3.Bucket.fromBucketName(this, 'ImportedBucket', bucketName);
+    const eventBus = events.EventBus.fromEventBusName(this, 'ImportedBus', eventBusName);
+    const userPool = cognito.UserPool.fromUserPoolId(this, 'ImportedPool', userPoolId);
+
     // 1. API Gateway
     const api = new apigateway.RestApi(this, 'PrajnaApiResource', {
       restApiName: 'PRAJNA Main API',
@@ -36,7 +45,7 @@ export class ApiStack extends cdk.Stack {
 
     // 2. Authorizer
     const authorizer = new apigateway.CognitoUserPoolsAuthorizer(this, 'PrajnaAuthorizerResource', {
-      cognitoUserPools: [props.userPool],
+      cognitoUserPools: [userPool],
     });
 
     const authOptions = { authorizer };
@@ -46,7 +55,6 @@ export class ApiStack extends cdk.Stack {
       runtime: lam.Runtime.NODEJS_20_X,
       architecture: lam.Architecture.ARM_64,
       tracing: lam.Tracing.ACTIVE,
-      // Smart resolution for monorepo bundling
       projectRoot: path.resolve(__dirname, '../../'),
       depsLockFilePath: path.resolve(__dirname, '../../package-lock.json'),
     };
@@ -56,9 +64,7 @@ export class ApiStack extends cdk.Stack {
       ...lambdaConfig,
       entry: path.join(__dirname, '../../packages/functions/src/profile/handler.ts'),
       handler: 'handler',
-      environment: {
-        TABLE_NAME: props.table.tableName,
-      },
+      environment: { TABLE_NAME: table.tableName },
     });
 
     // 4. Research Handler
@@ -67,13 +73,13 @@ export class ApiStack extends cdk.Stack {
       entry: path.join(__dirname, '../../packages/functions/src/research/handler.ts'),
       handler: 'handler',
       environment: {
-        TABLE_NAME: props.table.tableName,
-        EVENT_BUS_NAME: props.eventBus.eventBusName,
+        TABLE_NAME: table.tableName,
+        EVENT_BUS_NAME: eventBus.eventBusName,
       },
       timeout: cdk.Duration.seconds(30),
     });
 
-    // 5. Research Lookup Handler (CrossRef)
+    // 5. Research Lookup Handler
     const researchLookupHandler = new lambda.NodejsFunction(this, 'ResearchLookupHandler', {
       ...lambdaConfig,
       entry: path.join(__dirname, '../../packages/functions/src/research/lookup.ts'),
@@ -87,8 +93,8 @@ export class ApiStack extends cdk.Stack {
       entry: path.join(__dirname, '../../packages/functions/src/documents/get-presigned-url.ts'),
       handler: 'handler',
       environment: {
-        BUCKET_NAME: props.bucket.bucketName,
-        TABLE_NAME: props.table.tableName,
+        BUCKET_NAME: bucket.bucketName,
+        TABLE_NAME: table.tableName,
       },
     });
 
@@ -98,7 +104,7 @@ export class ApiStack extends cdk.Stack {
       entry: path.join(__dirname, '../../packages/functions/src/admin/handler.ts'),
       handler: 'handler',
       environment: {
-        USER_POOL_ID: props.userPool.userPoolId,
+        USER_POOL_ID: userPool.userPoolId,
         AUDIT_TABLE_NAME: props.auditTable.tableName,
       },
       timeout: cdk.Duration.seconds(15),
@@ -109,9 +115,7 @@ export class ApiStack extends cdk.Stack {
       ...lambdaConfig,
       entry: path.join(__dirname, '../../packages/functions/src/attendance/handler.ts'),
       handler: 'handler',
-      environment: {
-        TABLE_NAME: props.attendanceTable.tableName,
-      },
+      environment: { TABLE_NAME: props.attendanceTable.tableName },
     });
 
     // 9. Approvals Handler
@@ -119,9 +123,7 @@ export class ApiStack extends cdk.Stack {
       ...lambdaConfig,
       entry: path.join(__dirname, '../../packages/functions/src/approvals/handler.ts'),
       handler: 'handler',
-      environment: {
-        TABLE_NAME: props.table.tableName,
-      },
+      environment: { TABLE_NAME: table.tableName },
       timeout: cdk.Duration.seconds(30),
     });
 
@@ -130,14 +132,12 @@ export class ApiStack extends cdk.Stack {
       ...lambdaConfig,
       entry: path.join(__dirname, '../../packages/functions/src/notifications/handler.ts'),
       handler: 'handler',
-      environment: {
-        TOPIC_ARN: props.notificationTopic.topicArn,
-      },
+      environment: { TOPIC_ARN: props.notificationTopic.topicArn },
     });
 
     // --- EVENTBRIDGE RULES ---
     const notificationRule = new events.Rule(this, 'NotificationRule', {
-      eventBus: props.eventBus,
+      eventBus: eventBus,
       eventPattern: {
         detailType: ['RESEARCH_SUBMITTED', 'APPROVAL_REQUIRED'],
       },
@@ -145,7 +145,7 @@ export class ApiStack extends cdk.Stack {
 
     notificationRule.addTarget(new targets.LambdaFunction(notificationHandler));
 
-    // 11. DB Init Handler (VPC Required)
+    // 11. DB Init Handler
     const dbInitHandler = new lambda.NodejsFunction(this, 'DbInitHandler', {
       ...lambdaConfig,
       entry: path.join(__dirname, '../../packages/functions/src/admin/db-init.ts'),
@@ -161,12 +161,12 @@ export class ApiStack extends cdk.Stack {
     });
 
     // --- PERMISSIONS ---
-    props.table.grantReadWriteData(profileHandler);
-    props.table.grantReadWriteData(researchHandler);
-    props.table.grantReadWriteData(approvalsHandler);
+    table.grantReadWriteData(profileHandler);
+    table.grantReadWriteData(researchHandler);
+    table.grantReadWriteData(approvalsHandler);
     props.attendanceTable.grantReadWriteData(attendanceHandler);
     props.auditTable.grantReadWriteData(adminHandler);
-    props.bucket.grantWrite(documentUploadHandler);
+    bucket.grantWrite(documentUploadHandler);
     props.notificationTopic.grantPublish(notificationHandler);
     notificationHandler.addToRolePolicy(new cdk.aws_iam.PolicyStatement({
       actions: ['ses:SendEmail', 'ses:SendRawEmail'],
@@ -177,11 +177,11 @@ export class ApiStack extends cdk.Stack {
       props.database.secret.grantRead(dbInitHandler);
     }
 
-    props.eventBus.grantPutEventsTo(researchHandler);
+    eventBus.grantPutEventsTo(researchHandler);
 
     adminHandler.addToRolePolicy(new cdk.aws_iam.PolicyStatement({
       actions: ['cognito-idp:ListUsers', 'cognito-idp:AdminUpdateUserAttributes', 'cognito-idp:AdminCreateUser'],
-      resources: [props.userPool.userPoolArn],
+      resources: [userPool.userPoolArn],
     }));
 
     // --- API ROUTES ---
@@ -224,7 +224,7 @@ export class ApiStack extends cdk.Stack {
     const uploadUrl = documents.addResource('upload-url');
     uploadUrl.addMethod('POST', new apigateway.LambdaIntegration(documentUploadHandler), authOptions);
 
-    props.table.grantReadWriteData(documentUploadHandler);
+    table.grantReadWriteData(documentUploadHandler);
 
     new cdk.CfnOutput(this, 'ApiUrl', { value: api.url });
   }
