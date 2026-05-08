@@ -20,10 +20,10 @@ const eventBusName = ssm.StringParameter.valueForStringParameter(foundation, '/p
 const userPoolId = ssm.StringParameter.valueForStringParameter(foundation, '/prajna/user-pool-id');
 
 new ApiStack(app, 'PrajnaApiStack', {
-  table: dynamodb.Table.fromTableName(foundation, 'ImportedTable', tableName) as any,
-  bucket: s3.Bucket.fromBucketName(foundation, 'ImportedBucket', bucketName),
-  eventBus: events.EventBus.fromEventBusName(foundation, 'ImportedBus', eventBusName),
-  userPool: cognito.UserPool.fromUserPoolId(foundation, 'ImportedPool', userPoolId) as any,
+  table: dynamodb.Table.fromTableName(app, 'ImportedTable', tableName) as any,
+  bucket: s3.Bucket.fromBucketName(app, 'ImportedBucket', bucketName),
+  eventBus: events.EventBus.fromEventBusName(app, 'ImportedBus', eventBusName),
+  userPool: cognito.UserPool.fromUserPoolId(app, 'ImportedPool', userPoolId) as any,
   auditTable: foundation.auditTable,
   attendanceTable: foundation.attendanceTable,
   notificationTopic: foundation.notificationTopic,
