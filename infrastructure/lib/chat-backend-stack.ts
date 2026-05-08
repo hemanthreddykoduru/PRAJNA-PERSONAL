@@ -18,7 +18,7 @@ export class PrajnaChatBackendStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
-    const chatHandler = new nodejs.NodejsFunction(this, 'ChatHistoryHandlerV3', {
+    const chatHandler = new nodejs.NodejsFunction(this, 'ChatHistoryHandlerFinal', {
       runtime: lambda.Runtime.NODEJS_20_X,
       entry: path.join(__dirname, '../../packages/functions/src/chat/handler.ts'),
       handler: 'handler',
