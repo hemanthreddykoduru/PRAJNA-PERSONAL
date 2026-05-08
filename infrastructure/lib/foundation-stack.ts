@@ -94,7 +94,11 @@ export class FoundationStack extends cdk.Stack {
     });
 
     this.userPoolClient = this.userPool.addClient('PrajnaAppClientFinal', {
-      authFlows: { adminNoSrp: true, custom: true, userPassword: true },
+      authFlows: {
+        userSrp: true,
+        custom: true,
+        userPassword: true,
+      },
     });
 
     // --- SSM PARAMETERS (Production Decoupling) ---
