@@ -28,7 +28,12 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Deploy to AWS
+      - name: Deploy to AWS (Sequential Order to resolve Exports)
         run: |
           cd infrastructure
+          # 1. Deploy API first to release old foundation exports
+          npx cdk deploy PrajnaApiStack PrajnaChatBackendStack --require-approval never
+          # 2. Update Foundation now that dependencies are released
+          npx cdk deploy PrajnaFoundationStack --require-approval never
+          # 3. Final sync
           npx cdk deploy --all --require-approval never
