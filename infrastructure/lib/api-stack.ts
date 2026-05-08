@@ -126,6 +126,7 @@ export class ApiStack extends cdk.Stack {
       handler: 'handler',
       environment: {
         USER_POOL_ID: userPool.userPoolId,
+        TABLE_NAME: table.tableName,
         AUDIT_TABLE_NAME: props.auditTable.tableName,
         DEPLOY_ID: Date.now().toString(),
       },
@@ -186,6 +187,7 @@ export class ApiStack extends cdk.Stack {
     table.grantReadWriteData(profileHandler);
     table.grantReadWriteData(researchHandler);
     table.grantReadWriteData(approvalsHandler);
+    table.grantReadWriteData(adminHandler);
     props.attendanceTable.grantReadWriteData(attendanceHandler);
     props.auditTable.grantReadWriteData(adminHandler);
     bucket.grantWrite(documentUploadHandler);

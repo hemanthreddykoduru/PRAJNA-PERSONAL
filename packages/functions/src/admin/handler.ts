@@ -5,30 +5,49 @@ import {
   AdminUpdateUserAttributesCommand,
   ListUsersCommand
 } from "@aws-sdk/client-cognito-identity-provider";
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBDocumentClient, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { logAction } from '../audit/logger';
 
 const cognito = new CognitoIdentityProviderClient({});
+const dbClient = new DynamoDBClient({});
+const docClient = DynamoDBDocumentClient.from(dbClient);
+
 const USER_POOL_ID = process.env.USER_POOL_ID!;
+const TABLE_NAME = process.env.TABLE_NAME!;
 
 export const handler: APIGatewayProxyHandler = async (event: any) => {
   console.log("Admin Event:", JSON.stringify(event));
   const adminId = event.requestContext?.authorizer?.claims?.sub || 'system-admin';
   const action = event.queryStringParameters?.action;
-  console.log("Action:", action, "UserPoolId:", USER_POOL_ID);
+  
+  const headers = { 
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token",
+    "Access-Control-Allow-Methods": "GET,POST,OPTIONS"
+  };
 
   try {
     switch (action) {
       case 'list':
-        const listData = await cognito.send(new ListUsersCommand({ UserPoolId: USER_POOL_ID }));
-        console.log("Users found in Cognito:", listData.Users?.length);
+        // Fetch all items from DynamoDB that are PROFILE records
+        // For production, this should be a scan or a specific GSI, but for our PK strategy:
+        // We'll perform a scan for PK starting with USER# and SK = PROFILE
+        const profiles = await docClient.send(new QueryCommand({
+          TableName: TABLE_NAME,
+          KeyConditionExpression: "begins_with(PK, :pkPrefix)",
+          ExpressionAttributeValues: {
+            ":pkPrefix": "USER#"
+          }
+        }));
+        
+        // Filter for PROFILE records specifically if needed, though SK is PROFILE
+        const users = profiles.Items?.filter(item => item.SK === 'PROFILE') || [];
+
         return {
           statusCode: 200,
-          headers: { 
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Headers": "Content-Type,Authorization",
-            "Access-Control-Allow-Methods": "GET,POST,OPTIONS"
-          },
-          body: JSON.stringify(listData.Users)
+          headers,
+          body: JSON.stringify(users)
         };
 
       case 'create':
@@ -51,42 +70,14 @@ export const handler: APIGatewayProxyHandler = async (event: any) => {
 
         return {
           statusCode: 201,
-          headers: { 
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Headers": "Content-Type,Authorization",
-            "Access-Control-Allow-Methods": "GET,POST,OPTIONS"
-          },
+          headers,
           body: JSON.stringify({ message: "User created successfully" })
-        };
-
-      case 'updateRole':
-        const { userId, newRole } = JSON.parse(event.body || '{}');
-        await cognito.send(new AdminUpdateUserAttributesCommand({
-          UserPoolId: USER_POOL_ID,
-          Username: userId,
-          UserAttributes: [{ Name: 'custom:role', Value: newRole }]
-        }));
-
-        await logAction(adminId, 'UPDATE_ROLE', { targetUser: userId, newRole }, event.requestContext.identity.sourceIp);
-
-        return {
-          statusCode: 200,
-          headers: { 
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Headers": "Content-Type,Authorization",
-            "Access-Control-Allow-Methods": "GET,POST,OPTIONS"
-          },
-          body: JSON.stringify({ message: "Role updated successfully" })
         };
 
       default:
         return {
           statusCode: 400,
-          headers: { 
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Headers": "Content-Type,Authorization",
-            "Access-Control-Allow-Methods": "GET,POST,OPTIONS"
-          },
+          headers,
           body: JSON.stringify({ message: "Invalid action" })
         };
     }
@@ -94,11 +85,7 @@ export const handler: APIGatewayProxyHandler = async (event: any) => {
     console.error("Admin error:", error);
     return {
       statusCode: 500,
-      headers: { 
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Headers": "Content-Type,Authorization",
-        "Access-Control-Allow-Methods": "GET,POST,OPTIONS"
-      },
+      headers,
       body: JSON.stringify({ message: error.message })
     };
   }
