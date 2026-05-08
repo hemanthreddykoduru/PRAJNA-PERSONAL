@@ -98,10 +98,6 @@ export class FoundationStack extends cdk.Stack {
       parameterName: '/prajna/table-name',
       stringValue: this.table.tableName,
     });
-    new ssm.StringParameter(this, 'PrajnaBucketNameParam', {
-      parameterName: '/prajna/bucket-name',
-      stringValue: this.bucket.bucketName,
-    });
     new ssm.StringParameter(this, 'PrajnaEventBusNameParam', {
       parameterName: '/prajna/event-bus-name',
       stringValue: this.eventBus.eventBusName,
