@@ -9,6 +9,8 @@ import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as events from 'aws-cdk-lib/aws-events';
 import * as targets from 'aws-cdk-lib/aws-events-targets';
 import * as sns from 'aws-cdk-lib/aws-sns';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as rds from 'aws-cdk-lib/aws-rds';
 import * as path from 'path';
 
 interface ApiStackProps extends cdk.StackProps {
@@ -19,8 +21,8 @@ interface ApiStackProps extends cdk.StackProps {
   auditTable: dynamodb.Table;
   attendanceTable: dynamodb.Table;
   notificationTopic: sns.Topic;
-  vpc: ec2.IVpc;
-  database: rds.IDatabaseInstance;
+  vpc: any;
+  database: any;
 }
 
 export class ApiStack extends cdk.Stack {
@@ -28,23 +30,25 @@ export class ApiStack extends cdk.Stack {
     super(scope, id, props);
 
     // 1. API Gateway
-    const api = new apigateway.RestApi(this, 'PrajnaApi', {
+    const api = new apigateway.RestApi(this, 'PrajnaApiResource', {
       restApiName: 'PRAJNA Main API',
     });
 
     // 2. Authorizer
-    const authorizer = new apigateway.CognitoUserPoolsAuthorizer(this, 'PrajnaAuthorizer', {
+    const authorizer = new apigateway.CognitoUserPoolsAuthorizer(this, 'PrajnaAuthorizerResource', {
       cognitoUserPools: [props.userPool],
     });
 
     const authOptions = { authorizer };
 
-    // --- LAMBDA HANDLERS ---
-
+    // --- LAMBDA CONFIG ---
     const lambdaConfig = {
       runtime: lam.Runtime.NODEJS_20_X,
       architecture: lam.Architecture.ARM_64,
       tracing: lam.Tracing.ACTIVE,
+      // Smart resolution for monorepo bundling
+      projectRoot: path.resolve(__dirname, '../../'),
+      depsLockFilePath: path.resolve(__dirname, '../../package-lock.json'),
     };
 
     // 3. Profile Handler
@@ -166,115 +170,63 @@ export class ApiStack extends cdk.Stack {
     props.notificationTopic.grantPublish(notificationHandler);
     notificationHandler.addToRolePolicy(new cdk.aws_iam.PolicyStatement({
       actions: ['ses:SendEmail', 'ses:SendRawEmail'],
-      resources: ['*'], // Tighten to specific identity ARN in prod
+      resources: ['*'],
     }));
 
-    // RDS Permissions
     props.database.connections.allowFrom(dbInitHandler, ec2.Port.tcp(5432));
     if (props.database.secret) {
       props.database.secret.grantRead(dbInitHandler);
     }
 
-    // Keep EventBus export reference to prevent rollback errors
     props.eventBus.grantPutEventsTo(researchHandler);
 
-    // Cognito permissions for Admin
     adminHandler.addToRolePolicy(new cdk.aws_iam.PolicyStatement({
       actions: ['cognito-idp:ListUsers', 'cognito-idp:AdminUpdateUserAttributes', 'cognito-idp:AdminCreateUser'],
       resources: [props.userPool.userPoolArn],
     }));
 
     // --- API ROUTES ---
-
-    // /faculty
     const faculty = api.root.addResource('faculty');
     const profile = faculty.addResource('profile');
     profile.addMethod('GET', new apigateway.LambdaIntegration(profileHandler), authOptions);
     profile.addMethod('PUT', new apigateway.LambdaIntegration(profileHandler), authOptions);
 
-    // /research
     const research = api.root.addResource('research');
     research.addCorsPreflight({
       allowOrigins: apigateway.Cors.ALL_ORIGINS,
       allowMethods: apigateway.Cors.ALL_METHODS,
-      allowHeaders: ['Content-Type', 'X-Amz-Date', 'Authorization', 'X-Api-Key', 'X-Amz-Security-Token'],
     });
     research.addMethod('GET', new apigateway.LambdaIntegration(researchHandler), authOptions);
     research.addMethod('POST', new apigateway.LambdaIntegration(researchHandler), authOptions);
     
     const lookup = research.addResource('lookup');
-    lookup.addCorsPreflight({
-      allowOrigins: apigateway.Cors.ALL_ORIGINS,
-      allowMethods: apigateway.Cors.ALL_METHODS,
-    });
-    lookup.addMethod('GET', new apigateway.LambdaIntegration(researchLookupHandler)); // Public DOI Lookup
+    lookup.addMethod('GET', new apigateway.LambdaIntegration(researchLookupHandler));
 
-    // /attendance
     const attendance = api.root.addResource('attendance');
-    attendance.addCorsPreflight({
-      allowOrigins: apigateway.Cors.ALL_ORIGINS,
-      allowMethods: apigateway.Cors.ALL_METHODS,
-      allowHeaders: ['Content-Type', 'X-Amz-Date', 'Authorization', 'X-Api-Key', 'X-Amz-Security-Token'],
-    });
     attendance.addMethod('GET', new apigateway.LambdaIntegration(attendanceHandler), authOptions);
     attendance.addMethod('POST', new apigateway.LambdaIntegration(attendanceHandler), authOptions);
 
-    // /approvals
     const approvals = api.root.addResource('approvals');
-    approvals.addCorsPreflight({
-      allowOrigins: apigateway.Cors.ALL_ORIGINS,
-      allowMethods: apigateway.Cors.ALL_METHODS,
-      allowHeaders: ['Content-Type', 'X-Amz-Date', 'Authorization', 'X-Api-Key', 'X-Amz-Security-Token'],
-    });
     approvals.addMethod('GET', new apigateway.LambdaIntegration(approvalsHandler), authOptions);
     
     const approvalId = approvals.addResource('{id}');
     const approvalAction = approvalId.addResource('action');
-    approvalAction.addCorsPreflight({
-      allowOrigins: apigateway.Cors.ALL_ORIGINS,
-      allowMethods: apigateway.Cors.ALL_METHODS,
-      allowHeaders: ['Content-Type', 'X-Amz-Date', 'Authorization', 'X-Api-Key', 'X-Amz-Security-Token'],
-    });
     approvalAction.addMethod('POST', new apigateway.LambdaIntegration(approvalsHandler), authOptions);
 
-    // /admin
     const admin = api.root.addResource('admin');
-    admin.addCorsPreflight({
-      allowOrigins: apigateway.Cors.ALL_ORIGINS,
-      allowMethods: apigateway.Cors.ALL_METHODS,
-      allowHeaders: ['Content-Type', 'X-Amz-Date', 'Authorization', 'X-Api-Key', 'X-Amz-Security-Token'],
-    });
     admin.addMethod('POST', new apigateway.LambdaIntegration(adminHandler), authOptions);
     
     const dbInit = admin.addResource('db-init');
-    dbInit.addCorsPreflight({
-      allowOrigins: apigateway.Cors.ALL_ORIGINS,
-      allowMethods: apigateway.Cors.ALL_METHODS,
-      allowHeaders: ['Content-Type', 'X-Amz-Date', 'Authorization', 'X-Api-Key', 'X-Amz-Security-Token'],
-    });
     dbInit.addMethod('POST', new apigateway.LambdaIntegration(dbInitHandler), authOptions);
 
-    // /documents
     const documents = api.root.addResource('documents');
-    documents.addCorsPreflight({
-      allowOrigins: apigateway.Cors.ALL_ORIGINS,
-      allowMethods: apigateway.Cors.ALL_METHODS,
-      allowHeaders: ['Content-Type', 'X-Amz-Date', 'Authorization', 'X-Api-Key', 'X-Amz-Security-Token'],
-    });
     documents.addMethod('GET', new apigateway.LambdaIntegration(documentUploadHandler), authOptions);
 
     const uploadUrl = documents.addResource('upload-url');
-    uploadUrl.addCorsPreflight({
-      allowOrigins: apigateway.Cors.ALL_ORIGINS,
-      allowMethods: apigateway.Cors.ALL_METHODS,
-      allowHeaders: ['Content-Type', 'X-Amz-Date', 'Authorization', 'X-Api-Key', 'X-Amz-Security-Token'],
-    });
     uploadUrl.addMethod('POST', new apigateway.LambdaIntegration(documentUploadHandler), authOptions);
 
-    // Permissions
     props.table.grantReadWriteData(documentUploadHandler);
 
-    // Outputs
     new cdk.CfnOutput(this, 'ApiUrl', { value: api.url });
   }
 }
