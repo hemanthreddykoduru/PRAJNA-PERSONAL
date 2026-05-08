@@ -4,13 +4,14 @@ import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as ssm from 'aws-cdk-lib/aws-ssm';
+import * as iam from 'aws-cdk-lib/aws-iam';
 
 export class WebsiteStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
     // 1. Static Website Bucket
-    const websiteBucket = new s3.Bucket(this, 'PrajnaWebsiteBucketFinal', {
+    const websiteBucket = new s3.Bucket(this, 'PrajnaWebsiteBucketFinalV2', {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
@@ -19,9 +20,9 @@ export class WebsiteStack extends cdk.Stack {
     });
 
     // 2. Origin Access Control (OAC)
-    const oac = new cloudfront.CfnOriginAccessControl(this, 'PrajnaWebsiteOACFinal', {
+    const oac = new cloudfront.CfnOriginAccessControl(this, 'PrajnaWebsiteOACFinalV2', {
       originAccessControlConfig: {
-        name: 'Prajna Website OAC Final',
+        name: 'Prajna Website OAC Final V2',
         originAccessControlOriginType: 's3',
         signingBehavior: 'always',
         signingProtocol: 'sigv4',
@@ -29,18 +30,18 @@ export class WebsiteStack extends cdk.Stack {
     });
 
     // 3. CloudFront Distribution
-    const distribution = new cloudfront.Distribution(this, 'PrajnaWebsiteDistributionFinal', {
+    const distribution = new cloudfront.Distribution(this, 'PrajnaWebsiteDistributionFinalV2', {
       defaultBehavior: {
         origin: new origins.S3Origin(websiteBucket),
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
       },
-      defaultRootObject: 'index.html', // <--- THE CRITICAL FIX
+      defaultRootObject: 'index.html',
       errorResponses: [
         {
           httpStatus: 403,
           responseHttpStatus: 200,
-          responsePagePath: '/index.html', // For SPA routing
+          responsePagePath: '/index.html',
           ttl: cdk.Duration.minutes(1),
         },
         {
@@ -52,16 +53,18 @@ export class WebsiteStack extends cdk.Stack {
       ],
     });
 
-    // 4. Overwrite L2 OAI with L1 OAC (CDK L2 doesn't support OAC yet)
+    // 4. Overwrite L2 OAI with L1 OAC
     const cfnDist = distribution.node.defaultChild as cloudfront.CfnDistribution;
     cfnDist.addPropertyOverride('DistributionConfig.Origins.0.S3OriginConfig.OriginAccessIdentity', '');
     cfnDist.addPropertyOverride('DistributionConfig.Origins.0.OriginAccessControlId', oac.attrId);
 
-    // 5. Bucket Policy for OAC
-    websiteBucket.addToResourcePolicy(new cdk.aws_iam.PolicyStatement({
+    // 5. THE CRITICAL FIX: EXPLICIT BUCKET POLICY
+    websiteBucket.addToResourcePolicy(new iam.PolicyStatement({
+      sid: 'AllowCloudFrontServicePrincipal',
+      effect: iam.Effect.ALLOW,
+      principals: [new iam.ServicePrincipal('cloudfront.amazonaws.com')],
       actions: ['s3:GetObject'],
       resources: [websiteBucket.arnForObjects('*')],
-      principals: [new cdk.aws_iam.ServicePrincipal('cloudfront.amazonaws.com')],
       conditions: {
         StringEquals: {
           'AWS:SourceArn': `arn:aws:cloudfront::${this.account}:distribution/${distribution.distributionId}`,
@@ -69,8 +72,8 @@ export class WebsiteStack extends cdk.Stack {
       },
     }));
 
-    // 6. SSM Parameter for the Bucket Name (for CI/CD)
-    new ssm.StringParameter(this, 'PrajnaBucketNameParam', {
+    // 6. SSM Parameter for the Bucket Name
+    new ssm.StringParameter(this, 'PrajnaBucketNameParamV2', {
       parameterName: '/prajna/bucket-name',
       stringValue: websiteBucket.bucketName,
     });
