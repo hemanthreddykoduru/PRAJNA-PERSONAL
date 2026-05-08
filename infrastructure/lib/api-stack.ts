@@ -173,7 +173,6 @@ export class ApiStack extends cdk.Stack {
       resources: ['*'],
     }));
 
-    props.database.connections.allowFrom(dbInitHandler, ec2.Port.tcp(5432));
     if (props.database.secret) {
       props.database.secret.grantRead(dbInitHandler);
     }

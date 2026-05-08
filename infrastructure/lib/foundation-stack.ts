@@ -87,6 +87,9 @@ export class FoundationStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
+    // Explicitly allow VPC internal access to RDS to break stack cycles
+    this.database.connections.allowFrom(ec2.Peer.ipv4(this.vpc.vpcCidrBlock), ec2.Port.tcp(5432));
+
     // 5. Auth
     this.userPool = new cognito.UserPool(this, 'PrajnaAuthPool', {
       userPoolName: 'prajna-users',
