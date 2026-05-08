@@ -45,27 +45,28 @@ jobs:
           USER_POOL_CLIENT_ID=$(aws ssm get-parameter --name "/prajna/user-pool-client-id" --query "Parameter.Value" --output text)
           API_URL=$(aws cloudformation describe-stacks --stack-name PrajnaApiStack --query "Stacks[0].Outputs[?OutputKey=='ApiUrl'].OutputValue" --output text)
           
-          # 2. Build Frontend with Dynamic Environment Variables
+          # 2. Build Frontend
           cd packages/frontend
           rm -rf node_modules
           npm install --platform=linux --arch=x64
           
-          # Inject variables into .env before build
+          # Inject variables
           echo "VITE_API_URL=$API_URL" > .env
           echo "VITE_COGNITO_USER_POOL_ID=$USER_POOL_ID" >> .env
           echo "VITE_COGNITO_CLIENT_ID=$USER_POOL_CLIENT_ID" >> .env
           echo "VITE_AWS_REGION=us-east-1" >> .env
           
+          # FORCE BUILD
           npm run build
           
-          # 3. Upload to S3
+          # 3. Upload to S3 (FORCE OVERWRITE)
           if [ -d "dist" ]; then
-            aws s3 sync dist/ s3://$BUCKET_NAME --delete
+            aws s3 sync dist/ s3://$BUCKET_NAME --delete --cache-control "no-cache, no-store, must-revalidate"
           else
             echo "Build failed to produce dist folder!"
             exit 1
           fi
           
-          # 4. Invalidate CloudFront
+          # 4. Invalidate CloudFront (FORCE ALL)
           DIST_ID=$(aws cloudfront list-distributions --query "DistributionList.Items[0].Id" --output text)
           aws cloudfront create-invalidation --distribution-id $DIST_ID --paths "/*"
