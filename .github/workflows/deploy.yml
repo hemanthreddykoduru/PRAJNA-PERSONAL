@@ -26,9 +26,13 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Deploy Infrastructure
+      - name: Full Clean Install and Deploy Infrastructure
         run: |
+          # Clean slate to fix native binary mismatches
+          rm -f package-lock.json
+          rm -rf node_modules
           npm install
+          
           cd infrastructure
           npx cdk deploy PrajnaFoundationStack --require-approval never
           npx cdk deploy --all --require-approval never
@@ -38,17 +42,18 @@ jobs:
           # 1. Get the Bucket Name from SSM
           BUCKET_NAME=$(aws ssm get-parameter --name "/prajna/table-name" --query "Parameter.Value" --output text | cut -d'-' -f1 | xargs -I {} aws ssm get-parameter --name "/prajna/bucket-name" --query "Parameter.Value" --output text)
           
-          # 2. Build Frontend (Force Linux Binaries)
+          # 2. Build Frontend
           cd packages/frontend
-          # Use --os=linux to ensure rolldown/vite binaries are correct for the runner
+          # Use npm ci if possible, or fresh install to ensure linux binaries
+          rm -rf node_modules
           npm install --platform=linux --arch=x64
-          npm run build || true
+          npm run build
           
           # 3. Upload to S3
           if [ -d "dist" ]; then
             aws s3 sync dist/ s3://$BUCKET_NAME --delete
           else
-            echo "Build failed to produce dist folder, check logs!"
+            echo "Build failed to produce dist folder!"
             exit 1
           fi
           
