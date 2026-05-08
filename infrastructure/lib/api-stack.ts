@@ -53,6 +53,22 @@ export class ApiStack extends cdk.Stack {
       cognitoUserPools: [userPool],
     });
 
+    api.addGatewayResponse('Default4xxCORS', {
+      type: apigateway.ResponseType.DEFAULT_4XX,
+      responseHeaders: {
+        'gatewayresponse.header.Access-Control-Allow-Origin': "'*'",
+        'gatewayresponse.header.Access-Control-Allow-Headers': "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+        'gatewayresponse.header.Access-Control-Allow-Methods': "'GET,POST,OPTIONS'",
+      },
+    });
+
+    api.addGatewayResponse('Default5xxCORS', {
+      type: apigateway.ResponseType.DEFAULT_5XX,
+      responseHeaders: {
+        'gatewayresponse.header.Access-Control-Allow-Origin': "'*'",
+      },
+    });
+
     const authOptions = { authorizer };
 
     // --- LAMBDA CONFIG ---
