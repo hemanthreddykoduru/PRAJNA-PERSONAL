@@ -17,7 +17,7 @@ jobs:
           node-version: '20'
 
       - name: Install Global CLI
-        run: npm install -g aws-cdk ts-node typescript
+        run: npm install -g aws-cdk ts-node typescript @types/node
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -31,6 +31,8 @@ jobs:
           # Clean slate to fix native binary mismatches
           rm -f package-lock.json
           rm -rf node_modules
+          # Ensure @types/node is present for ts-node
+          npm install @types/node
           npm install
           
           cd infrastructure
@@ -44,7 +46,6 @@ jobs:
           
           # 2. Build Frontend
           cd packages/frontend
-          # Use npm ci if possible, or fresh install to ensure linux binaries
           rm -rf node_modules
           npm install --platform=linux --arch=x64
           npm run build
