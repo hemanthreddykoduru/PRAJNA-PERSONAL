@@ -43,7 +43,10 @@ jobs:
           BUCKET_NAME=$(aws ssm get-parameter --name "/prajna/v3/bucket-name" --query "Parameter.Value" --output text)
           USER_POOL_ID=$(aws ssm get-parameter --name "/prajna/user-pool-id" --query "Parameter.Value" --output text)
           USER_POOL_CLIENT_ID=$(aws ssm get-parameter --name "/prajna/user-pool-client-id" --query "Parameter.Value" --output text)
-          API_URL=$(aws cloudformation describe-stacks --stack-name PrajnaApiStack --query "Stacks[0].Outputs[?OutputKey=='ApiUrl'].OutputValue" --output text)
+          RAW_API_URL=$(aws cloudformation describe-stacks --stack-name PrajnaApiStack --query "Stacks[0].Outputs[?OutputKey=='ApiUrl'].OutputValue" --output text)
+          
+          # STRIP TRAILING SLASH from API URL to prevent double-slashing (e.g., prod//admin)
+          API_URL=$(echo $RAW_API_URL | sed 's/\/$//')
           
           # 2. Build Frontend
           cd packages/frontend
@@ -56,10 +59,9 @@ jobs:
           echo "VITE_COGNITO_CLIENT_ID=$USER_POOL_CLIENT_ID" >> .env
           echo "VITE_AWS_REGION=us-east-1" >> .env
           
-          # FORCE BUILD
           npm run build
           
-          # 3. Upload to S3 (FORCE OVERWRITE)
+          # 3. Upload to S3
           if [ -d "dist" ]; then
             aws s3 sync dist/ s3://$BUCKET_NAME --delete --cache-control "no-cache, no-store, must-revalidate"
           else
@@ -67,6 +69,6 @@ jobs:
             exit 1
           fi
           
-          # 4. Invalidate CloudFront (FORCE ALL)
+          # 4. Invalidate CloudFront
           DIST_ID=$(aws cloudfront list-distributions --query "DistributionList.Items[0].Id" --output text)
           aws cloudfront create-invalidation --distribution-id $DIST_ID --paths "/*"

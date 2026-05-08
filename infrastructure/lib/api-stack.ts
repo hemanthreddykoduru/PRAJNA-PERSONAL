@@ -41,6 +41,11 @@ export class ApiStack extends cdk.Stack {
     // 1. API Gateway
     const api = new apigateway.RestApi(this, 'PrajnaApiResource', {
       restApiName: 'PRAJNA Main API',
+      defaultCorsPreflightOptions: {
+        allowOrigins: apigateway.Cors.ALL_ORIGINS,
+        allowMethods: apigateway.Cors.ALL_METHODS,
+        allowHeaders: ['*'],
+      },
     });
 
     // 2. Authorizer
@@ -191,10 +196,6 @@ export class ApiStack extends cdk.Stack {
     profile.addMethod('PUT', new apigateway.LambdaIntegration(profileHandler), authOptions);
 
     const research = api.root.addResource('research');
-    research.addCorsPreflight({
-      allowOrigins: apigateway.Cors.ALL_ORIGINS,
-      allowMethods: apigateway.Cors.ALL_METHODS,
-    });
     research.addMethod('GET', new apigateway.LambdaIntegration(researchHandler), authOptions);
     research.addMethod('POST', new apigateway.LambdaIntegration(researchHandler), authOptions);
     
