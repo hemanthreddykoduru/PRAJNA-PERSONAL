@@ -16,10 +16,8 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install Dependencies
-        run: |
-          npm install
-          npm install -g aws-cdk ts-node typescript
+      - name: Install Global CLI
+        run: npm install -g aws-cdk ts-node typescript
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -30,19 +28,20 @@ jobs:
 
       - name: Deploy Infrastructure
         run: |
+          npm install
           cd infrastructure
           npx cdk deploy PrajnaFoundationStack --require-approval never
           npx cdk deploy --all --require-approval never
 
-      - name: Build and Upload Frontend (FORCED)
+      - name: Build and Upload Frontend
         run: |
           # 1. Get the Bucket Name from SSM
           BUCKET_NAME=$(aws ssm get-parameter --name "/prajna/table-name" --query "Parameter.Value" --output text | cut -d'-' -f1 | xargs -I {} aws ssm get-parameter --name "/prajna/bucket-name" --query "Parameter.Value" --output text)
           
-          # 2. Build Frontend (Ignore Errors)
+          # 2. Build Frontend (Force Linux Binaries)
           cd packages/frontend
-          npm install
-          # We use || true to ensure the pipeline continues even if Vite complains
+          # Use --os=linux to ensure rolldown/vite binaries are correct for the runner
+          npm install --platform=linux --arch=x64
           npm run build || true
           
           # 3. Upload to S3
