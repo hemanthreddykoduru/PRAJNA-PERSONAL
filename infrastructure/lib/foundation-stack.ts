@@ -23,8 +23,8 @@ export class FoundationStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // 1. Core Data
-    this.table = new dynamodb.Table(this, 'PrajnaPrimaryTable', {
+    // 1. Core Data - Unique IDs
+    this.table = new dynamodb.Table(this, 'PrajnaPrimaryTableV5', {
       partitionKey: { name: 'PK', type: dynamodb.AttributeType.STRING },
       sortKey: { name: 'SK', type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
@@ -32,63 +32,57 @@ export class FoundationStack extends cdk.Stack {
       stream: dynamodb.StreamViewType.NEW_AND_OLD_IMAGES,
     });
 
-    this.auditTable = new dynamodb.Table(this, 'PrajnaAuditStore', {
+    this.auditTable = new dynamodb.Table(this, 'PrajnaAuditStoreV5', {
       partitionKey: { name: 'userId', type: dynamodb.AttributeType.STRING },
       sortKey: { name: 'timestamp', type: dynamodb.AttributeType.NUMBER },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
-    this.attendanceTable = new dynamodb.Table(this, 'PrajnaAttendanceStore', {
+    this.attendanceTable = new dynamodb.Table(this, 'PrajnaAttendanceStoreV5', {
       partitionKey: { name: 'facultyId', type: dynamodb.AttributeType.STRING },
       sortKey: { name: 'date', type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
-    // 2. Storage - Import existing if collision occurs
-    this.bucket = new s3.Bucket(this, 'PrajnaStorageVaultV4', {
+    // 2. Storage - UNIQUE ID + AUTO-DELETE
+    this.bucket = new s3.Bucket(this, 'PrajnaVaultFinal', {
       versioned: true,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
     });
 
-    // 3. Event-Driven - Use existing EventBus to avoid collisions
-    this.eventBus = events.EventBus.fromEventBusName(this, 'ExistingPrajnaBus', 'PrajnaBus');
-
-    this.notificationTopic = new sns.Topic(this, 'PrajnaSnsTopic', {
-      topicName: 'PrajnaSystemNotifications',
+    // 3. Event-Driven - UNIQUE ID
+    this.eventBus = new events.EventBus(this, 'PrajnaMessagingBusFinal', {
+      eventBusName: 'PrajnaBusFinal',
     });
 
-    // 4. SES - Identity already exists, so we just reference it or skip creation
-    // In dev, we assume hemanth.reddyk@yahoo.com is already verified manually.
+    this.notificationTopic = new sns.Topic(this, 'PrajnaSnsTopicFinal', {
+      topicName: 'PrajnaNotificationsFinal',
+    });
 
-    // 5. Analytics Layer (RDS)
-    this.vpc = new ec2.Vpc(this, 'PrajnaNetworkVpc', {
+    // 4. Analytics Layer (RDS) - UNIQUE ID
+    this.vpc = new ec2.Vpc(this, 'PrajnaNetworkVpcFinal', {
       maxAzs: 2,
       natGateways: 0,
-      subnetConfiguration: [
-        { name: 'Public', subnetType: ec2.SubnetType.PUBLIC },
-        { name: 'Isolated', subnetType: ec2.SubnetType.PRIVATE_ISOLATED }
-      ],
     });
 
-    this.database = new rds.DatabaseInstance(this, 'PrajnaAnalyticsRds', {
+    this.database = new rds.DatabaseInstance(this, 'PrajnaAnalyticsRdsFinal', {
       engine: rds.DatabaseInstanceEngine.postgres({
         version: rds.PostgresEngineVersion.VER_15,
       }),
       instanceType: ec2.InstanceType.of(ec2.InstanceClass.T4G, ec2.InstanceSize.MICRO),
       vpc: this.vpc,
-      vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
       databaseName: 'prajna_analytics',
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
     this.database.connections.allowFrom(ec2.Peer.ipv4(this.vpc.vpcCidrBlock), ec2.Port.tcp(5432));
 
-    // 6. Auth
-    this.userPool = new cognito.UserPool(this, 'PrajnaAuthPool', {
-      userPoolName: 'prajna-users',
+    // 5. Auth - UNIQUE ID
+    this.userPool = new cognito.UserPool(this, 'PrajnaAuthPoolFinal', {
+      userPoolName: 'prajna-users-final',
       selfSignUpEnabled: false,
       signInAliases: { email: true },
       autoVerify: { email: true },
