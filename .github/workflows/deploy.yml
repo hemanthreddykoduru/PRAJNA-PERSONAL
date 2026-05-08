@@ -39,8 +39,8 @@ jobs:
 
       - name: Build and Upload Frontend
         run: |
-          # 1. Bucket Name
-          BUCKET_NAME="prajnafoundationstack-prajnavaultfinalcefa9764-l4j6zazkqjnz"
+          # 1. Get the Bucket Name from the NEW V3 SSM Parameter
+          BUCKET_NAME=$(aws ssm get-parameter --name "/prajna/v3/bucket-name" --query "Parameter.Value" --output text)
           
           # 2. Build Frontend
           cd packages/frontend

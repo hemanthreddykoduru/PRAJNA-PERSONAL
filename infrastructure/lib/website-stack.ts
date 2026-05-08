@@ -11,7 +11,7 @@ export class WebsiteStack extends cdk.Stack {
     super(scope, id, props);
 
     // 1. Static Website Bucket
-    const websiteBucket = new s3.Bucket(this, 'PrajnaWebsiteBucketFinalV2', {
+    const websiteBucket = new s3.Bucket(this, 'PrajnaWebsiteBucketFinalV3', {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
@@ -20,9 +20,9 @@ export class WebsiteStack extends cdk.Stack {
     });
 
     // 2. Origin Access Control (OAC)
-    const oac = new cloudfront.CfnOriginAccessControl(this, 'PrajnaWebsiteOACFinalV2', {
+    const oac = new cloudfront.CfnOriginAccessControl(this, 'PrajnaWebsiteOACFinalV3', {
       originAccessControlConfig: {
-        name: 'Prajna Website OAC Final V2',
+        name: 'Prajna Website OAC Final V3',
         originAccessControlOriginType: 's3',
         signingBehavior: 'always',
         signingProtocol: 'sigv4',
@@ -30,7 +30,7 @@ export class WebsiteStack extends cdk.Stack {
     });
 
     // 3. CloudFront Distribution
-    const distribution = new cloudfront.Distribution(this, 'PrajnaWebsiteDistributionFinalV2', {
+    const distribution = new cloudfront.Distribution(this, 'PrajnaWebsiteDistributionFinalV3', {
       defaultBehavior: {
         origin: new origins.S3Origin(websiteBucket),
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
@@ -58,7 +58,7 @@ export class WebsiteStack extends cdk.Stack {
     cfnDist.addPropertyOverride('DistributionConfig.Origins.0.S3OriginConfig.OriginAccessIdentity', '');
     cfnDist.addPropertyOverride('DistributionConfig.Origins.0.OriginAccessControlId', oac.attrId);
 
-    // 5. THE CRITICAL FIX: EXPLICIT BUCKET POLICY
+    // 5. Bucket Policy for OAC
     websiteBucket.addToResourcePolicy(new iam.PolicyStatement({
       sid: 'AllowCloudFrontServicePrincipal',
       effect: iam.Effect.ALLOW,
@@ -72,9 +72,9 @@ export class WebsiteStack extends cdk.Stack {
       },
     }));
 
-    // 6. SSM Parameter for the Bucket Name
-    new ssm.StringParameter(this, 'PrajnaBucketNameParamV2', {
-      parameterName: '/prajna/bucket-name',
+    // 6. VERSIONED SSM PARAMETER (Avoids naming conflict with orphans)
+    new ssm.StringParameter(this, 'PrajnaBucketNameParamV3', {
+      parameterName: '/prajna/v3/bucket-name',
       stringValue: websiteBucket.bucketName,
     });
 
