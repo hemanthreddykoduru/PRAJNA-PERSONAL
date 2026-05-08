@@ -28,7 +28,7 @@ export class ApiStack extends cdk.Stack {
 
     // --- SSM LOOKUPS (Self-Contained) ---
     const tableName = ssm.StringParameter.valueForStringParameter(this, '/prajna/table-name');
-    const bucketName = ssm.StringParameter.valueForStringParameter(this, '/prajna/bucket-name');
+    const bucketName = ssm.StringParameter.valueForStringParameter(this, '/prajna/v3/bucket-name');
     const eventBusName = ssm.StringParameter.valueForStringParameter(this, '/prajna/event-bus-name');
     const userPoolId = ssm.StringParameter.valueForStringParameter(this, '/prajna/user-pool-id');
 
