@@ -90,6 +90,11 @@ export class FoundationStack extends cdk.Stack {
       selfSignUpEnabled: false,
       signInAliases: { email: true },
       autoVerify: { email: true },
+      userVerification: {
+        emailSubject: 'Verify your PRAJNA Identity | GITAM University',
+        emailBody: 'Hello Faculty Member,\n\nWelcome to PRAJNA. Your verification code is {####}. Please enter this code in the portal to securely reset your password or verify your new account.\n\nDeep Intelligence for GITAM Faculty.\n- Team PRAJNA',
+        emailStyle: cognito.VerificationEmailStyle.CODE,
+      },
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
