@@ -56,13 +56,13 @@ const AdminManagement: React.FC = () => {
       
       if (Array.isArray(data)) {
         const mappedFaculty = data.map((u: any) => ({
-          id: u.Username,
-          name: u.Attributes?.find((a: any) => a.Name === 'name')?.Value || u.Username,
-          email: u.Attributes?.find((a: any) => a.Name === 'email')?.Value || '',
-          role: u.Attributes?.find((a: any) => a.Name === 'custom:role')?.Value || 'Faculty',
-          department: u.Attributes?.find((a: any) => a.Name === 'custom:department')?.Value || 'CSE',
-          campus: u.Attributes?.find((a: any) => a.Name === 'custom:campus')?.Value || 'Bengaluru',
-          status: (u.Enabled ? 'active' : 'inactive') as 'active' | 'pending' | 'inactive'
+          id: u.PK || u.email,
+          name: u.name || 'Unknown',
+          email: u.email || '',
+          role: u.role || 'Faculty',
+          department: u.department || 'CSE',
+          campus: u.campus || 'Bengaluru',
+          status: (u.status || 'active').toLowerCase() as 'active' | 'pending' | 'inactive'
         }));
         setFaculty(mappedFaculty);
       }
