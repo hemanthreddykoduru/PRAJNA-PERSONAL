@@ -5,10 +5,13 @@ import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as ssm from 'aws-cdk-lib/aws-ssm';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as acm from 'aws-cdk-lib/aws-certificatemanager';
 
 export class WebsiteStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
+
+    const domainName = 'hemanthreddykoduru.dev';
 
     // 1. Static Website Bucket
     const websiteBucket = new s3.Bucket(this, 'PrajnaWebsiteBucketFinalV3', {
@@ -19,7 +22,13 @@ export class WebsiteStack extends cdk.Stack {
       enforceSSL: true,
     });
 
-    // 2. Origin Access Control (OAC)
+    // 2. Request SSL Certificate (Must be in us-east-1 for CloudFront)
+    const certificate = new acm.Certificate(this, 'PrajnaCertificate', {
+      domainName: domainName,
+      validation: acm.CertificateValidation.fromDns(), // Verification via DNS
+    });
+
+    // 3. Origin Access Control (OAC)
     const oac = new cloudfront.CfnOriginAccessControl(this, 'PrajnaWebsiteOACFinalV3', {
       originAccessControlConfig: {
         name: 'Prajna Website OAC Final V3',
@@ -29,8 +38,10 @@ export class WebsiteStack extends cdk.Stack {
       },
     });
 
-    // 3. CloudFront Distribution
+    // 4. CloudFront Distribution
     const distribution = new cloudfront.Distribution(this, 'PrajnaWebsiteDistributionFinalV3', {
+      domainNames: [domainName],
+      certificate: certificate,
       defaultBehavior: {
         origin: new origins.S3Origin(websiteBucket),
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
@@ -53,12 +64,12 @@ export class WebsiteStack extends cdk.Stack {
       ],
     });
 
-    // 4. Overwrite L2 OAI with L1 OAC
+    // 5. Overwrite L2 OAI with L1 OAC
     const cfnDist = distribution.node.defaultChild as cloudfront.CfnDistribution;
     cfnDist.addPropertyOverride('DistributionConfig.Origins.0.S3OriginConfig.OriginAccessIdentity', '');
     cfnDist.addPropertyOverride('DistributionConfig.Origins.0.OriginAccessControlId', oac.attrId);
 
-    // 5. Bucket Policy for OAC
+    // 6. Bucket Policy for OAC
     websiteBucket.addToResourcePolicy(new iam.PolicyStatement({
       sid: 'AllowCloudFrontServicePrincipal',
       effect: iam.Effect.ALLOW,
@@ -72,12 +83,14 @@ export class WebsiteStack extends cdk.Stack {
       },
     }));
 
-    // 6. VERSIONED SSM PARAMETER (Avoids naming conflict with orphans)
+    // 7. SSM PARAMETERS
     new ssm.StringParameter(this, 'PrajnaBucketNameParamV3', {
       parameterName: '/prajna/v3/bucket-name',
       stringValue: websiteBucket.bucketName,
     });
 
-    new cdk.CfnOutput(this, 'WebsiteURL', { value: distribution.distributionDomainName });
+    new cdk.CfnOutput(this, 'WebsiteURL', { value: domainName });
+    new cdk.CfnOutput(this, 'CloudFrontDomain', { value: distribution.distributionDomainName });
+    new cdk.CfnOutput(this, 'CertificateArn', { value: certificate.certificateArn });
   }
 }
