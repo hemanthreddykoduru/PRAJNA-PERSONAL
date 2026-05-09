@@ -92,7 +92,29 @@ export class FoundationStack extends cdk.Stack {
       autoVerify: { email: true },
       userVerification: {
         emailSubject: 'Verify your PRAJNA Identity | GITAM University',
-        emailBody: 'Hello Faculty Member,\n\nWelcome to PRAJNA. Your verification code is {####}. Please enter this code in the portal to securely reset your password or verify your new account.\n\nDeep Intelligence for GITAM Faculty.\n- Team PRAJNA',
+        emailBody: `
+          <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eef2f6; border-radius: 24px; overflow: hidden; background-color: #ffffff; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
+            <div style="background-color: #007366; padding: 40px; text-align: center;">
+              <img src="https://prajna.hemanthreddykoduru.dev/assets/gitam-logo-email.png" alt="GITAM University" style="width: 100px; height: auto; margin-bottom: 20px; border-radius: 12px; background: white; padding: 10px;">
+              <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -0.02em; text-transform: uppercase; font-style: italic;">PRAJNA</h1>
+              <p style="color: rgba(255,255,255,0.7); margin-top: 5px; font-size: 10px; font-weight: bold; letter-spacing: 0.2em; text-transform: uppercase;">Deep Intelligence for GITAM Faculty</p>
+            </div>
+            <div style="padding: 40px; color: #1a202c; line-height: 1.6;">
+              <h2 style="margin-top: 0; font-size: 20px; font-weight: 700;">Hello Faculty Member,</h2>
+              <p style="font-size: 16px; color: #4a5568;">Welcome to PRAJNA. To securely access your academic dashboard or reset your credentials, please use the verification code below:</p>
+              
+              <div style="background-color: #f7fafc; border: 2px dashed #007366; border-radius: 16px; padding: 30px; margin: 30px 0; text-align: center;">
+                <span style="font-family: monospace; font-size: 42px; font-weight: 900; color: #007366; letter-spacing: 12px; margin-left: 12px;">{####}</span>
+              </div>
+              
+              <p style="font-size: 14px; color: #718096; margin-bottom: 0;">This code will expire shortly. If you did not request this, please contact the CATS Service Desk immediately.</p>
+            </div>
+            <div style="background-color: #f8fafc; padding: 30px; text-align: center; border-top: 1px solid #edf2f7;">
+              <p style="font-size: 12px; color: #94a3b8; margin: 0;">&copy; ${new Date().getFullYear()} GITAM University. All rights reserved.</p>
+              <p style="font-size: 11px; color: #cbd5e1; margin-top: 5px; text-transform: uppercase; letter-spacing: 1px; font-weight: bold;">Confidential Academic Asset</p>
+            </div>
+          </div>
+        `,
         emailStyle: cognito.VerificationEmailStyle.CODE,
       },
       removalPolicy: cdk.RemovalPolicy.DESTROY,
