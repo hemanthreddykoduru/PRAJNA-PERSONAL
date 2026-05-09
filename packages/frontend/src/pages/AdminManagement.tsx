@@ -134,7 +134,11 @@ const AdminManagement: React.FC = () => {
 
       setShowAddModal(false);
       setNewUser({ name: '', email: '', department: 'CSE', role: 'Faculty', campus: 'Bengaluru' });
-      fetchUsers(); // Refresh list
+      
+      // Realtime delay: Wait 2 seconds for DynamoDB consistency before re-fetching
+      setTimeout(() => {
+        fetchUsers();
+      }, 2000);
     } catch (error) {
       console.error("Failed to add user:", error);
     } finally {
