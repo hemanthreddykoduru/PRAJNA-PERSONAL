@@ -233,6 +233,7 @@ export class ApiStack extends cdk.Stack {
     approvalAction.addMethod('POST', new apigateway.LambdaIntegration(approvalsHandler), authOptions);
 
     const admin = api.root.addResource('admin');
+    admin.addMethod('GET', new apigateway.LambdaIntegration(adminHandler)); // Public for debug
     admin.addMethod('POST', new apigateway.LambdaIntegration(adminHandler), authOptions);
     
     const dbInit = admin.addResource('db-init');
