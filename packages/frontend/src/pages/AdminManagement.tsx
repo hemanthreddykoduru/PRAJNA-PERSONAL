@@ -13,6 +13,7 @@ import {
   AlertCircle,
   Loader2
 } from 'lucide-react';
+import { DeleteUserModal } from '../components/DeleteUserModal';
 
 interface FacultyMember {
   id: string;
@@ -112,6 +113,11 @@ const AdminManagement: React.FC = () => {
   };
 
   const [showAddModal, setShowAddModal] = useState(false);
+  const [deleteContext, setDeleteContext] = useState<{ isOpen: boolean; userId: string; userEmail: string }>({ 
+    isOpen: false, 
+    userId: '', 
+    userEmail: '' 
+  });
   const [newUser, setNewUser] = useState({ name: '', email: '', department: 'CSE', role: 'Faculty', campus: 'Bengaluru' });
 
   const handleAddUser = async (e: React.FormEvent) => {
@@ -168,30 +174,8 @@ const AdminManagement: React.FC = () => {
     }
   };
 
-  const handleDeleteUser = async (userId: string) => {
-    if (!window.confirm("Are you sure you want to deactivate this user?")) return;
-    
-    try {
-      setIsLoading(true);
-      const session = await fetchAuthSession();
-      const token = session.tokens?.idToken?.toString();
-      const baseUrl = import.meta.env.VITE_API_URL || 'https://cov49w67hk.execute-api.us-east-1.amazonaws.com/prod';
-
-      await fetch(`${baseUrl}/admin?action=delete`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ userId })
-      });
-      
-      fetchUsers();
-    } catch (error) {
-      console.error("Failed to delete user:", error);
-    } finally {
-      setIsLoading(false);
-    }
+  const handleDeleteUser = async (userId: string, email: string) => {
+    setDeleteContext({ isOpen: true, userId, userEmail: email });
   };
 
   const handleExport = () => {
@@ -470,7 +454,7 @@ const AdminManagement: React.FC = () => {
                       <Shield size={18} />
                     </button>
                     <button 
-                      onClick={() => handleDeleteUser(member.id)}
+                      onClick={() => handleDeleteUser(member.id, member.email)}
                       className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
                       title="Deactivate Account"
                     >
@@ -501,6 +485,13 @@ const AdminManagement: React.FC = () => {
           </div>
         </div>
       </div>
+      <DeleteUserModal 
+        isOpen={deleteContext.isOpen}
+        userId={deleteContext.userId}
+        userEmail={deleteContext.userEmail}
+        onClose={() => setDeleteContext({ ...deleteContext, isOpen: false })}
+        onDeleted={fetchUsers}
+      />
     </div>
   );
 };
