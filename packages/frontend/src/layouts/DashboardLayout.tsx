@@ -8,6 +8,7 @@ import {
 import { AICompanionChat } from '../components/AICompanionChat';
 import { useAuth, ROLE_HOME } from '../contexts/AuthContext';
 import type { UserRole } from '../contexts/AuthContext';
+import { ChangePasswordModal } from '../components/ChangePasswordModal';
 
 const ROLE_LABELS: Record<UserRole, string> = {
   Faculty: 'Faculty',
@@ -76,6 +77,7 @@ const NAV_ITEMS: NavItem[] = [
 
 export function DashboardLayout() {
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, signOutUser } = useAuth();
   const location = useLocation();
@@ -154,8 +156,16 @@ export function DashboardLayout() {
         })}
       </nav>
 
-      {/* Sign Out Section (ALWAYS AT BOTTOM) */}
-      <div className="mt-auto p-4 border-t border-white/10">
+      {/* Sidebar Footer Section */}
+      <div className="mt-auto p-4 border-t border-white/10 space-y-2">
+        <button
+          onClick={() => setIsPasswordModalOpen(true)}
+          className="w-full flex items-center space-x-3 px-4 py-3 text-white/60 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-200 group"
+        >
+          <Shield size={20} className="group-hover:scale-110 transition-transform" />
+          <span className="text-sm font-bold tracking-wide">Security</span>
+        </button>
+
         <button
           onClick={handleSignOut}
           className="w-full flex items-center space-x-3 px-4 py-3 text-white/60 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-200 group"
@@ -164,6 +174,11 @@ export function DashboardLayout() {
           <span className="text-sm font-bold tracking-wide">Sign Out</span>
         </button>
       </div>
+
+      <ChangePasswordModal 
+        isOpen={isPasswordModalOpen} 
+        onClose={() => setIsPasswordModalOpen(false)} 
+      />
     </div>
   );
 
