@@ -11,7 +11,7 @@ export class WebsiteStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const domainName = 'hemanthreddykoduru.dev';
+    const domainName = 'prajna.hemanthreddykoduru.dev';
 
     // 1. Static Website Bucket
     const websiteBucket = new s3.Bucket(this, 'PrajnaWebsiteBucketFinalV3', {
