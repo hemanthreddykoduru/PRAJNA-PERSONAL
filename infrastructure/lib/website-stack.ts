@@ -23,9 +23,9 @@ export class WebsiteStack extends cdk.Stack {
     });
 
     // 2. Request SSL Certificate (Must be in us-east-1 for CloudFront)
-    const certificate = new acm.Certificate(this, 'PrajnaCertificate', {
+    const certificate = new acm.Certificate(this, 'PrajnaCertificateSubdomain', {
       domainName: domainName,
-      validation: acm.CertificateValidation.fromDns(), // Verification via DNS
+      validation: acm.CertificateValidation.fromDns(), 
     });
 
     // 3. Origin Access Control (OAC)
