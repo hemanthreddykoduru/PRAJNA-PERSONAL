@@ -51,6 +51,15 @@ export class PrajnaChatBackendStack extends cdk.Stack {
       },
     });
 
+    api.addGatewayResponse('Chat4xxCORS', {
+      type: apigateway.ResponseType.DEFAULT_4XX,
+      responseHeaders: {
+        'gatewayresponse.header.Access-Control-Allow-Origin': "'*'",
+        'gatewayresponse.header.Access-Control-Allow-Headers': "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+        'gatewayresponse.header.Access-Control-Allow-Methods': "'GET,POST,OPTIONS'",
+      },
+    });
+
     const userPool = cdk.aws_cognito.UserPool.fromUserPoolId(this, 'ImportedUserPool', 'us-east-1_lxxysDfi1');
     const authorizer = new apigateway.CognitoUserPoolsAuthorizer(this, 'ChatAuthorizer', {
       cognitoUserPools: [userPool],
