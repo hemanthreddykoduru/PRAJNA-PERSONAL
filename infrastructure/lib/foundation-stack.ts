@@ -95,7 +95,7 @@ export class FoundationStack extends cdk.Stack {
         emailBody: `
           <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eef2f6; border-radius: 24px; overflow: hidden; background-color: #ffffff; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
             <div style="background-color: #007366; padding: 40px; text-align: center;">
-              <img src="https://prajna.hemanthreddykoduru.dev/assets/gitam-logo-email.png" alt="GITAM University" style="width: 100px; height: auto; margin-bottom: 20px; border-radius: 12px; background: white; padding: 10px;">
+              <img src="https://d2fut1ja4t258l.cloudfront.net/assets/gitam-logo-email.png" alt="GITAM University" style="width: 100px; height: auto; margin-bottom: 20px; border-radius: 12px; background: white; padding: 10px;">
               <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -0.02em; text-transform: uppercase; font-style: italic;">PRAJNA</h1>
               <p style="color: rgba(255,255,255,0.7); margin-top: 5px; font-size: 10px; font-weight: bold; letter-spacing: 0.2em; text-transform: uppercase;">Deep Intelligence for GITAM Faculty</p>
             </div>
