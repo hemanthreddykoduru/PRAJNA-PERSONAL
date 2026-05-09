@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { User, Lock, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
 import { signIn, getCurrentUser, fetchAuthSession } from 'aws-amplify/auth';
 import type { UserRole } from '../contexts/AuthContext';
@@ -163,7 +163,7 @@ const LoginPage: React.FC = () => {
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <label className="text-sm font-bold text-gray-700 uppercase tracking-wider">Password</label>
-              <a href="#" className="text-primary text-sm font-bold hover:underline">Forgot?</a>
+              <Link to="/forgot-password" size="sm" className="text-primary text-sm font-bold hover:underline">Forgot?</Link>
             </div>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />

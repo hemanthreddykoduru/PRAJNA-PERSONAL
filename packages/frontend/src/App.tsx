@@ -4,6 +4,7 @@ import type { UserRole } from './contexts/AuthContext';
 import { DashboardLayout } from './layouts/DashboardLayout';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
+import ForgotPasswordPage from './pages/ForgotPassword';
 
 // Dashboards
 import { FacultyDashboard } from './pages/dashboards/FacultyDashboard';
@@ -32,6 +33,7 @@ function App() {
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<Navigate to="/dashboard/faculty" replace />} />
