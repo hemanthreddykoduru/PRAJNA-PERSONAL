@@ -145,6 +145,54 @@ const AdminManagement: React.FC = () => {
       setIsLoading(false);
     }
   };
+  
+  const handleUpdateUser = async (userId: string, updates: Partial<FacultyMember>) => {
+    try {
+      const session = await fetchAuthSession();
+      const token = session.tokens?.idToken?.toString();
+      const baseUrl = import.meta.env.VITE_API_URL || 'https://cov49w67hk.execute-api.us-east-1.amazonaws.com/prod';
+
+      await fetch(`${baseUrl}/admin?action=update`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ userId, ...updates })
+      });
+      
+      // Success feedback
+      fetchUsers();
+    } catch (error) {
+      console.error("Failed to update user:", error);
+    }
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    if (!window.confirm("Are you sure you want to deactivate this user?")) return;
+    
+    try {
+      setIsLoading(true);
+      const session = await fetchAuthSession();
+      const token = session.tokens?.idToken?.toString();
+      const baseUrl = import.meta.env.VITE_API_URL || 'https://cov49w67hk.execute-api.us-east-1.amazonaws.com/prod';
+
+      await fetch(`${baseUrl}/admin?action=delete`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ userId })
+      });
+      
+      fetchUsers();
+    } catch (error) {
+      console.error("Failed to delete user:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleExport = () => {
     const headers = 'id,name,email,department,campus,role,status\n';
@@ -396,12 +444,7 @@ const AdminManagement: React.FC = () => {
                     <select 
                       className="bg-transparent font-bold text-[#007366] focus:outline-none cursor-pointer"
                       value={member.role}
-                      onChange={(e) => {
-                        const newFaculty = [...faculty];
-                        const idx = newFaculty.findIndex(f => f.id === member.id);
-                        newFaculty[idx].role = e.target.value;
-                        setFaculty(newFaculty);
-                      }}
+                      onChange={(e) => handleUpdateUser(member.id, { role: e.target.value })}
                     >
                       <option>Faculty</option>
                       <option>HoD</option>
@@ -419,10 +462,18 @@ const AdminManagement: React.FC = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <button className="p-2 text-gray-400 hover:text-[#007366] hover:bg-[#F0E0C1]/30 rounded-lg transition-all opacity-0 group-hover:opacity-100">
+                    <button 
+                      onClick={() => handleUpdateUser(member.id, { status: member.status === 'active' ? 'inactive' : 'active' })}
+                      className="p-2 text-gray-400 hover:text-[#007366] hover:bg-[#F0E0C1]/30 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                      title="Toggle Status"
+                    >
                       <Shield size={18} />
                     </button>
-                    <button className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100">
+                    <button 
+                      onClick={() => handleDeleteUser(member.id)}
+                      className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                      title="Deactivate Account"
+                    >
                       <AlertCircle size={18} />
                     </button>
                   </td>
