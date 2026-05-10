@@ -56,16 +56,28 @@ const AdminManagement: React.FC = () => {
       console.log("FETCHED USERS DATA:", data);
       
       if (Array.isArray(data)) {
-        const mappedFaculty = data.map((u: any) => ({
-          id: u.PK || u.email,
-          name: u.name || 'Unknown',
-          email: u.email || '',
-          role: u.role || 'Faculty',
-          department: u.department || 'CSE',
-          campus: u.campus || 'Bengaluru',
-          status: (u.status || 'active').toLowerCase() as 'active' | 'pending' | 'inactive'
-        }));
-        setFaculty(mappedFaculty);
+        const mappedFaculty = data
+          .map((u: any) => {
+            const email = u.email || (u.PK?.includes('@') ? u.PK.split('#')[1] : '');
+            const name = u.name;
+
+            // Strict Filter: Remove placeholders or items without names/emails
+            if (!email || !name || name.toLowerCase() === 'unknown' || name === 'Unknown User') {
+              return null; 
+            }
+
+            return {
+              id: u.PK || email,
+              name: name,
+              email: email,
+              role: u.role || 'Faculty',
+              department: u.department || 'CSE',
+              campus: u.campus || 'Bengaluru',
+              status: (u.status || 'active').toLowerCase() as 'active' | 'pending' | 'inactive'
+            };
+          })
+          .filter(Boolean); // Remove nulls
+        setFaculty(mappedFaculty as any[]);
       }
     } catch (error) {
       console.error("Failed to fetch users:", error);
