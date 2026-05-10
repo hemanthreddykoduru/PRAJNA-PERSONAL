@@ -118,7 +118,7 @@ const AdminManagement: React.FC = () => {
     userId: '', 
     userEmail: '' 
   });
-  const [newUser, setNewUser] = useState({ name: '', email: '', department: 'CSE', role: 'Faculty', campus: 'Bengaluru' });
+  const [newUser, setNewUser] = useState({ name: '', email: '', department: 'CSE', role: 'Faculty', campus: 'Visakhapatnam' });
 
   const handleAddUser = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -139,7 +139,7 @@ const AdminManagement: React.FC = () => {
       });
 
       setShowAddModal(false);
-      setNewUser({ name: '', email: '', department: 'CSE', role: 'Faculty', campus: 'Bengaluru' });
+      setNewUser({ name: '', email: '', department: 'CSE', role: 'Faculty', campus: 'Visakhapatnam' });
       
       // Realtime delay: Wait 2 seconds for DynamoDB consistency before re-fetching
       setTimeout(() => {
@@ -222,30 +222,50 @@ const AdminManagement: React.FC = () => {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
+                  <label className="block text-sm font-black text-gray-400 uppercase tracking-widest mb-2">Campus</label>
+                  <select 
+                    className="w-full px-4 py-3 bg-gray-50 border-2 border-transparent focus:border-[#F0E0C1] focus:bg-white rounded-2xl outline-none transition-all font-medium"
+                    value={newUser.campus}
+                    onChange={(e) => setNewUser({...newUser, campus: e.target.value})}
+                  >
+                    <option value="Visakhapatnam">Visakhapatnam</option>
+                    <option value="Hyderabad">Hyderabad</option>
+                    <option value="Bengaluru">Bengaluru</option>
+                  </select>
+                </div>
+                <div>
                   <label className="block text-sm font-black text-gray-400 uppercase tracking-widest mb-2">Department</label>
                   <select 
                     className="w-full px-4 py-3 bg-gray-50 border-2 border-transparent focus:border-[#F0E0C1] focus:bg-white rounded-2xl outline-none transition-all font-medium"
                     value={newUser.department}
                     onChange={(e) => setNewUser({...newUser, department: e.target.value})}
                   >
-                    <option>CSE</option>
-                    <option>ECE</option>
-                    <option>EEE</option>
-                    <option>Management</option>
+                    <option value="CSE">CSE</option>
+                    <option value="ECE">ECE</option>
+                    <option value="EEE">EEE</option>
+                    <option value="Mechanical">Mechanical</option>
+                    <option value="Civil">Civil</option>
+                    <option value="Biotech">Biotechnology</option>
+                    <option value="Management">Management</option>
+                    <option value="Law">Law</option>
+                    <option value="Architecture">Architecture</option>
+                    <option value="Humanities">Humanities</option>
                   </select>
                 </div>
-                <div>
-                  <label className="block text-sm font-black text-gray-400 uppercase tracking-widest mb-2">Role</label>
-                  <select 
-                    className="w-full px-4 py-3 bg-gray-50 border-2 border-transparent focus:border-[#F0E0C1] focus:bg-white rounded-2xl outline-none transition-all font-medium"
-                    value={newUser.role}
-                    onChange={(e) => setNewUser({...newUser, role: e.target.value})}
-                  >
-                    <option>Faculty</option>
-                    <option>HoD</option>
-                    <option>Admin</option>
-                  </select>
-                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-black text-gray-400 uppercase tracking-widest mb-2">User Role</label>
+                <select 
+                  className="w-full px-4 py-3 bg-gray-50 border-2 border-transparent focus:border-[#F0E0C1] focus:bg-white rounded-2xl outline-none transition-all font-medium"
+                  value={newUser.role}
+                  onChange={(e) => setNewUser({...newUser, role: e.target.value})}
+                >
+                  <option value="Faculty">Faculty Member</option>
+                  <option value="HoD">Head of Department</option>
+                  <option value="Director">Director / Dean</option>
+                  <option value="ProVC">Pro Vice-Chancellor</option>
+                  <option value="Admin">System Administrator</option>
+                </select>
               </div>
               <div className="flex gap-4 mt-8">
                 <button 

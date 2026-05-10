@@ -117,6 +117,42 @@ export class FoundationStack extends cdk.Stack {
         `,
         emailStyle: cognito.VerificationEmailStyle.CODE,
       },
+      userInvitation: {
+        emailSubject: 'Welcome to PRAJNA | Access Your Academic Dashboard',
+        emailBody: `
+          <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eef2f6; border-radius: 24px; overflow: hidden; background-color: #ffffff; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
+            <div style="background-color: #007366; padding: 40px; text-align: center;">
+              <img src="https://tkwazltvxdztaunerksd.supabase.co/storage/v1/object/public/assets/gitam-Logo-new.png" alt="GITAM University" style="width: 100px; height: auto; margin-bottom: 20px; border-radius: 12px; background: white; padding: 10px;">
+              <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -0.02em; text-transform: uppercase; font-style: italic;">PRAJNA</h1>
+              <p style="color: rgba(255,255,255,0.7); margin-top: 5px; font-size: 10px; font-weight: bold; letter-spacing: 0.2em; text-transform: uppercase;">Deep Intelligence for GITAM Faculty</p>
+            </div>
+            <div style="padding: 40px; color: #1a202c; line-height: 1.6;">
+              <h2 style="margin-top: 0; font-size: 20px; font-weight: 700;">Account Provisioned!</h2>
+              <p style="font-size: 16px; color: #4a5568;">Your Professional AI Companion account is ready. Use the credentials below to access your dashboard at <strong>prajna.hemanthreddykoduru.dev</strong>:</p>
+              
+              <div style="background-color: #f7fafc; border: 2px solid #edf2f7; border-radius: 16px; padding: 25px; margin: 30px 0;">
+                <p style="margin: 0; font-size: 12px; color: #94a3b8; text-transform: uppercase; font-weight: 800; letter-spacing: 1px;">Username / Email</p>
+                <p style="margin: 5px 0 15px; font-size: 18px; font-weight: 700; color: #1a202c;">{username}</p>
+                
+                <p style="margin: 0; font-size: 12px; color: #94a3b8; text-transform: uppercase; font-weight: 800; letter-spacing: 1px;">Temporary Password</p>
+                <p style="margin: 5px 0 0; font-size: 24px; font-weight: 900; color: #007366; font-family: monospace; letter-spacing: 2px;">{####}</p>
+              </div>
+              
+              <p style="font-size: 14px; color: #e53e3e; font-weight: 700;">SECURITY NOTICE: This temporary password is valid for only 24 hours. You will be required to set a permanent password upon your first login.</p>
+              
+              <div style="text-align: center; margin-top: 30px;">
+                <a href="https://prajna.hemanthreddykoduru.dev/login" style="background-color: #007366; color: #ffffff; padding: 16px 32px; border-radius: 12px; text-decoration: none; font-weight: 700; display: inline-block;">Login to Dashboard</a>
+              </div>
+            </div>
+            <div style="background-color: #f8fafc; padding: 30px; text-align: center; border-top: 1px solid #edf2f7;">
+              <p style="font-size: 12px; color: #94a3b8; margin: 0;">&copy; ${new Date().getFullYear()} GITAM University. All rights reserved.</p>
+            </div>
+          </div>
+        `
+      },
+      passwordPolicy: {
+        tempPasswordValidity: cdk.Duration.days(1), // AWS minimum is 1 day
+      },
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
