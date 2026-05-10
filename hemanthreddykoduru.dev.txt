@@ -1,6 +1,6 @@
 ;;
 ;; Domain:     hemanthreddykoduru.dev.
-;; Exported:   2026-05-10 09:55:21
+;; Exported:   2026-05-10 10:33:55
 ;;
 ;; This file is intended for use for informational and archival
 ;; purposes ONLY and MUST be edited before use on a production
@@ -24,7 +24,7 @@
 ;;
 ;; Use at your own risk.
 ;; SOA Record
-hemanthreddykoduru.dev	3600	IN	SOA	amalia.ns.cloudflare.com. dns.cloudflare.com. 2053007352 10000 2400 604800 3600
+hemanthreddykoduru.dev	3600	IN	SOA	amalia.ns.cloudflare.com. dns.cloudflare.com. 2053007583 10000 2400 604800 3600
 
 ;; NS Records
 hemanthreddykoduru.dev.	86400	IN	NS	amalia.ns.cloudflare.com.

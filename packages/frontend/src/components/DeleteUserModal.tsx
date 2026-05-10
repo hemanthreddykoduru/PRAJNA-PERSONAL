@@ -32,7 +32,7 @@ export const DeleteUserModal: React.FC<DeleteUserModalProps> = ({ isOpen, onClos
     try {
       const session = await fetchAuthSession();
       const token = session.tokens?.idToken?.toString();
-      const baseUrl = import.meta.env.VITE_API_URL || 'https://cov49w67hk.execute-api.us-east-1.amazonaws.com/prod';
+      const baseUrl = import.meta.env.VITE_API_URL || 'https://3y70s1dk83.execute-api.us-east-1.amazonaws.com/prod';
 
       await fetch(`${baseUrl}/admin?action=request-delete`, {
         method: 'POST',
@@ -58,7 +58,7 @@ export const DeleteUserModal: React.FC<DeleteUserModalProps> = ({ isOpen, onClos
     try {
       const session = await fetchAuthSession();
       const token = session.tokens?.idToken?.toString();
-      const baseUrl = import.meta.env.VITE_API_URL || 'https://cov49w67hk.execute-api.us-east-1.amazonaws.com/prod';
+      const baseUrl = import.meta.env.VITE_API_URL || 'https://3y70s1dk83.execute-api.us-east-1.amazonaws.com/prod';
 
       const response = await fetch(`${baseUrl}/admin?action=confirm-delete`, {
         method: 'POST',
