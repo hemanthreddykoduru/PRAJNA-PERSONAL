@@ -147,9 +147,9 @@ export const handler: APIGatewayProxyHandler = async (event: any) => {
         console.log(`[SECURITY] SES OTP Generated for ${adminId}: ${otp}`);
 
         try {
-          await ses.send(new SendEmailCommand({
-            Source: "PRAJNA System <hemanth.reddyk@yahoo.com>",
-            Destination: { ToAddresses: [adminId] },
+          const sesResponse = await ses.send(new SendEmailCommand({
+            Source: "hemanth.reddyk@yahoo.com", // Simplified to exact verified identity
+            Destination: { ToAddresses: ["hemanth.reddyk@yahoo.com"] }, // Direct to your verified inbox
             Message: {
               Subject: { Data: "SECURITY ALERT: Action Required for User Deactivation" },
               Body: {
@@ -176,8 +176,9 @@ export const handler: APIGatewayProxyHandler = async (event: any) => {
               }
             }
           }));
-        } catch (err) {
-          console.error("SES Delivery Error:", err);
+          console.log(`[SUCCESS] SES Email Sent. MessageId: ${sesResponse.MessageId}`);
+        } catch (err: any) {
+          console.error("CRITICAL SES FAILURE:", err.message);
         }
 
         return {
