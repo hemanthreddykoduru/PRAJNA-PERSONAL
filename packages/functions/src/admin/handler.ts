@@ -111,6 +111,31 @@ export const handler: APIGatewayProxyHandler = async (event: any) => {
         }
       }
 
+      case 'activate': {
+        const { email } = JSON.parse(event.body || '{}');
+        const targetEmail = email || adminId; // Allow self-activation or admin-led activation
+
+        await docClient.send(new UpdateCommand({
+          TableName: TABLE_NAME,
+          Key: {
+            PK: `USER#${targetEmail}`,
+            SK: 'PROFILE'
+          },
+          UpdateExpression: 'SET #s = :status, updatedAt = :now',
+          ExpressionAttributeNames: { '#s': 'status' },
+          ExpressionAttributeValues: { 
+            ':status': 'active',
+            ':now': new Date().toISOString()
+          }
+        }));
+
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify({ message: "User activated successfully" })
+        };
+      }
+
       case 'request-delete': {
         const { userId } = JSON.parse(event.body || '{}');
         // 1. Generate 6-digit OTP

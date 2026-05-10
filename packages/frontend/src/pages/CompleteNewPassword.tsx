@@ -37,7 +37,28 @@ const CompleteNewPasswordPage: React.FC = () => {
       });
 
       if (isSignedIn) {
+        // 1. Activate Profile in DynamoDB
         const session = await fetchAuthSession();
+        const token = session.tokens?.idToken?.toString();
+        const baseUrl = import.meta.env.VITE_API_URL || 'https://cov49w67hk.execute-api.us-east-1.amazonaws.com/prod';
+
+        try {
+          await fetch(`${baseUrl}/admin?action=activate`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email: userId })
+          });
+          console.log("Profile activated successfully.");
+        } catch (activateErr) {
+          console.error("Optional activation failed:", activateErr);
+          // Don't block the user if just the status update fails, 
+          // they are already signed in.
+        }
+
+        // 2. Redirect to Dashboard
         const groups: string[] = (session.tokens?.idToken?.payload as any)?.['cognito:groups'] || [];
         const homePath = getRoleHome(groups);
         window.location.href = homePath;
