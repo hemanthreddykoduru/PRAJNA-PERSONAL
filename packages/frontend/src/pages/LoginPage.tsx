@@ -55,16 +55,29 @@ const LoginPage: React.FC = () => {
     setIsLoading(true);
     setError('');
     try {
-      // AGGRESSIVE: If we hit 'Already signed in', just treat it as a success and redirect
       const { isSignedIn, nextStep } = await signIn({ username: userId, password });
+      
+      console.log("Sign-in next step:", nextStep);
+
+      if (nextStep?.signInStep === 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED') {
+        // Redirect to a dedicated page or show a state to set the new password
+        navigate('/complete-new-password', { 
+          state: { 
+            userId,
+            tempPassword: password 
+          } 
+        });
+        return;
+      }
+
       if (isSignedIn) {
         const session = await fetchAuthSession();
         const groups: string[] = (session.tokens?.idToken?.payload as any)?.['cognito:groups'] || [];
         window.location.href = getRoleHome(groups);
       }
     } catch (err: any) {
+      console.error("Login attempt error:", err);
       if (err.name === 'UserAlreadyAuthenticatedException' || err.message?.includes('already a signed in user')) {
-        // If they are already signed in, don't show an error—just take them to their dashboard!
         checkExistingSession();
       } else {
         setError(err.message || 'Invalid username or password.');

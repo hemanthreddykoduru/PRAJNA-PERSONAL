@@ -5,6 +5,7 @@ import { DashboardLayout } from './layouts/DashboardLayout';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
 import ForgotPasswordPage from './pages/ForgotPassword';
+import CompleteNewPasswordPage from './pages/CompleteNewPassword';
 
 // Dashboards
 import { FacultyDashboard } from './pages/dashboards/FacultyDashboard';
@@ -34,6 +35,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/complete-new-password" element={<CompleteNewPasswordPage />} />
 
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<Navigate to="/dashboard/faculty" replace />} />
