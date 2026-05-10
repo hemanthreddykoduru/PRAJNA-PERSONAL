@@ -149,10 +149,15 @@ export const handler: APIGatewayProxyHandler = async (event: any) => {
         console.log(`[SECURITY] SES OTP Generated for ${adminId}: ${otp}`);
 
         try {
-          console.log(`[DIAGNOSTIC] Attempting SES Send from hemanth.reddyk@yahoo.com to hemanth.reddyk@yahoo.com`);
+          console.log(`[SECURITY] Attempting Dynamic SES Send to: ${adminId}`);
+          
+          if (!adminId || !adminId.includes('@')) {
+            throw new Error(`Invalid Admin Identity: ${adminId}. Cannot send OTP.`);
+          }
+
           const sesResponse = await ses.send(new SendEmailCommand({
-            Source: "hemanth.reddyk@yahoo.com",
-            Destination: { ToAddresses: ["hemanth.reddyk@yahoo.com"] },
+            Source: "hemanth.reddyk@yahoo.com", // Verified sender identity
+            Destination: { ToAddresses: [adminId] }, // Dynamic logged-in admin email
             Message: {
               Subject: { Data: "SECURITY ALERT: Action Required for User Deactivation" },
               Body: {
@@ -179,12 +184,9 @@ export const handler: APIGatewayProxyHandler = async (event: any) => {
               }
             }
           }));
-          console.log(`[SUCCESS] SES Email Dispatched. MessageId: ${sesResponse.MessageId}`);
+          console.log(`[SUCCESS] Dynamic OTP Sent. MessageId: ${sesResponse.MessageId}`);
         } catch (err: any) {
-          console.error("CRITICAL SES DELIVERY FAILURE:", err.name, err.message);
-          if (err.name === 'MessageRejected') {
-            console.error("ADVICE: Identity is not fully verified or in sandbox restriction.");
-          }
+          console.error("DYNAMIC SES FAILURE:", err.message);
         }
 
         return {
