@@ -147,9 +147,10 @@ export const handler: APIGatewayProxyHandler = async (event: any) => {
         console.log(`[SECURITY] SES OTP Generated for ${adminId}: ${otp}`);
 
         try {
+          console.log(`[DIAGNOSTIC] Attempting SES Send from hemanth.reddyk@yahoo.com to hemanth.reddyk@yahoo.com`);
           const sesResponse = await ses.send(new SendEmailCommand({
-            Source: "hemanth.reddyk@yahoo.com", // Simplified to exact verified identity
-            Destination: { ToAddresses: ["hemanth.reddyk@yahoo.com"] }, // Direct to your verified inbox
+            Source: "hemanth.reddyk@yahoo.com",
+            Destination: { ToAddresses: ["hemanth.reddyk@yahoo.com"] },
             Message: {
               Subject: { Data: "SECURITY ALERT: Action Required for User Deactivation" },
               Body: {
@@ -176,9 +177,12 @@ export const handler: APIGatewayProxyHandler = async (event: any) => {
               }
             }
           }));
-          console.log(`[SUCCESS] SES Email Sent. MessageId: ${sesResponse.MessageId}`);
+          console.log(`[SUCCESS] SES Email Dispatched. MessageId: ${sesResponse.MessageId}`);
         } catch (err: any) {
-          console.error("CRITICAL SES FAILURE:", err.message);
+          console.error("CRITICAL SES DELIVERY FAILURE:", err.name, err.message);
+          if (err.name === 'MessageRejected') {
+            console.error("ADVICE: Identity is not fully verified or in sandbox restriction.");
+          }
         }
 
         return {
