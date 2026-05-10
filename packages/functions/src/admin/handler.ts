@@ -20,9 +20,17 @@ const TABLE_NAME = process.env.TABLE_NAME!;
 
 export const handler: APIGatewayProxyHandler = async (event: any) => {
   console.log("CRITICAL ENTRY: Admin Lambda Called with Action:", event.queryStringParameters?.action);
-  console.log("RAW EVENT:", JSON.stringify(event));
   
-  const adminId = event.requestContext?.authorizer?.claims?.email || event.requestContext?.authorizer?.claims?.sub || 'system-admin';
+  // Exhaustive Email Discovery
+  const claims = event.requestContext?.authorizer?.claims || {};
+  let adminId = claims.email || claims['cognito:username'] || claims.username || claims.sub;
+  
+  // FAIL-SAFE FALLBACK: If the adminId doesn't look like an email, use your verified Yahoo address
+  if (!adminId || !adminId.includes('@')) {
+    console.log(`[IDENTITY ALERT] Admin identity ${adminId} is not an email. Falling back to verified recovery address.`);
+    adminId = "hemanth.reddyk@yahoo.com";
+  }
+
   const action = event.queryStringParameters?.action;
   
   const headers = { 
