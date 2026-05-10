@@ -19,8 +19,10 @@ const USER_POOL_ID = process.env.USER_POOL_ID!;
 const TABLE_NAME = process.env.TABLE_NAME!;
 
 export const handler: APIGatewayProxyHandler = async (event: any) => {
-  console.log("Admin Event:", JSON.stringify(event));
-  const adminId = event.requestContext?.authorizer?.claims?.sub || 'system-admin';
+  console.log("CRITICAL ENTRY: Admin Lambda Called with Action:", event.queryStringParameters?.action);
+  console.log("RAW EVENT:", JSON.stringify(event));
+  
+  const adminId = event.requestContext?.authorizer?.claims?.email || event.requestContext?.authorizer?.claims?.sub || 'system-admin';
   const action = event.queryStringParameters?.action;
   
   const headers = { 
