@@ -2,22 +2,17 @@ import { APIGatewayProxyHandler } from 'aws-lambda';
 import { 
   CognitoIdentityProviderClient, 
   AdminCreateUserCommand,
-  AdminUpdateUserAttributesCommand,
-  AdminDeleteUserCommand
+  AdminDeleteUserCommand,
+  AdminUpdateUserAttributesCommand
 } from "@aws-sdk/client-cognito-identity-provider";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { 
-  DynamoDBDocumentClient, 
-  ScanCommand, 
-  PutCommand, 
-  GetCommand, 
-  DeleteCommand, 
-  UpdateCommand 
-} from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient, GetCommand, PutCommand, DeleteCommand, QueryCommand, UpdateCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
+import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
 import { logAction } from '../audit/logger';
 
 const cognito = new CognitoIdentityProviderClient({});
 const dbClient = new DynamoDBClient({});
+const ses = new SESClient({ region: 'us-east-1' });
 const docClient = DynamoDBDocumentClient.from(dbClient);
 
 const USER_POOL_ID = process.env.USER_POOL_ID!;
@@ -134,16 +129,14 @@ export const handler: APIGatewayProxyHandler = async (event: any) => {
 
       case 'request-delete': {
         const { userId } = JSON.parse(event.body || '{}');
-        // 1. Generate 6-digit OTP
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         const expiry = Math.floor(Date.now() / 1000) + 300; // 5 mins
 
-        // 2. Store OTP in DynamoDB for verification
         await docClient.send(new PutCommand({
           TableName: TABLE_NAME,
           Item: {
             PK: `ADMIN#OTP#${adminId}`,
-            SK: `ACTION#DELETE#${userId}`,
+            SK: 'DELETE_VERIFICATION',
             otp,
             expiry,
             targetUserId: userId,
@@ -151,52 +144,50 @@ export const handler: APIGatewayProxyHandler = async (event: any) => {
           }
         }));
 
-        // 3. Send Email to Admin (Mock/Audit for now, but we use the PK to verify)
-        // In a real scenario, you'd use SES here. For now, we return it for the Admin to see 
-        // because we are in a dev/test phase, but we'll log it for audit.
-        console.log(`[SECURITY] DELETE OTP for Admin ${adminId}: ${otp}`);
+        console.log(`[SECURITY] SES OTP Generated for ${adminId}: ${otp}`);
+
+        try {
+          await ses.send(new SendEmailCommand({
+            Source: "PRAJNA System <hemanth.reddyk@yahoo.com>",
+            Destination: { ToAddresses: [adminId] },
+            Message: {
+              Subject: { Data: "SECURITY ALERT: Action Required for User Deactivation" },
+              Body: {
+                Html: {
+                  Data: `
+                    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 2px solid #e53e3e; border-radius: 24px; padding: 40px; background-color: #fff;">
+                      <div style="text-align: center; margin-bottom: 30px;">
+                        <span style="background-color: #fef2f2; color: #e53e3e; padding: 12px 24px; border-radius: 50px; font-weight: 900; font-size: 12px; letter-spacing: 2px; text-transform: uppercase;">Administrator Verification</span>
+                      </div>
+                      <h2 style="color: #1a202c; font-size: 24px; font-weight: 800; margin-bottom: 10px;">Secure Deactivation Request</h2>
+                      <p style="color: #4a5568; line-height: 1.6;">An administrator has requested the permanent deletion of a user account. For security reasons, please enter the following verification code to confirm this action:</p>
+                      
+                      <div style="background-color: #f8fafc; border: 2px dashed #e2e8f0; border-radius: 16px; padding: 30px; margin: 30px 0; text-align: center;">
+                        <span style="font-family: monospace; font-size: 48px; font-weight: 900; color: #e53e3e; letter-spacing: 15px; margin-left: 15px;">${otp}</span>
+                      </div>
+                      
+                      <p style="color: #718096; font-size: 14px;"><strong>NOTICE:</strong> This code is valid for exactly 5 minutes.</p>
+                      <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #edf2f7; text-align: center; color: #94a3b8; font-size: 12px;">
+                        PRAJNA AI Security Engine | GITAM University
+                      </div>
+                    </div>
+                  `
+                }
+              }
+            }
+          }));
+        } catch (err) {
+          console.error("SES Delivery Error:", err);
+        }
 
         return {
           statusCode: 200,
           headers,
-          body: JSON.stringify({ message: "OTP Requested", otp_sent: true })
+          body: JSON.stringify({ message: "OTP Sent Successfully" })
         };
       }
 
       case 'confirm-delete': {
-        const { userId, otp } = JSON.parse(event.body || '{}');
-        
-        // 1. Verify OTP
-        const otpRecord = await docClient.send(new GetCommand({
-          TableName: TABLE_NAME,
-          Key: {
-            PK: `ADMIN#OTP#${adminId}`,
-            SK: `ACTION#DELETE#${userId}`
-          }
-        }));
-
-        if (!otpRecord.Item || otpRecord.Item.otp !== otp || otpRecord.Item.expiry < Math.floor(Date.now() / 1000)) {
-          return {
-            statusCode: 401,
-            headers,
-            body: JSON.stringify({ message: "Invalid or expired OTP" })
-          };
-        }
-
-        // 2. Delete from Cognito
-        const userPoolId = USER_POOL_ID;
-        // userId here is the email for Cognito
-        try {
-          await cognito.send(new AdminDeleteUserCommand({
-            UserPoolId: userPoolId,
-            Username: userId
-          }));
-        } catch (e) {
-          console.error("Cognito delete failed, continuing to DB cleanup", e);
-        }
-
-        // 3. Delete from DynamoDB
-        // We need to delete ALL records for this user (PROFILE, etc)
         // For simplicity, we delete the PROFILE record which hides them from the dashboard
         await docClient.send(new DeleteCommand({
           TableName: TABLE_NAME,
