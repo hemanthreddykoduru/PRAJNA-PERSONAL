@@ -59,23 +59,37 @@ export const handler: APIGatewayProxyHandler = async (event: any) => {
         const { name, email, department, role, campus } = JSON.parse(event.body || '{}');
         
         try {
-          // 1. Create User in Cognito
-          console.log(`Attempting to invite user: ${email} to ${campus}/${department}`);
+          // 1. Create User in Cognito (Standard Attributes Only)
+          console.log(`Attempting to invite user: ${email}`);
           await cognito.send(new AdminCreateUserCommand({
             UserPoolId: USER_POOL_ID,
             Username: email,
             UserAttributes: [
               { Name: 'name', Value: name },
               { Name: 'email', Value: email },
-              { Name: 'email_verified', Value: 'true' },
-              { Name: 'custom:role', Value: role },
-              { Name: 'custom:department', Value: department },
-              { Name: 'custom:campus', Value: campus || 'Visakhapatnam' }
+              { Name: 'email_verified', Value: 'true' }
             ],
             DesiredDeliveryMediums: ['EMAIL']
           }));
 
-          // 2. Log Action
+          // 2. Create Profile in DynamoDB (Custom Attributes Stored Here)
+          console.log(`Creating DynamoDB profile for: ${email}`);
+          await docClient.send(new PutCommand({
+            TableName: TABLE_NAME,
+            Item: {
+              PK: `USER#${email}`,
+              SK: 'PROFILE',
+              name,
+              email,
+              role,
+              department,
+              campus,
+              status: 'pending',
+              createdAt: new Date().toISOString()
+            }
+          }));
+
+          // 3. Log Action
           await logAction(adminId, 'INVITE_USER', { name, email, role, department, campus }, event.requestContext?.identity?.sourceIp || '0.0.0.0');
 
           return {
