@@ -175,54 +175,40 @@ const AdminManagement: React.FC = () => {
     }
   };
   
-  const handleUpdateUser = async (userId: string, updates: Partial<FacultyMember>) => {
-    try {
-      const session = await fetchAuthSession();
-      const token = session.tokens?.idToken?.toString();
-      const baseUrl = import.meta.env.VITE_API_URL || 'https://cov49w67hk.execute-api.us-east-1.amazonaws.com/prod';
-
-      await fetch(`${baseUrl}/admin?action=update`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ userId, ...updates })
-      });
-      
-      // Success feedback
-      fetchUsers();
-    } catch (error) {
-      console.error("Failed to update user:", error);
-    }
-  };
-
-  const handleUpdateRole = async (userId: string, newRole: string) => {
+  const handleUpdateUser = async (userId: string, updates: any) => {
     try {
       const session = await fetchAuthSession();
       const token = session.tokens?.idToken?.toString();
       const baseUrl = import.meta.env.VITE_API_URL || 'https://3y70s1dk83.execute-api.us-east-1.amazonaws.com/prod';
 
       // Optimistic Update
-      setFaculty(prev => prev.map(f => f.id === userId ? { ...f, role: newRole } : f));
+      setFaculty(prev => prev.map(f => f.id === userId ? { ...f, ...updates } : f));
 
-      const response = await fetch(`${baseUrl}/admin?action=update-role`, {
+      // Map to correct backend action
+      const action = updates.role ? 'update-role' : 'update';
+      const body = updates.role 
+        ? { userId, newRole: updates.role }
+        : { userId, status: updates.status };
+
+      const response = await fetch(`${baseUrl}/admin?action=${action}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ userId, newRole })
+        body: JSON.stringify(body)
       });
 
-      if (!response.ok) throw new Error('Failed to update role');
-      
-      console.log(`Successfully updated ${userId} to ${newRole}`);
+      if (!response.ok) throw new Error('Failed to update user');
+      console.log(`Successfully updated ${userId}`, updates);
     } catch (error) {
-      console.error("Role update failed:", error);
-      // Revert on failure
-      fetchUsers();
+      console.error("Update failed:", error);
+      fetchUsers(); // Revert on failure
     }
+  };
+
+  const handleDeleteUser = (userId: string, email: string) => {
+    setDeleteContext({ isOpen: true, userId, userEmail: email });
   };
 
   const handleExport = () => {
