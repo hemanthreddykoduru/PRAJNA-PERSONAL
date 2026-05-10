@@ -37,17 +37,13 @@ export const handler: APIGatewayProxyHandler = async (event: any) => {
   try {
     switch (action) {
       case 'list':
-        // Use SCAN to find all PROFILE records in the table
-        // This is necessary because PKs are unique per user
+        // Pure Scan to capture 100% of the directory (Legacy + New)
+        console.log(`TOTAL RESTORATION SCAN on ${TABLE_NAME}...`);
         const profiles = await docClient.send(new ScanCommand({
-          TableName: TABLE_NAME,
-          FilterExpression: "SK = :skValue",
-          ExpressionAttributeValues: {
-            ":skValue": "PROFILE"
-          }
+          TableName: TABLE_NAME
         }));
         
-        console.log("Profiles found in DynamoDB:", profiles.Items?.length);
+        console.log(`Restoration complete. Total items found: ${profiles.Items?.length || 0}`);
 
         return {
           statusCode: 200,
