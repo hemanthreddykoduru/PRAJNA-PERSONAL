@@ -198,33 +198,35 @@ const AdminManagement: React.FC = () => {
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#007366]/20 backdrop-blur-md animate-in fade-in duration-300">
           <div className="bg-white p-10 rounded-[3rem] shadow-2xl border border-[#F0E0C1] w-[500px] transform animate-in zoom-in-95 duration-300">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Register New Faculty</h2>
-            <form onSubmit={handleAddUser} className="space-y-4">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Register New Faculty</h2>
+            <form onSubmit={handleAddUser} className="space-y-3">
               <div>
-                <label className="block text-sm font-black text-gray-400 uppercase tracking-widest mb-2">Full Name</label>
+                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Full Name</label>
                 <input 
                   type="text" 
                   required
-                  className="w-full px-4 py-3 bg-gray-50 border-2 border-transparent focus:border-[#F0E0C1] focus:bg-white rounded-2xl outline-none transition-all font-medium"
+                  placeholder="e.g. Dr. Jane Smith"
+                  className="w-full px-4 py-2.5 bg-gray-50 border-2 border-transparent focus:border-[#F0E0C1] focus:bg-white rounded-xl outline-none transition-all font-medium text-sm"
                   value={newUser.name}
                   onChange={(e) => setNewUser({...newUser, name: e.target.value})}
                 />
               </div>
               <div>
-                <label className="block text-sm font-black text-gray-400 uppercase tracking-widest mb-2">Email Address</label>
+                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Email Address</label>
                 <input 
                   type="email" 
                   required
-                  className="w-full px-4 py-3 bg-gray-50 border-2 border-transparent focus:border-[#F0E0C1] focus:bg-white rounded-2xl outline-none transition-all font-medium"
+                  placeholder="name@gitam.edu"
+                  className="w-full px-4 py-2.5 bg-gray-50 border-2 border-transparent focus:border-[#F0E0C1] focus:bg-white rounded-xl outline-none transition-all font-medium text-sm"
                   value={newUser.email}
                   onChange={(e) => setNewUser({...newUser, email: e.target.value})}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-black text-gray-400 uppercase tracking-widest mb-2">Campus</label>
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Campus</label>
                   <select 
-                    className="w-full px-4 py-3 bg-gray-50 border-2 border-transparent focus:border-[#F0E0C1] focus:bg-white rounded-2xl outline-none transition-all font-medium"
+                    className="w-full px-4 py-2.5 bg-gray-50 border-2 border-transparent focus:border-[#F0E0C1] focus:bg-white rounded-xl outline-none transition-all font-bold text-xs"
                     value={newUser.campus}
                     onChange={(e) => setNewUser({...newUser, campus: e.target.value})}
                   >
@@ -234,9 +236,9 @@ const AdminManagement: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-black text-gray-400 uppercase tracking-widest mb-2">Department</label>
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Department</label>
                   <select 
-                    className="w-full px-4 py-3 bg-gray-50 border-2 border-transparent focus:border-[#F0E0C1] focus:bg-white rounded-2xl outline-none transition-all font-medium"
+                    className="w-full px-4 py-2.5 bg-gray-50 border-2 border-transparent focus:border-[#F0E0C1] focus:bg-white rounded-xl outline-none transition-all font-bold text-xs"
                     value={newUser.department}
                     onChange={(e) => setNewUser({...newUser, department: e.target.value})}
                   >
@@ -245,18 +247,14 @@ const AdminManagement: React.FC = () => {
                     <option value="EEE">EEE</option>
                     <option value="Mechanical">Mechanical</option>
                     <option value="Civil">Civil</option>
-                    <option value="Biotech">Biotechnology</option>
                     <option value="Management">Management</option>
-                    <option value="Law">Law</option>
-                    <option value="Architecture">Architecture</option>
-                    <option value="Humanities">Humanities</option>
                   </select>
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-black text-gray-400 uppercase tracking-widest mb-2">User Role</label>
+                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">User Role</label>
                 <select 
-                  className="w-full px-4 py-3 bg-gray-50 border-2 border-transparent focus:border-[#F0E0C1] focus:bg-white rounded-2xl outline-none transition-all font-medium"
+                  className="w-full px-4 py-2.5 bg-gray-50 border-2 border-transparent focus:border-[#F0E0C1] focus:bg-white rounded-xl outline-none transition-all font-bold text-xs"
                   value={newUser.role}
                   onChange={(e) => setNewUser({...newUser, role: e.target.value})}
                 >
@@ -267,7 +265,30 @@ const AdminManagement: React.FC = () => {
                   <option value="Admin">System Administrator</option>
                 </select>
               </div>
-              <div className="flex gap-4 mt-8">
+              
+              <div className="bg-[#F0E0C1]/20 p-4 rounded-2xl border border-[#F0E0C1]/30">
+                <p className="text-[10px] font-bold text-[#007366] leading-relaxed">
+                  NOTE: This user will receive a branded invitation email with a temporary 24-hour password.
+                </p>
+              </div>
+
+              <div className="flex gap-4 mt-4">
+                <button 
+                  type="button"
+                  onClick={() => setShowAddModal(false)}
+                  className="flex-1 px-6 py-3 bg-gray-100 text-gray-500 font-bold rounded-xl hover:bg-gray-200 transition-all text-sm"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit"
+                  disabled={isLoading}
+                  className="flex-1 px-6 py-3 bg-[#007366] text-white font-bold rounded-xl hover:bg-[#00594C] transition-all shadow-lg shadow-[#007366]/20 disabled:opacity-50 text-sm"
+                >
+                  {isLoading ? 'Sending...' : 'Invite Faculty'}
+                </button>
+              </div>
+            </form>
                 <button 
                   type="button"
                   onClick={() => setShowAddModal(false)}
