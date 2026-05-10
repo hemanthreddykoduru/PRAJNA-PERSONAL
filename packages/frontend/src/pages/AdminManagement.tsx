@@ -129,7 +129,7 @@ const AdminManagement: React.FC = () => {
       
       const baseUrl = import.meta.env.VITE_API_URL || 'https://cov49w67hk.execute-api.us-east-1.amazonaws.com/prod';
 
-      await fetch(`${baseUrl}/admin?action=create`, {
+      const response = await fetch(`${baseUrl}/admin?action=create`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -138,15 +138,23 @@ const AdminManagement: React.FC = () => {
         body: JSON.stringify(newUser)
       });
 
+      const result = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to send invitation');
+      }
+
       setShowAddModal(false);
+      alert("Invitation sent successfully! The faculty member will receive their credentials via email.");
       setNewUser({ name: '', email: '', department: 'CSE', role: 'Faculty', campus: 'Visakhapatnam' });
       
       // Realtime delay: Wait 2 seconds for DynamoDB consistency before re-fetching
       setTimeout(() => {
         fetchUsers();
       }, 2000);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to add user:", error);
+      alert(error.message || "An unexpected error occurred during registration.");
     } finally {
       setIsLoading(false);
     }
