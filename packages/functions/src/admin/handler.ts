@@ -3,7 +3,9 @@ import {
   CognitoIdentityProviderClient, 
   AdminCreateUserCommand,
   AdminDeleteUserCommand,
-  AdminUpdateUserAttributesCommand
+  AdminUpdateUserAttributesCommand,
+  AdminAddUserToGroupCommand,
+  AdminRemoveUserFromGroupCommand
 } from "@aws-sdk/client-cognito-identity-provider";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, GetCommand, PutCommand, DeleteCommand, QueryCommand, UpdateCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
@@ -229,6 +231,49 @@ export const handler: APIGatewayProxyHandler = async (event: any) => {
           statusCode: 200,
           headers,
           body: JSON.stringify({ message: "User deleted successfully" })
+        };
+      }
+
+      case 'update-role': {
+        const { userId, newRole } = JSON.parse(event.body || '{}');
+        const targetEmail = userId.startsWith('USER#') ? userId.split('#')[1] : userId;
+
+        console.log(`[ADMIN] Updating Role for ${targetEmail} to ${newRole}`);
+        
+        // 1. Update DynamoDB
+        await docClient.send(new UpdateCommand({
+          TableName: TABLE_NAME,
+          Key: { PK: `USER#${targetEmail}`, SK: 'PROFILE' },
+          UpdateExpression: "SET #r = :role, updatedAt = :now",
+          ExpressionAttributeNames: { "#r": "role" },
+          ExpressionAttributeValues: { 
+            ":role": newRole,
+            ":now": new Date().toISOString()
+          }
+        }));
+
+        // 2. Cognito Group Sync
+        const groups = ['Admin', 'Faculty', 'HoD', 'Director', 'ProVC'];
+        for (const group of groups) {
+          try {
+            await cognito.send(new AdminRemoveUserFromGroupCommand({
+              UserPoolId: USER_POOL_ID,
+              Username: targetEmail,
+              GroupName: group
+            }));
+          } catch (e) { /* Ignore if user not in group */ }
+        }
+
+        await cognito.send(new AdminAddUserToGroupCommand({
+          UserPoolId: USER_POOL_ID,
+          Username: targetEmail,
+          GroupName: newRole
+        }));
+
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify({ message: "Role updated successfully" })
         };
       }
 

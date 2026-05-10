@@ -197,8 +197,32 @@ const AdminManagement: React.FC = () => {
     }
   };
 
-  const handleDeleteUser = async (userId: string, email: string) => {
-    setDeleteContext({ isOpen: true, userId, userEmail: email });
+  const handleUpdateRole = async (userId: string, newRole: string) => {
+    try {
+      const session = await fetchAuthSession();
+      const token = session.tokens?.idToken?.toString();
+      const baseUrl = import.meta.env.VITE_API_URL || 'https://3y70s1dk83.execute-api.us-east-1.amazonaws.com/prod';
+
+      // Optimistic Update
+      setFaculty(prev => prev.map(f => f.id === userId ? { ...f, role: newRole } : f));
+
+      const response = await fetch(`${baseUrl}/admin?action=update-role`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ userId, newRole })
+      });
+
+      if (!response.ok) throw new Error('Failed to update role');
+      
+      console.log(`Successfully updated ${userId} to ${newRole}`);
+    } catch (error) {
+      console.error("Role update failed:", error);
+      // Revert on failure
+      fetchUsers();
+    }
   };
 
   const handleExport = () => {
