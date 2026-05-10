@@ -289,21 +289,6 @@ const AdminManagement: React.FC = () => {
                 </button>
               </div>
             </form>
-                <button 
-                  type="button"
-                  onClick={() => setShowAddModal(false)}
-                  className="flex-1 px-6 py-4 bg-gray-100 text-gray-500 font-bold rounded-2xl hover:bg-gray-200 transition-all"
-                >
-                  Cancel
-                </button>
-                <button 
-                  type="submit"
-                  className="flex-1 px-6 py-4 bg-[#007366] text-white font-bold rounded-2xl hover:bg-[#00594C] transition-all shadow-lg shadow-[#007366]/20"
-                >
-                  Create User
-                </button>
-              </div>
-            </form>
           </div>
         </div>
       )}
