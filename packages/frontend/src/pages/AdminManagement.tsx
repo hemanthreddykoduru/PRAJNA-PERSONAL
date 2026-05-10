@@ -59,10 +59,13 @@ const AdminManagement: React.FC = () => {
         const mappedFaculty = data
           .map((u: any) => {
             const email = u.email || (u.PK?.includes('@') ? u.PK.split('#')[1] : '');
-            const name = u.name;
+            const name = u.name || ''; // Fallback to empty string for checking
 
-            // Strict Filter: Remove placeholders or items without names/emails
-            if (!email || !name || name.toLowerCase() === 'unknown' || name === 'Unknown User') {
+            // ZERO-TOLERANCE FILTER: 
+            // 1. Must have a non-empty name
+            // 2. Name must not be the literal string "Unknown"
+            // 3. Must have a valid email address
+            if (!email || !name || name.trim() === '' || name.toLowerCase() === 'unknown') {
               return null; 
             }
 
