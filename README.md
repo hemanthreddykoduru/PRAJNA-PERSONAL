@@ -1,3 +1,4 @@
+# https://prajna.hemanthreddykoduru.dev/
 # PRAJNA
 
 > **Sanskrit: प्रज्ञा** — *deep intelligence, inner wisdom*
