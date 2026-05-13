@@ -108,12 +108,12 @@ const LoginPage: React.FC = () => {
         
         <div className="relative z-10">
           <div className="flex items-center gap-4 mb-12">
-            <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-xl overflow-hidden">
-              <img src="/assets/gitam-logo.png" alt="GITAM" className="w-full h-full object-contain p-1" />
+            <div className="w-40 h-auto bg-white rounded-[2rem] flex items-center justify-center shadow-2xl p-6 transition-transform hover:scale-105 duration-300">
+              <img src="/assets/gitam-Logo-new.png" alt="GITAM" className="w-full h-auto object-contain" />
             </div>
             <div>
-              <span className="text-white text-3xl font-black tracking-tight uppercase italic block leading-none">PRAJNA</span>
-              <span className="text-white/60 text-[10px] font-bold uppercase tracking-[0.2em] mt-1">GITAM University</span>
+              <span className="text-white text-4xl font-black tracking-tight uppercase italic block leading-none">PRAJNA</span>
+              <span className="text-white/60 text-[12px] font-bold uppercase tracking-[0.2em] mt-1">GITAM University</span>
             </div>
           </div>
           
@@ -141,10 +141,9 @@ const LoginPage: React.FC = () => {
 
       {/* Right Side: Login Form */}
       <div className="w-full lg:w-5/12 flex flex-col justify-center px-8 sm:px-16 lg:px-24">
-        <div className="mb-12">
-          <div className="flex items-center gap-2 mb-4">
-             <img src="/assets/signon.svg" alt="SSO" className="w-5 h-5 object-contain" />
-             <span className="text-primary font-bold uppercase tracking-widest text-[10px]">GITAM Single Sign-On</span>
+        <div className="mb-16 text-center">
+          <div className="mb-6 flex justify-center">
+             <img src="/assets/gitam-Logo-new.png" alt="GITAM" className="h-16 object-contain" />
           </div>
           <h2 className="text-4xl font-bold text-text mb-2">Welcome Back</h2>
           <p className="text-gray-500">Please enter your credentials to access your dashboard.</p>
