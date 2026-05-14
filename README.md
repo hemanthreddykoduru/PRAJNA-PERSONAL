@@ -1,5 +1,9 @@
 # PRAJNA: Institutional AI & Faculty Management System
 
+**Live Platform: [https://prajna.hemanthreddykoduru.dev/](https://prajna.hemanthreddykoduru.dev/)**
+
+---
+
 PRAJNA is a production-ready, serverless ecosystem designed for large-scale institutional management. It automates faculty performance tracking, research analytics, and administrative workflows using a high-fidelity React frontend and an elite AWS cloud architecture.
 
 ---
