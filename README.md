@@ -1,70 +1,207 @@
-# PRAJNA: Institutional AI & Faculty Management System
+# PRAJNA — Institutional AI & Faculty Management System
 
-**Live Platform: [https://prajna.hemanthreddykoduru.dev/](https://prajna.hemanthreddykoduru.dev/)**
+**Live Platform:**
+[PRAJNA Live Platform](https://prajna.hemanthreddykoduru.dev/?utm_source=chatgpt.com)
 
----
+PRAJNA is a cloud-native, serverless institutional management platform designed to streamline faculty workflows, research analytics, administrative approvals, and AI-assisted institutional insights.
 
-PRAJNA is a production-ready, serverless ecosystem designed for large-scale institutional management. It automates faculty performance tracking, research analytics, and administrative workflows using a high-fidelity React frontend and an elite AWS cloud architecture.
-
----
-
-## 🏗️ System Architecture (The 9 Pillars)
-
-PRAJNA is built on a **Loosely Coupled, Serverless-First Architecture** provisioned entirely via **AWS CDK (Infrastructure as Code)**.
-
-1.  **Identity & Security**: **AWS Cognito** provides enterprise-grade SSO and JWT-based session management.
-2.  **Global Delivery**: **Amazon CloudFront** + **S3** serves the React frontend at the edge with millisecond latency.
-3.  **API Gateway**: Acts as the secure perimeter and routing layer for all backend interactions.
-4.  **Decoupled Compute**: **AWS Lambda** handles all business logic, ensuring infinite scalability and zero-cost-at-rest.
-5.  **Intelligence Engine**: **Amazon Bedrock** integration provides managed AI insights and career guidance.
-6.  **Persistence Layer**: **Amazon DynamoDB** offers high-performance NoSQL storage for institutional records.
-7.  **Communication**: **Amazon SES** ensures high-deliverability for institutional notifications and auth workflows.
-8.  **Orchestration**: **AWS CDK** defines the entire 5-stack infrastructure (Api, Foundation, Website, Chat, Toolkit).
-9.  **Frontend Core**: **React 19** + **Vite 8** + **Tailwind CSS v4** delivers a premium, data-driven UI experience.
+The platform focuses on scalable architecture, secure authentication, infrastructure automation, and modular backend design using AWS-native services.
 
 ---
 
-## 🛡️ Security Posture: Zero-Secret Model
+# 🏗️ System Architecture
 
-PRAJNA implements a **"Keyless" Security Pattern**, eliminating hardcoded API keys and secrets:
+PRAJNA follows a **Loosely Coupled, Serverless-First Architecture** provisioned entirely using **AWS CDK (Infrastructure as Code)**.
 
-*   **User Auth**: JWT (JSON Web Tokens) issued by Cognito with strict OIDC validation at the API Gateway.
-*   **Service Auth**: **IAM Execution Roles** grant least-privileged access to DynamoDB and Bedrock—no passwords required.
-*   **Data Isolation**: All database and AI interactions are proxied through secure backend handlers; the database is never exposed to the public internet.
+## Core Architecture Components
+
+| Service                     | Responsibility                                   |
+| --------------------------- | ------------------------------------------------ |
+| Amazon Cognito              | Authentication, JWT sessions, role management    |
+| Amazon API Gateway          | Secure API routing layer                         |
+| AWS Lambda                  | Backend business logic and serverless compute    |
+| Amazon DynamoDB             | Scalable NoSQL data storage                      |
+| Amazon Bedrock              | AI-powered institutional insights                |
+| Amazon Simple Email Service | Notification and authentication emails           |
+| Amazon S3                   | Frontend asset hosting and storage               |
+| Amazon CloudFront           | Global frontend delivery and caching             |
+| AWS CDK                     | Infrastructure as Code and deployment automation |
 
 ---
 
-## 🚀 Tech Stack
+# ⚙️ Why These Services Were Chosen
 
-- **Frontend**: React 19, Vite 8, TypeScript, Tailwind CSS v4.
-- **Cloud Infrastructure**: AWS (Lambda, API Gateway, DynamoDB, Cognito, Bedrock, SES, S3, CloudFront).
-- **IaC**: AWS CDK (TypeScript).
-- **State Management**: React Context API + Hooks.
-- **Authentication**: AWS Amplify / Cognito (OIDC/JWT).
+## Authentication — Cognito
+
+Chosen for:
+* JWT-based authentication
+* managed identity workflows
+* role-based access control
+* secure session management
+
+## Serverless Compute — Lambda
+
+Chosen to:
+* reduce infrastructure management
+* support event-driven execution
+* automatically scale with workloads
+
+## API Layer — API Gateway
+
+Chosen for:
+* secure API exposure
+* request routing
+* JWT authorization integration
+* serverless compatibility
+
+## Database — DynamoDB
+
+Chosen because:
+* institutional data structures evolve frequently
+* low-latency NoSQL access
+* automatic horizontal scalability
+* flexible schema design
+
+## AI Integration — Bedrock
+
+Chosen to:
+* integrate managed foundation models
+* avoid GPU infrastructure management
+* support future AI-driven workflows
+
+## Infrastructure — AWS CDK
+
+Chosen because:
+* infrastructure becomes version-controlled
+* deployments are reproducible
+* cloud resources can be managed programmatically
 
 ---
 
-## 🛠️ Development & Deployment
+# 🔐 Security Architecture
 
-### Monorepo Structure
-- `packages/frontend`: React Application.
-- `packages/backend`: Serverless Lambda Handlers.
-- `infrastructure/`: AWS CDK Stacks.
+PRAJNA follows a **Zero-Secret / Keyless Access Model**.
 
-### Deployment
-The entire environment is deployed as a unified stack:
+## Authentication Flow
+* Users authenticate using Cognito
+* Cognito issues temporary JWT tokens
+* Frontend sends tokens in authorization headers
+* API Gateway validates tokens before routing requests
+
+## Backend Security
+* Lambda functions use IAM execution roles
+* No database passwords are hardcoded
+* Bedrock and DynamoDB access are permission-controlled using IAM
+
+## Data Isolation
+* Database access is never exposed directly to the public internet
+* All sensitive operations are handled through backend APIs
+
+---
+
+# 🔄 Example Request Workflow
+
+## User Authentication & Data Fetch
+1. User logs in through Cognito
+2. Cognito generates JWT token
+3. Frontend sends authenticated request to API Gateway
+4. API Gateway validates the JWT token
+5. Lambda processes the request
+6. DynamoDB stores/retrieves institutional data
+7. Response is returned securely to the frontend
+
+---
+
+# 🚀 Tech Stack
+
+## Frontend
+* React 19
+* Vite 8
+* TypeScript
+* Tailwind CSS v4
+
+## Cloud Infrastructure
+* AWS Lambda
+* API Gateway
+* DynamoDB
+* Cognito
+* Bedrock
+* SES
+* S3
+* CloudFront
+
+## Infrastructure as Code
+* AWS CDK (TypeScript)
+
+## State Management
+* React Context API
+* React Hooks
+
+## Authentication
+* AWS Amplify
+* Cognito JWT Authentication
+
+---
+
+# 🛠️ Project Structure
+
+```txt
+packages/
+ ├── frontend/        # React frontend application
+ ├── backend/         # Lambda handlers and backend logic
+
+infrastructure/
+ ├── stacks/          # AWS CDK stack definitions
+```
+
+---
+
+# 🚀 Deployment
+
+The infrastructure is deployed using AWS CDK:
+
 ```bash
 cd infrastructure
 cdk deploy --all
 ```
 
+This provisions:
+* authentication infrastructure
+* APIs
+* Lambda functions
+* DynamoDB tables
+* CDN delivery
+* frontend hosting
+* AI integrations
+
 ---
 
-## 🕵️ Architectural Assessment
-- **Scalability**: High (Serverless primitives).
-- **Maintainability**: High (Infrastructure as Code).
-- **Security**: Enterprise Grade (IAM/Cognito).
-- **Operational Cost**: Optimized (Zero-cost-at-rest).
+# 📈 Architecture Characteristics
+
+| Category              | Evaluation             |
+| --------------------- | ---------------------- |
+| Scalability           | High                   |
+| Maintainability       | High                   |
+| Operational Overhead  | Low                    |
+| Deployment Automation | Infrastructure as Code |
+| Security Model        | IAM + JWT-based        |
+| Compute Model         | Serverless             |
+| Infrastructure Style  | Loosely Coupled        |
 
 ---
-*Built for the future of institutional intelligence.*
+
+# 🎯 Engineering Focus
+
+PRAJNA was designed with emphasis on:
+* modular cloud-native architecture
+* serverless scalability
+* infrastructure automation
+* secure authentication workflows
+* loosely coupled systems
+* AI-assisted institutional workflows
+
+---
+
+# 📌 Summary
+
+PRAJNA is a modular serverless platform that combines authentication, scalable APIs, NoSQL storage, AI integrations, and infrastructure automation to support institutional-scale workflow management and analytics.
