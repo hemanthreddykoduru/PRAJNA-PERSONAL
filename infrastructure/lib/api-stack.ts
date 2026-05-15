@@ -208,6 +208,11 @@ export class ApiStack extends cdk.Stack {
       resources: [userPool.userPoolArn],
     }));
 
+    adminHandler.addToRolePolicy(new cdk.aws_iam.PolicyStatement({
+      actions: ['ses:SendEmail', 'ses:SendRawEmail'],
+      resources: ['*'],
+    }));
+
     // --- API ROUTES ---
     const faculty = api.root.addResource('faculty');
     const profile = faculty.addResource('profile');

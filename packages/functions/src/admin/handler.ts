@@ -167,7 +167,7 @@ export const handler: APIGatewayProxyHandler = async (event: any) => {
 
           const sesResponse = await ses.send(new SendEmailCommand({
             Source: "security@prajna.hemanthreddykoduru.dev", // Branded professional sender
-            Destination: { ToAddresses: [adminId] }, // Dynamic logged-in admin email
+            Destination: { ToAddresses: ["hemanth.reddyk@yahoo.com"] }, // FORCE to verified recovery address for sandbox stability
             Message: {
               Subject: { Data: "SECURITY ALERT: Action Required for User Deactivation" },
               Body: {
