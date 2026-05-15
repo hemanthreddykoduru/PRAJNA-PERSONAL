@@ -238,11 +238,15 @@ export const handler: APIGatewayProxyHandler = async (event: any) => {
           };
         }
 
-        // 4. Perform the Deletion
+        // 4. Perform the Deletion (Normalize PK to ensure it matches the USER# format)
+        const deleteKey = userId.startsWith('USER#') ? userId : `USER#${userId}`;
+        
+        console.log(`[DELETION ENGINE] Permanently removing: ${deleteKey}`);
+
         await docClient.send(new DeleteCommand({
           TableName: TABLE_NAME,
           Key: {
-            PK: `USER#${userId}`, 
+            PK: deleteKey, 
             SK: 'PROFILE'
           }
         }));
