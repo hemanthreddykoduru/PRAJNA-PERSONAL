@@ -61,35 +61,8 @@ export const handler: APIGatewayProxyHandler = async (event: any) => {
       case 'create': {
         const { name, email, department, role, campus } = JSON.parse(event.body || '{}');
         
-        try {
-          // 1. Check if the user already has a profile in DynamoDB
-          const existingProfile = await docClient.send(new GetCommand({
-            TableName: TABLE_NAME,
-            Key: { PK: `USER#${email}`, SK: 'PROFILE' }
-          }));
-
-          // 2. Self-Healing: If Cognito has the user but DynamoDB does NOT, it's a stale record
-          if (!existingProfile.Item) {
-            try {
-              console.log(`[SELF-HEALING] Stale user detected: ${email}. Purging Cognito for clean re-invite.`);
-              await cognito.send(new AdminDeleteUserCommand({
-                UserPoolId: USER_POOL_ID,
-                Username: email
-              }));
-            } catch (e) {
-              // Ignore if user didn't actually exist in Cognito
-            }
-          } else {
-             // User really exists in both
-             return {
-               statusCode: 400,
-               headers,
-               body: JSON.stringify({ message: "A user with this email is already registered and active." })
-             };
-          }
-
-          // 3. Create User in Cognito (Fresh Invite)
-          console.log(`Attempting to invite user: ${email}`);
+        const createUser = async () => {
+          // 1. Create User in Cognito
           await cognito.send(new AdminCreateUserCommand({
             UserPoolId: USER_POOL_ID,
             Username: email,
@@ -101,8 +74,7 @@ export const handler: APIGatewayProxyHandler = async (event: any) => {
             DesiredDeliveryMediums: ['EMAIL']
           }));
 
-          // 4. Create Profile in DynamoDB
-          console.log(`Creating DynamoDB profile for: ${email}`);
+          // 2. Create Profile in DynamoDB
           await docClient.send(new PutCommand({
             TableName: TABLE_NAME,
             Item: {
@@ -118,24 +90,54 @@ export const handler: APIGatewayProxyHandler = async (event: any) => {
             }
           }));
 
-          // 5. Log Action
+          // 3. Log Action
           await logAction(adminId, 'INVITE_USER', { name, email, role, department, campus }, event.requestContext?.identity?.sourceIp || '0.0.0.0');
+        };
 
+        try {
+          await createUser();
           return {
             statusCode: 201,
             headers,
             body: JSON.stringify({ message: "Invitation sent successfully" })
           };
-        } catch (cognitoError: any) {
-          console.error("Cognito Invitation Error:", cognitoError);
+        } catch (error: any) {
+          console.error("Initial Creation Error:", error);
+
+          // If user exists, FORCE DELETE and RETRY ONCE
+          if (error.name === 'UsernameExistsException') {
+            try {
+              console.log(`[FORCE-CLEANUP] Purging existing Cognito user ${email} to resolve conflict.`);
+              await cognito.send(new AdminDeleteUserCommand({
+                UserPoolId: USER_POOL_ID,
+                Username: email
+              }));
+              
+              // Wait 500ms for Cognito propagation
+              await new Promise(resolve => setTimeout(resolve, 500));
+
+              // Retry creation
+              await createUser();
+              
+              return {
+                statusCode: 201,
+                headers,
+                body: JSON.stringify({ message: "User re-registered successfully after cleanup." })
+              };
+            } catch (retryError: any) {
+              console.error("[FORCE-CLEANUP] Retry failed:", retryError);
+              return {
+                statusCode: 400,
+                headers,
+                body: JSON.stringify({ message: "Conflict detected. Please wait a moment and try again." })
+              };
+            }
+          }
+
           return {
             statusCode: 400,
             headers,
-            body: JSON.stringify({ 
-              message: cognitoError.name === 'UsernameExistsException' 
-                ? "User already exists in the directory." 
-                : `Cognito Error: ${cognitoError.message}` 
-            })
+            body: JSON.stringify({ message: error.message })
           };
         }
       }
