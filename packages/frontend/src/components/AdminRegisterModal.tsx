@@ -20,8 +20,10 @@ export const AdminRegisterModal: React.FC<AdminRegisterModalProps> = ({ isOpen, 
     campus: 'Bengaluru' 
   });
 
-  const handleAddUser = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const [retryCount, setRetryCount] = useState(0);
+
+  const handleAddUser = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setIsLoading(true);
     setError('');
     
@@ -41,11 +43,22 @@ export const AdminRegisterModal: React.FC<AdminRegisterModalProps> = ({ isOpen, 
 
       const result = await response.json();
       
+      // Handle AWS Sync Latency (409 Conflict)
+      if (response.status === 409 && retryCount < 1) {
+        setRetryCount(1);
+        setError("Optimizing Directory... One moment.");
+        setTimeout(() => {
+          handleAddUser();
+        }, 5000);
+        return;
+      }
+
       if (!response.ok) {
         throw new Error(result.message || 'Failed to register user');
       }
 
       setSuccess(true);
+      setRetryCount(0);
       setTimeout(() => {
         onSuccess();
         onClose();
