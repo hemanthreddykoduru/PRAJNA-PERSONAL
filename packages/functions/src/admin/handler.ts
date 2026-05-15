@@ -207,21 +207,52 @@ export const handler: APIGatewayProxyHandler = async (event: any) => {
       }
 
       case 'confirm-delete': {
-        // For simplicity, we delete the PROFILE record which hides them from the dashboard
+        const { userId, otp } = JSON.parse(event.body || '{}');
+
+        // 1. Fetch the stored OTP
+        const otpRecord = await docClient.send(new GetCommand({
+          TableName: TABLE_NAME,
+          Key: {
+            PK: `ADMIN#OTP#${adminId}`,
+            SK: 'DELETE_VERIFICATION'
+          }
+        }));
+
+        const record = otpRecord.Item;
+
+        // 2. Validate OTP
+        if (!record || record.otp !== otp || record.targetUserId !== userId) {
+          return {
+            statusCode: 400,
+            headers,
+            body: JSON.stringify({ message: "Invalid or expired verification code." })
+          };
+        }
+
+        // 3. Check Expiry
+        if (Date.now() / 1000 > record.expiry) {
+          return {
+            statusCode: 400,
+            headers,
+            body: JSON.stringify({ message: "Verification code has expired." })
+          };
+        }
+
+        // 4. Perform the Deletion
         await docClient.send(new DeleteCommand({
           TableName: TABLE_NAME,
           Key: {
-            PK: `USER#${userId}`, // userId passed from frontend is the PK
+            PK: `USER#${userId}`, 
             SK: 'PROFILE'
           }
         }));
 
-        // 4. Cleanup OTP
+        // 5. Cleanup OTP
         await docClient.send(new DeleteCommand({
           TableName: TABLE_NAME,
           Key: {
             PK: `ADMIN#OTP#${adminId}`,
-            SK: `ACTION#DELETE#${userId}`
+            SK: 'DELETE_VERIFICATION'
           }
         }));
 
