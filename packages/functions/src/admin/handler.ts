@@ -62,7 +62,6 @@ export const handler: APIGatewayProxyHandler = async (event: any) => {
         const { name, email, department, role, campus } = JSON.parse(event.body || '{}');
         
         const createUser = async () => {
-          // 1. Create User in Cognito
           await cognito.send(new AdminCreateUserCommand({
             UserPoolId: USER_POOL_ID,
             Username: email,
@@ -74,7 +73,6 @@ export const handler: APIGatewayProxyHandler = async (event: any) => {
             DesiredDeliveryMediums: ['EMAIL']
           }));
 
-          // 2. Create Profile in DynamoDB
           await docClient.send(new PutCommand({
             TableName: TABLE_NAME,
             Item: {
@@ -90,55 +88,57 @@ export const handler: APIGatewayProxyHandler = async (event: any) => {
             }
           }));
 
-          // 3. Log Action
           await logAction(adminId, 'INVITE_USER', { name, email, role, department, campus }, event.requestContext?.identity?.sourceIp || '0.0.0.0');
         };
 
+        const forceCleanup = async () => {
+          try {
+            console.log(`[INDESTRUCTIBLE-ENGINE] Aggressive purge triggered for: ${email}`);
+            await cognito.send(new AdminDeleteUserCommand({
+              UserPoolId: USER_POOL_ID,
+              Username: email
+            }));
+          } catch (e) {
+            // User might already be gone
+          }
+        };
+
+        // Execution Logic with Backoff
         try {
           await createUser();
-          return {
-            statusCode: 201,
-            headers,
-            body: JSON.stringify({ message: "Invitation sent successfully" })
-          };
+          return { statusCode: 201, headers, body: JSON.stringify({ message: "Invitation sent successfully" }) };
         } catch (error: any) {
-          console.error("Initial Creation Error:", error);
-
-          // If user exists, FORCE DELETE and RETRY ONCE
           if (error.name === 'UsernameExistsException') {
+            console.warn(`[INDESTRUCTIBLE-ENGINE] Conflict detected. Starting Multi-Stage Recovery for ${email}`);
+            
+            // Phase 1: Immediate Cleanup + 1s Wait
+            await forceCleanup();
+            await new Promise(r => setTimeout(r, 1000));
+            
             try {
-              console.log(`[FORCE-CLEANUP] Purging existing Cognito user ${email} to resolve conflict.`);
-              await cognito.send(new AdminDeleteUserCommand({
-                UserPoolId: USER_POOL_ID,
-                Username: email
-              }));
-              
-              // Wait 500ms for Cognito propagation
-              await new Promise(resolve => setTimeout(resolve, 500));
-
-              // Retry creation
               await createUser();
+              return { statusCode: 201, headers, body: JSON.stringify({ message: "Registration successful after recovery." }) };
+            } catch (err2) {
+              // Phase 2: Final Cleanup + 2s Wait
+              console.warn(`[INDESTRUCTIBLE-ENGINE] Conflict persisted. Stage 2 Backoff (2s)...`);
+              await forceCleanup();
+              await new Promise(r => setTimeout(r, 2000));
               
-              return {
-                statusCode: 201,
-                headers,
-                body: JSON.stringify({ message: "User re-registered successfully after cleanup." })
-              };
-            } catch (retryError: any) {
-              console.error("[FORCE-CLEANUP] Retry failed:", retryError);
-              return {
-                statusCode: 400,
-                headers,
-                body: JSON.stringify({ message: "Conflict detected. Please wait a moment and try again." })
-              };
+              try {
+                await createUser();
+                return { statusCode: 201, headers, body: JSON.stringify({ message: "Registration successful after extended recovery." }) };
+              } catch (finalError: any) {
+                console.error(`[INDESTRUCTIBLE-ENGINE] CRITICAL: System could not reconcile state for ${email}.`, finalError);
+                return {
+                  statusCode: 409,
+                  headers,
+                  body: JSON.stringify({ message: "AWS is currently synchronizing this user. Please try again in 5 seconds." })
+                };
+              }
             }
           }
 
-          return {
-            statusCode: 400,
-            headers,
-            body: JSON.stringify({ message: error.message })
-          };
+          return { statusCode: 400, headers, body: JSON.stringify({ message: error.message }) };
         }
       }
 
