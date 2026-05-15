@@ -211,6 +211,16 @@ const AdminManagement: React.FC = () => {
     setDeleteContext({ isOpen: true, userId, userEmail: email });
   };
 
+  const handleOnUserDeleted = (deletedId: string) => {
+    // OPTIMISTIC UI: Immediately remove from local state so the ghost record disappears
+    setFaculty(prev => prev.filter(f => f.id !== deletedId));
+    
+    // Background Sync: Re-fetch after a delay to ensure DB consistency
+    setTimeout(() => {
+      fetchUsers();
+    }, 2000);
+  };
+
   const handleExport = () => {
     const headers = 'id,name,email,department,campus,role,status\n';
     const dataRows = faculty.map(m => 
@@ -549,7 +559,7 @@ const AdminManagement: React.FC = () => {
         userId={deleteContext.userId}
         userEmail={deleteContext.userEmail}
         onClose={() => setDeleteContext({ ...deleteContext, isOpen: false })}
-        onDeleted={fetchUsers}
+        onDeleted={() => handleOnUserDeleted(deleteContext.userId)}
       />
     </div>
   );
