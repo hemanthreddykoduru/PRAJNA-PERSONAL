@@ -240,9 +240,11 @@ export const handler: APIGatewayProxyHandler = async (event: any) => {
 
         // 4. Perform the Deletion (Normalize PK to ensure it matches the USER# format)
         const deleteKey = userId.startsWith('USER#') ? userId : `USER#${userId}`;
+        const userEmail = userId.replace('USER#', '');
         
-        console.log(`[DELETION ENGINE] Permanently removing: ${deleteKey}`);
+        console.log(`[DELETION ENGINE] Permanently removing: ${deleteKey} from DynamoDB and Cognito`);
 
+        // A. Delete from DynamoDB
         await docClient.send(new DeleteCommand({
           TableName: TABLE_NAME,
           Key: {
@@ -250,6 +252,18 @@ export const handler: APIGatewayProxyHandler = async (event: any) => {
             SK: 'PROFILE'
           }
         }));
+
+        // B. Delete from Cognito (This prevents the "User already exists" error on re-registration)
+        try {
+          await cognito.send(new AdminDeleteUserCommand({
+            UserPoolId: USER_POOL_ID,
+            Username: userEmail
+          }));
+          console.log(`[DELETION ENGINE] Successfully purged ${userEmail} from Cognito.`);
+        } catch (cognitoError: any) {
+          console.error(`[DELETION ENGINE] Cognito deletion failed for ${userEmail}:`, cognitoError);
+          // We don't fail the whole request if the user is already gone from Cognito
+        }
 
         // 5. Cleanup OTP
         await docClient.send(new DeleteCommand({
