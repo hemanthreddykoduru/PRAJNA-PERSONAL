@@ -538,10 +538,10 @@ const AdminManagement: React.FC = () => {
         
         <div className="p-6 bg-gray-50/50 border-t border-gray-100 flex justify-between items-center">
           <div className="text-sm text-gray-500 font-medium">
-            Showing <span className="text-gray-900 font-bold">1-10</span> of <span className="text-gray-900 font-bold">1,451</span> results
+            Showing <span className="text-gray-900 font-bold">{faculty.length > 0 ? `1-${Math.min(10, faculty.length)}` : '0'}</span> of <span className="text-gray-900 font-bold">{faculty.length.toLocaleString()}</span> results
           </div>
           <div className="flex gap-2">
-            {[1, 2, 3, '...', 145].map((p, i) => (
+            {[1].map((p, i) => (
               <button 
                 key={i} 
                 className={`w-10 h-10 rounded-xl font-bold transition-all ${
