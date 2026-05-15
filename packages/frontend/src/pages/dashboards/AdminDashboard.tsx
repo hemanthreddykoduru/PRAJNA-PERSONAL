@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Users, Globe, Settings, Shield, Activity, Database, UserPlus, AlertCircle, Loader2 } from 'lucide-react';
 import { fetchAuthSession } from 'aws-amplify/auth';
+import { AdminRegisterModal } from '../../components/AdminRegisterModal';
 
 export function AdminDashboard() {
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
@@ -61,6 +62,12 @@ export function AdminDashboard() {
           Add User
         </button>
       </div>
+
+      <AdminRegisterModal 
+        isOpen={isAddUserOpen}
+        onClose={() => setIsAddUserOpen(false)}
+        onSuccess={fetchData}
+      />
 
       {/* System Health Summary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
