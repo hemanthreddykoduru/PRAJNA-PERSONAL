@@ -95,12 +95,16 @@ export function AICompanionChat({ isOpen, onClose }: { isOpen: boolean; onClose:
 
       if (response.ok) {
         const aiData = await response.json();
-        if (aiData.role === 'assistant') {
+        // Defensive check for DoubleWord/OpenAI response format
+        const content = aiData.choices?.[0]?.message?.content || aiData.content;
+        const timestamp = aiData.timestamp || Date.now();
+
+        if (content) {
           const aiMsg: Message = {
-            id: aiData.timestamp.toString(),
+            id: timestamp.toString(),
             role: 'assistant',
-            content: aiData.content,
-            timestamp: new Date(aiData.timestamp)
+            content: content,
+            timestamp: new Date(timestamp)
           };
           setMessages(prev => [...prev, aiMsg]);
         }
