@@ -15,7 +15,8 @@ export function AICompanionChat({ isOpen, onClose }: { isOpen: boolean; onClose:
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const API_BASE = import.meta.env.VITE_API_URL || 'https://wh0rh0v5y9.execute-api.us-east-1.amazonaws.com/prod';
+  const rawApiBase = import.meta.env.VITE_API_URL || 'https://wh0rh0v5y9.execute-api.us-east-1.amazonaws.com/prod';
+  const API_BASE = rawApiBase.endsWith('/') ? rawApiBase.slice(0, -1) : rawApiBase;
 
   // 1. Fetch History from AWS (REAL)
   useEffect(() => {
