@@ -1,18 +1,16 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
-import { BedrockRuntimeClient, InvokeModelCommand } from "@aws-sdk/client-bedrock-runtime";
 
 const client = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(client);
-const bedrock = new BedrockRuntimeClient({ region: "us-east-1" });
+
+// DoubleWord Config
+const DOUBLEWORD_API_KEY = process.env.DOUBLEWORD_API_KEY || 'sk-YLMHC1W5OJ5dXZ3GT8Y_plH6f5Ciw5vXz95I-7zAN_o';
+const DOUBLEWORD_URL = "https://api.doubleword.ai/v1/chat/completions";
 
 const TABLE_NAME = process.env.TABLE_NAME || '';
 const USER_TABLE = process.env.USER_TABLE_NAME || '';
-
-if (!TABLE_NAME || !USER_TABLE) {
-  console.error("CRITICAL: Environment variables TABLE_NAME or USER_TABLE_NAME are missing.");
-}
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -40,7 +38,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         Item: { userId, timestamp: timestamp || Date.now(), role: 'user', content },
       }));
 
-      // 2. Fetch Context (Last 5 messages + Profile)
+      // 2. Fetch Context
       const historyRes = await docClient.send(new QueryCommand({
         TableName: TABLE_NAME,
         KeyConditionExpression: 'userId = :uid',
@@ -56,49 +54,40 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       }));
 
       const profileData = profileRes.Items?.find(i => i.SK === 'PROFILE') || {};
-      const researchData = profileRes.Items?.filter(i => i.SK.startsWith('PUB#')) || [];
-
       const contextFacts = `
-        FACULTY_PROFILE:
-        - Name: ${profileData.name || 'GITAM Faculty'}
-        - Department: ${profileData.department || 'N/A'}
-        - PRAJNA Score: ${profileData.prajnaScore || 0}
-        - Tier: ${profileData.tier || 'BRONZE'}
-        - Publications: ${researchData.length}
+        FACULTY: ${profileData.name || 'GITAM Faculty'}
+        DEPT: ${profileData.department || 'N/A'}
+        SCORE: ${profileData.prajnaScore || 0}
+        TIER: ${profileData.tier || 'BRONZE'}
       `;
 
-      // 3. Build Claude Messages
-      let lastRole = '';
-      const chatMessages: any[] = [];
-      (historyRes.Items || []).reverse().forEach(m => {
-        const r = m.role === 'assistant' ? 'assistant' : 'user';
-        if (r !== lastRole) {
-          chatMessages.push({ role: r, content: [{ type: 'text', text: m.content }] });
-          lastRole = r;
-        }
+      // 3. Build Messages
+      const chatMessages = (historyRes.Items || []).reverse().map(m => ({
+        role: m.role,
+        content: m.content
+      }));
+      
+      if (chatMessages.length === 0) chatMessages.push({ role: 'user', content });
+
+      // 4. Call DoubleWord API
+      const response = await fetch(DOUBLEWORD_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${DOUBLEWORD_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: "gpt-4o-mini", // DoubleWord supports standard model names
+          messages: [
+            { role: "system", content: `You are PRAJNA, the official AI Companion for GITAM University. Context: ${contextFacts}` },
+            ...chatMessages
+          ],
+          temperature: 0.7
+        })
       });
 
-      if (chatMessages.length === 0) chatMessages.push({ role: 'user', content: [{ type: 'text', text: content }] });
-
-      // 4. Invoke Claude 3 Haiku (Higher Quota)
-      const payload = {
-        anthropic_version: "bedrock-2023-05-31",
-        max_tokens: 1000,
-        system: `You are PRAJNA, the official AI Career Companion for GITAM University. 
-                 Use this context: ${contextFacts}`,
-        messages: chatMessages
-      };
-
-      const command = new InvokeModelCommand({
-        modelId: "anthropic.claude-3-haiku-20240307-v1:0",
-        contentType: "application/json",
-        accept: "application/json",
-        body: JSON.stringify(payload),
-      });
-
-      const response = await bedrock.send(command);
-      const responseBody = JSON.parse(new TextDecoder().decode(response.body));
-      const aiContent = responseBody.content[0].text;
+      const data = await response.json();
+      const aiContent = data.choices[0].message.content;
       const aiTimestamp = Date.now();
 
       // 5. Save AI Response
