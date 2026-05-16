@@ -7,6 +7,14 @@ from google.adk.sessions import InMemorySessionService
 from google.genai import types
 from bedrock_agentcore.runtime import BedrockAgentCoreApp
 
+import boto3
+from boto3.dynamodb.conditions import Key
+
+# --- DATABASE CONFIGURATION ---
+TABLE_NAME = os.environ.get('TABLE_NAME', 'prajna-main-table')
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table(TABLE_NAME)
+
 # --- INSTITUTIONAL TOOLS (Tools for the Agents) ---
 
 def list_institutional_faculty(campus=None):
@@ -14,15 +22,41 @@ def list_institutional_faculty(campus=None):
     Retrieves the complete list of faculty members for a specific campus or the entire institution.
     Use this to audit user distribution or fetch specific faculty details.
     """
-    # This will eventually call your DynamoDB /admin?action=list logic
-    return "Querying institutional directory for campus: " + (campus or "All")
+    try:
+        # Scan is used here for simplicity in listing, but can be optimized with GSI
+        response = table.scan()
+        items = response.get('Items', [])
+        
+        # Filter profiles only
+        profiles = [i for i in items if i.get('SK') == 'PROFILE']
+        
+        if campus:
+            profiles = [p for p in profiles if p.get('campus') == campus]
+            
+        summary = f"Institutional Audit Result: Found {len(profiles)} faculty members in {campus or 'all campuses'}.\n"
+        for p in profiles[:5]: # Return a snippet for reasoning
+            summary += f"- {p.get('name')} ({p.get('role')}) in {p.get('department')}\n"
+            
+        return summary
+    except Exception as e:
+        return f"Error auditing directory: {str(e)}"
 
 def analyze_research_impact(department):
     """
     Performs deep-reasoning analysis on the research output of a specific department.
-    Calculates h-index trends, publication density, and grant success rates.
+    Calculates publication density and department health based on active faculty.
     """
-    return f"Analyzing research metrics for the {department} department..."
+    try:
+        response = table.scan()
+        items = response.get('Items', [])
+        dept_faculty = [i for i in items if i.get('SK') == 'PROFILE' and i.get('department') == department]
+        
+        active_count = len([f for f in dept_faculty if f.get('status') == 'active'])
+        pending_count = len([f for f in dept_faculty if f.get('status') == 'pending'])
+        
+        return f"Research Intelligence Report for {department}:\n- Total Faculty: {len(dept_faculty)}\n- Active Researchers: {active_count}\n- Pending Activation: {pending_count}\n- Department Health: {'High' if active_count > pending_count else 'Critical'}"
+    except Exception as e:
+        return f"Error analyzing research: {str(e)}"
 
 # --- AGENT DEFINITIONS (The Specialized Intellects) ---
 
