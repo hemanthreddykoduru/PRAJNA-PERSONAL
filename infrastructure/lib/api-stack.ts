@@ -228,7 +228,30 @@ export class ApiStack extends cdk.Stack {
     table.grantReadData(agenticIntelligenceHandler);
     userPool.grant(agenticIntelligenceHandler, 'cognito-idp:ListUsers');
 
+    // 13. AI Chat Handler
+    const chatHandler = new lambda.NodejsFunction(this, 'ChatHandler', {
+      ...lambdaConfig,
+      entry: path.join(__dirname, '../../packages/functions/src/chat/handler.ts'),
+      handler: 'handler',
+      environment: { 
+        TABLE_NAME: props.auditTable.tableName, // Re-using audit table structure or specific chat table
+        USER_TABLE_NAME: table.tableName 
+      },
+      timeout: cdk.Duration.seconds(30),
+    });
+
+    props.auditTable.grantReadWriteData(chatHandler);
+    table.grantReadData(chatHandler);
+    chatHandler.addToRolePolicy(new cdk.aws_iam.PolicyStatement({
+      actions: ['bedrock:InvokeModel'],
+      resources: ['*'],
+    }));
+
     // --- API ROUTES ---
+    const history = api.root.addResource('history');
+    history.addMethod('GET', new apigateway.LambdaIntegration(chatHandler), authOptions);
+    history.addMethod('POST', new apigateway.LambdaIntegration(chatHandler), authOptions);
+
     const ai = api.root.addResource('ai');
     const reason = ai.addResource('reason');
     reason.addMethod('POST', new apigateway.LambdaIntegration(agenticIntelligenceHandler), authOptions);
