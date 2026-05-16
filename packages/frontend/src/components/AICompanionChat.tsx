@@ -43,10 +43,11 @@ export function AICompanionChat({ isOpen, onClose }: { isOpen: boolean; onClose:
               timestamp: new Date(m.timestamp) 
             })));
           } else {
+            // Initial Interaction Fallback
             setMessages([{
-              id: '1',
+              id: 'initial_welcome',
               role: 'assistant',
-              content: `Namaste Dr. ${user.name || 'Faculty'}! I'm your cloud-synced PRAJNA companion. Your history is now securely stored in AWS.`,
+              content: `Namaste Dr. ${user.name || 'Faculty'}! I am PRAJNA, your AI Career Companion. How can I assist you with your research or institutional goals today?`,
               timestamp: new Date()
             }]);
           }
@@ -106,6 +107,12 @@ export function AICompanionChat({ isOpen, onClose }: { isOpen: boolean; onClose:
       }
     } catch (e) {
       console.error("AI chat failed", e);
+      setMessages(prev => [...prev, {
+        id: 'error-' + Date.now(),
+        role: 'assistant',
+        content: "I'm having trouble connecting to my Bedrock brain. Please check your network or try again in a moment.",
+        timestamp: new Date()
+      }]);
     }
   };
 
