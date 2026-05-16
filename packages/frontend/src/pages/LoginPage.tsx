@@ -73,17 +73,28 @@ const LoginPage: React.FC = () => {
       if (isSignedIn) {
         const session = await fetchAuthSession();
         const groups: string[] = (session.tokens?.idToken?.payload as any)?.['cognito:groups'] || [];
-        window.location.href = getRoleHome(groups);
+        const destination = getRoleHome(groups);
+        
+        // Single Page Navigation for instant transition
+        navigate(destination, { replace: true });
+        
+        // Safety Fallback for edge cases
+        setTimeout(() => {
+           if (window.location.pathname === '/login') {
+             window.location.href = destination;
+           }
+        }, 500);
       }
     } catch (err: any) {
       console.error("Login attempt error:", err);
+      setIsLoading(false); // Immediate unlock of UI
       if (err.name === 'UserAlreadyAuthenticatedException' || err.message?.includes('already a signed in user')) {
         checkExistingSession();
       } else {
         setError(err.message || 'Invalid username or password.');
       }
     } finally {
-      setIsLoading(false);
+      // We don't set loading false here if redirecting to prevent flickering
     }
   };
 
