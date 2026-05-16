@@ -10,6 +10,10 @@ const bedrock = new BedrockRuntimeClient({ region: "us-east-1" });
 const TABLE_NAME = process.env.TABLE_NAME || '';
 const USER_TABLE = process.env.USER_TABLE_NAME || '';
 
+if (!TABLE_NAME || !USER_TABLE) {
+  console.error("CRITICAL: Environment variables TABLE_NAME or USER_TABLE_NAME are missing.");
+}
+
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
