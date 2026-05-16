@@ -213,7 +213,26 @@ export class ApiStack extends cdk.Stack {
       resources: ['*'],
     }));
 
+    // 12. Agentic Intelligence Handler (Python-based ADK)
+    const agenticIntelligenceHandler = new lam.Function(this, 'AgenticIntelligenceHandler', {
+      runtime: lam.Runtime.PYTHON_3_12,
+      code: lam.Code.fromAsset(path.join(__dirname, '../../packages/functions/src/ai')),
+      handler: 'agent_handler.agent_invocation',
+      timeout: cdk.Duration.seconds(60), // Agents need reasoning time
+      environment: {
+        TABLE_NAME: table.tableName,
+        USER_POOL_ID: userPool.userPoolId,
+      },
+    });
+
+    table.grantReadData(agenticIntelligenceHandler);
+    userPool.grant(agenticIntelligenceHandler, 'cognito-idp:ListUsers');
+
     // --- API ROUTES ---
+    const ai = api.root.addResource('ai');
+    const reason = ai.addResource('reason');
+    reason.addMethod('POST', new apigateway.LambdaIntegration(agenticIntelligenceHandler), authOptions);
+
     const faculty = api.root.addResource('faculty');
     const profile = faculty.addResource('profile');
     profile.addMethod('GET', new apigateway.LambdaIntegration(profileHandler), authOptions);
