@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Send, X, Sparkles, Brain, Zap, Target } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { fetchAuthSession } from 'aws-amplify/auth';
 
 interface Message {
   id: string;
@@ -14,7 +15,7 @@ export function AICompanionChat({ isOpen, onClose }: { isOpen: boolean; onClose:
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const API_BASE = 'https://wh0rh0v5y9.execute-api.us-east-1.amazonaws.com/prod';
+  const API_BASE = import.meta.env.VITE_API_URL || 'https://wh0rh0v5y9.execute-api.us-east-1.amazonaws.com/prod';
 
   // 1. Fetch History from AWS (REAL)
   useEffect(() => {
@@ -23,7 +24,15 @@ export function AICompanionChat({ isOpen, onClose }: { isOpen: boolean; onClose:
       
       setIsLoading(true);
       try {
-        const response = await fetch(`${API_BASE}/history/${user.sub}`);
+        const session = await fetchAuthSession();
+        const token = session.tokens?.idToken?.toString();
+
+        const response = await fetch(`${API_BASE}/history`, {
+          headers: { 
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
         if (response.ok) {
           const data = await response.json();
           if (Array.isArray(data) && data.length > 0) {
@@ -54,25 +63,6 @@ export function AICompanionChat({ isOpen, onClose }: { isOpen: boolean; onClose:
   const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // 2. Sync message to AWS (REAL)
-  const syncMessageToAWS = async (msg: Message) => {
-    if (!user?.sub) return;
-    try {
-      await fetch(`${API_BASE}/history`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: user.sub,
-          role: msg.role,
-          content: msg.content,
-          timestamp: msg.timestamp.getTime()
-        })
-      });
-    } catch (e) {
-      console.error("Cloud message sync failed", e);
-    }
-  };
-
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -84,9 +74,15 @@ export function AICompanionChat({ isOpen, onClose }: { isOpen: boolean; onClose:
     setInput('');
     
     try {
+      const session = await fetchAuthSession();
+      const token = session.tokens?.idToken?.toString();
+
       const response = await fetch(`${API_BASE}/history`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({
           userId: user.sub,
           role: userMsg.role,
@@ -117,9 +113,15 @@ export function AICompanionChat({ isOpen, onClose }: { isOpen: boolean; onClose:
     setMessages(prev => [...prev, userMsg]);
     
     try {
+      const session = await fetchAuthSession();
+      const token = session.tokens?.idToken?.toString();
+
       const response = await fetch(`${API_BASE}/history`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({
           userId: user.sub,
           role: userMsg.role,
