@@ -4,6 +4,7 @@ import { User, Lock, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
 import { signIn, getCurrentUser, fetchAuthSession } from 'aws-amplify/auth';
 import type { UserRole } from '../contexts/AuthContext';
 import { ROLE_HOME, useAuth } from '../contexts/AuthContext';
+import gitamLogo from '../assets/gitam-Logo-new.png';
 
 const LoginPage: React.FC = () => {
   const [userId, setUserId] = useState('');
@@ -116,8 +117,8 @@ const LoginPage: React.FC = () => {
         
         <div className="relative z-10">
           <div className="flex items-center gap-4 mb-12">
-            <div className="w-40 h-auto bg-white rounded-[2rem] flex items-center justify-center shadow-2xl p-6 transition-transform hover:scale-105 duration-300">
-              <img src="/assets/gitam-Logo-new.png" alt="GITAM" className="w-full h-auto object-contain" />
+            <div className="w-40 shrink-0 bg-white rounded-[2rem] flex items-center justify-center shadow-2xl p-4 transition-transform hover:scale-105 duration-300">
+              <img src={gitamLogo} alt="GITAM" className="w-full h-full object-contain" />
             </div>
             <div>
               <span className="text-white text-4xl font-black tracking-tight uppercase italic block leading-none">PRAJNA</span>
@@ -151,7 +152,7 @@ const LoginPage: React.FC = () => {
       <div className="w-full lg:w-5/12 flex flex-col justify-center px-8 sm:px-16 lg:px-24">
         <div className="mb-16 text-center">
           <div className="mb-6 flex justify-center">
-             <img src="/assets/gitam-Logo-new.png" alt="GITAM" className="h-16 object-contain" />
+             <img src={gitamLogo} alt="GITAM" className="h-16 object-contain" />
           </div>
           <h2 className="text-4xl font-bold text-text mb-2">Welcome Back</h2>
           <p className="text-gray-500">Please enter your credentials to access your dashboard.</p>
