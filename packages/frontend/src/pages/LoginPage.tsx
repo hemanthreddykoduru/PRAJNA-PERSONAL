@@ -5,6 +5,7 @@ import { signIn, getCurrentUser, fetchAuthSession } from 'aws-amplify/auth';
 import type { UserRole } from '../contexts/AuthContext';
 import { ROLE_HOME, useAuth } from '../contexts/AuthContext';
 import gitamLogo from '../assets/gitam-Logo-new.png';
+import prajnaLogo from '../assets/PRAJNA-LOGO.png';
 
 const LoginPage: React.FC = () => {
   const [userId, setUserId] = useState('');
@@ -116,14 +117,8 @@ const LoginPage: React.FC = () => {
         <div className="absolute bottom-[-5%] left-[-5%] w-64 h-64 bg-secondary/20 rounded-full blur-3xl" />
         
         <div className="relative z-10">
-          <div className="flex items-center gap-4 mb-12">
-            <div className="w-40 shrink-0 bg-white rounded-[2rem] flex items-center justify-center shadow-2xl p-4 transition-transform hover:scale-105 duration-300">
-              <img src={gitamLogo} alt="GITAM" className="w-full h-full object-contain" />
-            </div>
-            <div>
-              <span className="text-white text-4xl font-black tracking-tight uppercase italic block leading-none">PRAJNA</span>
-              <span className="text-white/60 text-[12px] font-bold uppercase tracking-[0.2em] mt-1">GITAM University</span>
-            </div>
+          <div className="mb-12 transition-transform hover:scale-105 duration-300">
+            <img src={prajnaLogo} alt="PRAJNA - GITAM University" className="h-24 w-auto object-contain" />
           </div>
           
           <h1 className="text-6xl font-bold text-white leading-tight mb-6">
