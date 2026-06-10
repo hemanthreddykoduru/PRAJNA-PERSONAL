@@ -10,4 +10,7 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    assetsInlineLimit: 40000, // Forces the ~21KB logo to be embedded directly into the JS bundle
+  },
 })
