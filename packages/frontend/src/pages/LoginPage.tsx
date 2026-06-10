@@ -5,7 +5,7 @@ import { signIn, getCurrentUser, fetchAuthSession } from 'aws-amplify/auth';
 import type { UserRole } from '../contexts/AuthContext';
 import { ROLE_HOME, useAuth } from '../contexts/AuthContext';
 import gitamLogo from '../assets/gitam-Logo-new.png';
-import prajnaLogo from '../assets/PRAJNA-LOGO.png';
+import prajnaLogo from '../assets/PRAJNA-LOGO-CROP.jpeg';
 
 const LoginPage: React.FC = () => {
   const [userId, setUserId] = useState('');
