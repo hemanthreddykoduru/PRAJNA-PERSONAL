@@ -118,7 +118,7 @@ const LoginPage: React.FC = () => {
         
         <div className="relative z-10">
           <div className="mb-12 transition-transform hover:scale-105 duration-300">
-            <img src={prajnaLogo} alt="PRAJNA - GITAM University" className="h-24 w-auto object-contain" />
+            <img src={prajnaLogo} alt="PRAJNA - GITAM University" className="h-32 w-auto object-contain bg-white rounded-[2rem] shadow-2xl" />
           </div>
           
           <h1 className="text-6xl font-bold text-white leading-tight mb-6">
