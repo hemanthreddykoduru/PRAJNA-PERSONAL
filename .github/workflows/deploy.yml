@@ -34,8 +34,8 @@ jobs:
           npm install
           
           cd infrastructure
-          npx cdk deploy PrajnaFoundationStack --require-approval never
-          npx cdk deploy --all --require-approval never
+          cdk deploy PrajnaFoundationStack --require-approval never
+          cdk deploy --all --require-approval never
 
       - name: Build and Upload Frontend
         run: |
