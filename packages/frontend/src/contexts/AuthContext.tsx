@@ -84,6 +84,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (err) {
       console.error('Auth Load Error:', err);
       setUser(null);
+      // BREAK THE LOOP: If we can't load the user but tokens exist, the session is corrupted/invalid.
+      // We must clear it, otherwise LoginPage will see the bad tokens and redirect back here infinitely.
+      Object.keys(localStorage).forEach(key => {
+        if (key.includes('amplify') || key.includes('CognitoIdentityServiceProvider')) {
+          localStorage.removeItem(key);
+        }
+      });
+      sessionStorage.clear();
     } finally {
       setLoading(false);
     }

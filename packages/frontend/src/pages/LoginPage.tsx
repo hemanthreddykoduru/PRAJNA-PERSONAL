@@ -31,7 +31,7 @@ const LoginPage: React.FC = () => {
       const session = await fetchAuthSession();
       if (session.tokens?.idToken) {
         const groups: string[] = (session.tokens.idToken.payload as any)?.['cognito:groups'] || [];
-        window.location.href = getRoleHome(groups);
+        navigate(getRoleHome(groups), { replace: true });
         return;
       }
     } catch (e) {
@@ -77,13 +77,6 @@ const LoginPage: React.FC = () => {
         
         // Single Page Navigation for instant transition
         navigate(destination, { replace: true });
-        
-        // Safety Fallback for edge cases
-        setTimeout(() => {
-           if (window.location.pathname === '/login') {
-             window.location.href = destination;
-           }
-        }, 500);
       }
     } catch (err: any) {
       console.error("Login attempt error:", err);
