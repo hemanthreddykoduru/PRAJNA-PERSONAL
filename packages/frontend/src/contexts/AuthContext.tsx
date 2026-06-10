@@ -17,12 +17,14 @@ interface AuthContextType {
   user: AuthUser | null;
   loading: boolean;
   signOutUser: () => Promise<void>;
+  reloadUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
   signOutUser: async () => {},
+  reloadUser: async () => {},
 });
 
 export const ROLE_HOME: Record<UserRole, string> = {
@@ -122,7 +124,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signOutUser }}>
+    <AuthContext.Provider value={{ user, loading, signOutUser, reloadUser: loadUser }}>
       {children}
     </AuthContext.Provider>
   );

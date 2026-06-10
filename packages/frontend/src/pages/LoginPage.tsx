@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { User, Lock, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
 import { signIn, getCurrentUser, fetchAuthSession } from 'aws-amplify/auth';
 import type { UserRole } from '../contexts/AuthContext';
-import { ROLE_HOME } from '../contexts/AuthContext';
+import { ROLE_HOME, useAuth } from '../contexts/AuthContext';
 
 const LoginPage: React.FC = () => {
   const [userId, setUserId] = useState('');
@@ -12,6 +12,7 @@ const LoginPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const navigate = useNavigate();
+  const { reloadUser } = useAuth();
 
   useEffect(() => {
     checkExistingSession();
@@ -74,6 +75,9 @@ const LoginPage: React.FC = () => {
         const session = await fetchAuthSession();
         const groups: string[] = (session.tokens?.idToken?.payload as any)?.['cognito:groups'] || [];
         const destination = getRoleHome(groups);
+        
+        // CRITICAL: Force AuthContext to reload user data BEFORE navigating
+        await reloadUser();
         
         // Single Page Navigation for instant transition
         navigate(destination, { replace: true });
