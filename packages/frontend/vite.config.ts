@@ -11,6 +11,6 @@ export default defineConfig({
     },
   },
   build: {
-    assetsInlineLimit: 40000, // Forces the ~21KB logo to be embedded directly into the JS bundle
+    assetsInlineLimit: 150000, // Forces the 106KB logo to be embedded directly into the JS bundle
   },
 })
