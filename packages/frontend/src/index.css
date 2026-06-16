@@ -10,8 +10,8 @@
 @config "../tailwind.config.js";
 
 @theme {
-  --color-primary: #00BD97;
-  --color-primary-hover: #008A7C;
+  --color-primary: #2563EB;
+  --color-primary-hover: #1D4ED8;
   --color-secondary: #F0E0C1;
   --color-accent: #E33A0C;
   --color-background: #0B121E;
@@ -75,27 +75,27 @@ body {
   --card-foreground: #F0F4F5;
   --popover: #121B2B;
   --popover-foreground: #F0F4F5;
-  --primary: #00BD97;
+  --primary: #2563EB;
   --primary-foreground: #0B121E;
   --secondary: #1D2635;
   --secondary-foreground: #F0F4F5;
   --muted: #121B2B;
   --muted-foreground: #8AA2A8;
-  --accent: #00BD97;
+  --accent: #2563EB;
   --accent-foreground: #0B121E;
   --destructive: #EF4444;
   --border: #1D2635;
   --input: #1D2635;
-  --ring: #00BD97;
+  --ring: #2563EB;
   --radius: 0.75rem;
   --sidebar: #121B2B;
   --sidebar-foreground: #F0F4F5;
-  --sidebar-primary: #00BD97;
+  --sidebar-primary: #2563EB;
   --sidebar-primary-foreground: #0B121E;
   --sidebar-accent: rgba(255, 255, 255, 0.05);
   --sidebar-accent-foreground: #F0F4F5;
   --sidebar-border: rgba(255, 255, 255, 0.1);
-  --sidebar-ring: #00BD97;
+  --sidebar-ring: #2563EB;
 }
 
 .dark {
