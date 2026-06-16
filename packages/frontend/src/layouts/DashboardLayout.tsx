@@ -163,12 +163,14 @@ export function DashboardLayout() {
 
       {/* Sidebar Footer Section */}
       <div className="mt-auto p-4 space-y-2">
-        <button
+        <Link
+          to="/dashboard/settings"
+          onClick={() => setIsMobileMenuOpen(false)}
           className="w-full flex items-center space-x-3 px-4 py-3 text-textMuted hover:text-text hover:bg-black/5 rounded-lg transition-all duration-200 group"
         >
           <Settings size={20} className="group-hover:scale-110 transition-transform" />
           <span className="text-sm font-bold tracking-wide">Settings</span>
-        </button>
+        </Link>
 
         <button
           className="w-full flex items-center space-x-3 px-4 py-3 text-textMuted hover:text-text hover:bg-black/5 rounded-lg transition-all duration-200 group"
