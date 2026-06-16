@@ -41,15 +41,6 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   // Faculty
   { to: '/dashboard/faculty', icon: LayoutDashboard, label: 'Dashboard', roles: ['Faculty'] },
-  { to: '/dashboard/faculty/kpi', icon: Target, label: 'My KPI', roles: ['Faculty'] },
-  { to: '/dashboard/faculty/leaderboard', icon: Trophy, label: 'Leaderboard', roles: ['Faculty'] },
-  { to: '/dashboard/faculty/analytics', icon: LineChart, label: 'Analytics', roles: ['Faculty'] },
-  { to: '/dashboard/faculty/goals', icon: Crosshair, label: 'Goals & Plans', roles: ['Faculty'] },
-  { to: '/dashboard/faculty/activities', icon: Calendar, label: 'Activities', roles: ['Faculty'] },
-  { to: '/dashboard/faculty/reports', icon: FileText, label: 'Reports', roles: ['Faculty'] },
-  { to: '/dashboard/faculty/notifications', icon: Bell, label: 'Notifications', roles: ['Faculty'] },
-  { to: '/dashboard/faculty/resources', icon: BookOpen, label: 'Resources', roles: ['Faculty'] },
-  { to: '/dashboard/faculty/ai-assistant', icon: Bot, label: 'AI Assistant', roles: ['Faculty'] },
 
   // HoD
   { to: '/dashboard/hod', icon: Home, label: 'Department Home', roles: ['HoD'] },
@@ -281,25 +272,6 @@ export function DashboardLayout() {
       {/* Page Content */}
         <div className="flex-1 overflow-y-auto p-6 relative">
           <Outlet />
-
-          {/* AI Assistant Floating Action Button */}
-          {(user?.role === 'Faculty' || user?.role === 'Admin') && (
-            <button
-              onClick={() => setIsChatOpen(true)}
-              className="fixed bottom-6 right-6 w-14 h-14 bg-surface border-2 border-primary rounded-full shadow-2xl flex items-center justify-center hover:scale-105 transition-transform z-40 group"
-            >
-              <div className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center bg-background">
-                {/* Fallback avatar if pragati image not available */}
-                <span className="text-xl">👩‍💼</span>
-              </div>
-              <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-primary border-2 border-surface rounded-full"></span>
-              
-              {/* Tooltip */}
-              <span className="absolute right-full mr-4 bg-surface text-text text-xs font-semibold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap border border-border">
-                Ask Pragati ✨
-              </span>
-            </button>
-          )}
         </div>
       </main>
 
