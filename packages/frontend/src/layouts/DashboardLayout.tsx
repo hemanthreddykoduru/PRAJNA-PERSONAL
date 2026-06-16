@@ -36,6 +36,7 @@ interface NavItem {
   roles: UserRole[];
 }
 
+const NAV_ITEMS: NavItem[] = [
   // Faculty
   { to: '/dashboard/faculty', icon: LayoutDashboard, label: 'Dashboard', roles: ['Faculty'] },
   { to: '/dashboard/faculty/kpi', icon: Target, label: 'My KPI', roles: ['Faculty'] },
