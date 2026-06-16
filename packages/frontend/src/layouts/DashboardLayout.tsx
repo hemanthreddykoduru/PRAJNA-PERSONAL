@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import {
   Home, BookOpen, Award, CheckSquare, MessageSquare, LogOut,
@@ -88,6 +88,24 @@ export function DashboardLayout() {
   const { user, signOutUser } = useAuth();
   const location = useLocation();
 
+  const [headerAvatar, setHeaderAvatar] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user?.sub) {
+      const saved = localStorage.getItem(`avatar_${user.sub}`);
+      if (saved) setHeaderAvatar(saved);
+    }
+    
+    const handleAvatarUpdate = () => {
+      if (user?.sub) {
+        setHeaderAvatar(localStorage.getItem(`avatar_${user.sub}`));
+      }
+    };
+    
+    window.addEventListener('avatarUpdated', handleAvatarUpdate);
+    return () => window.removeEventListener('avatarUpdated', handleAvatarUpdate);
+  }, [user]);
+
   const handleSignOut = async () => {
     try {
       await signOutUser();
@@ -125,8 +143,12 @@ export function DashboardLayout() {
 
       <div className="px-6 py-6 border-b border-border bg-surface flex-shrink-0 hidden">
         <div className="flex items-center space-x-4">
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-white/20 to-white/5 flex items-center justify-center font-bold text-sm border border-white/20 shadow-lg text-white">
-            {initials}
+          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-white/20 to-white/5 flex items-center justify-center font-bold text-sm border border-white/20 shadow-lg text-white overflow-hidden">
+            {headerAvatar ? (
+              <img src={headerAvatar} alt="Avatar" className="w-full h-full object-cover" />
+            ) : (
+              initials
+            )}
           </div>
           <div className="min-w-0">
             <p className="text-sm font-bold text-white truncate leading-none mb-1.5">{user?.name || user?.email}</p>
@@ -239,8 +261,12 @@ export function DashboardLayout() {
               <span className="absolute -top-1 -right-1 w-2 h-2 bg-rose-500 rounded-full" />
             </button>
             <div className="flex items-center space-x-3 border-l border-border pl-6">
-              <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-xs">
-                {initials}
+              <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-xs overflow-hidden">
+                {headerAvatar ? (
+                  <img src={headerAvatar} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  initials
+                )}
               </div>
               <div className="hidden md:block text-right">
                 <p className="text-sm font-semibold text-text leading-tight">{user?.name || user?.email}</p>

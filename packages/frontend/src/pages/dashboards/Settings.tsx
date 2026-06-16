@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { User, Bell, Shield, Moon, Monitor, Mail, Key, Check } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { User, Bell, Shield, Moon, Monitor, Mail, Key, Check, Camera } from 'lucide-react';
 import { updateUserAttributes } from 'aws-amplify/auth';
 import { useAuth } from '../../contexts/AuthContext';
 import { ChangePasswordModal } from '../../components/ChangePasswordModal';
 
 export function Settings() {
   const { user, reloadUser } = useAuth();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState('');
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
   const [name, setName] = useState(user?.name || '');
   const [department, setDepartment] = useState(user?.department || 'EECE');
@@ -18,8 +20,27 @@ export function Settings() {
     if (user) {
       setName(user.name);
       setDepartment(user.department);
+      const savedAvatar = localStorage.getItem(`avatar_${user.sub}`);
+      if (savedAvatar) setAvatarPreview(savedAvatar);
     }
   }, [user]);
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        setAvatarPreview(base64String);
+        if (user?.sub) {
+          localStorage.setItem(`avatar_${user.sub}`, base64String);
+          // Trigger a custom event so the sidebar can update instantly
+          window.dispatchEvent(new Event('avatarUpdated'));
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -65,10 +86,29 @@ export function Settings() {
         
         <div className="flex flex-col md:flex-row gap-8 items-start">
           <div className="flex flex-col items-center gap-4">
-            <div className="w-24 h-24 rounded-full bg-primary flex items-center justify-center text-white font-bold text-3xl shadow-lg shadow-primary/20">
-              {initials}
+            <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+              <div className="w-24 h-24 rounded-full bg-primary flex items-center justify-center text-white font-bold text-3xl shadow-lg shadow-primary/20 overflow-hidden border-4 border-background transition-transform group-hover:scale-105">
+                {avatarPreview ? (
+                  <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  initials
+                )}
+              </div>
+              <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <Camera className="text-white" size={24} />
+              </div>
             </div>
-            <button className="text-sm font-bold text-primary hover:text-primary-hover transition-colors">
+            <input 
+              type="file" 
+              accept="image/*" 
+              className="hidden" 
+              ref={fileInputRef}
+              onChange={handleAvatarChange}
+            />
+            <button 
+              onClick={() => fileInputRef.current?.click()}
+              className="text-sm font-bold text-primary hover:text-primary-hover transition-colors"
+            >
               Change Avatar
             </button>
           </div>
