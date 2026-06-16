@@ -121,24 +121,24 @@ const LoginPage: React.FC = () => {
             <img src={prajnaLogo} alt="PRAJNA - GITAM University" className="w-72 md:w-80 h-auto object-contain bg-background rounded-[2rem] shadow-2xl p-4 border border-border" />
           </div>
           
-          <h1 className="text-6xl font-bold text-white leading-tight mb-6">
+          <h1 className="text-6xl font-bold text-text leading-tight mb-6">
             Deep Intelligence <br /> 
             <span className="text-primary italic">for GITAM Faculty.</span>
           </h1>
-          <p className="text-white/80 text-xl max-w-lg leading-relaxed">
+          <p className="text-textMuted text-xl max-w-lg leading-relaxed">
             Your AI-powered professional companion for career growth, 
             research innovation, and academic excellence.
           </p>
         </div>
 
         <div className="relative z-10 flex gap-8">
-          <div className="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/10">
+          <div className="bg-black/5 backdrop-blur-md p-6 rounded-2xl border border-black/10">
             <div className="text-primary font-bold text-3xl mb-1">30+</div>
-            <div className="text-white/60 text-sm font-medium">Core Modules</div>
+            <div className="text-textMuted text-sm font-medium">Core Modules</div>
           </div>
-          <div className="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/10">
+          <div className="bg-black/5 backdrop-blur-md p-6 rounded-2xl border border-black/10">
             <div className="text-primary font-bold text-3xl mb-1">AI-Ready</div>
-            <div className="text-white/60 text-sm font-medium">Assistant Built-in</div>
+            <div className="text-textMuted text-sm font-medium">Assistant Built-in</div>
           </div>
         </div>
       </div>
