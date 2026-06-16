@@ -123,7 +123,7 @@ const LoginPage: React.FC = () => {
           
           <h1 className="text-6xl font-bold text-white leading-tight mb-6">
             Deep Intelligence <br /> 
-            <span className="text-secondary italic">for GITAM Faculty.</span>
+            <span className="text-primary italic">for GITAM Faculty.</span>
           </h1>
           <p className="text-white/80 text-xl max-w-lg leading-relaxed">
             Your AI-powered professional companion for career growth, 
@@ -132,12 +132,12 @@ const LoginPage: React.FC = () => {
         </div>
 
         <div className="relative z-10 flex gap-8">
-          <div className="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10">
-            <div className="text-secondary font-bold text-3xl mb-1">30+</div>
+          <div className="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/10">
+            <div className="text-primary font-bold text-3xl mb-1">30+</div>
             <div className="text-white/60 text-sm font-medium">Core Modules</div>
           </div>
-          <div className="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10">
-            <div className="text-secondary font-bold text-3xl mb-1">AI-Ready</div>
+          <div className="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/10">
+            <div className="text-primary font-bold text-3xl mb-1">AI-Ready</div>
             <div className="text-white/60 text-sm font-medium">Assistant Built-in</div>
           </div>
         </div>
