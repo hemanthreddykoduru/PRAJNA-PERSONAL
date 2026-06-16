@@ -1,11 +1,23 @@
 import React, { useState } from 'react';
-import { User, Bell, Shield, Moon, Monitor, Mail, Key } from 'lucide-react';
+import { User, Bell, Shield, Moon, Monitor, Mail, Key, Check } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { ChangePasswordModal } from '../../components/ChangePasswordModal';
 
 export function Settings() {
   const { user } = useAuth();
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  const handleSave = () => {
+    setIsSaving(true);
+    // Simulate API call
+    setTimeout(() => {
+      setIsSaving(false);
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000);
+    }, 1000);
+  };
 
   const initials = user?.name
     ?.split(' ')
@@ -81,8 +93,21 @@ export function Settings() {
               </div>
             </div>
             <div className="pt-4 flex justify-end">
-              <button className="bg-primary hover:bg-primary-hover text-white px-6 py-2.5 rounded-lg font-bold shadow-sm transition-colors">
-                Save Changes
+              <button 
+                onClick={handleSave}
+                disabled={isSaving}
+                className="bg-primary hover:bg-primary-hover text-white px-6 py-2.5 rounded-lg font-bold shadow-sm transition-all flex items-center gap-2 disabled:opacity-70 min-w-[140px] justify-center"
+              >
+                {isSaving ? (
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : showSuccess ? (
+                  <>
+                    <Check size={18} />
+                    Saved!
+                  </>
+                ) : (
+                  'Save Changes'
+                )}
               </button>
             </div>
           </div>
