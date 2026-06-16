@@ -52,6 +52,13 @@ export class FoundationStack extends cdk.Stack {
       versioned: true,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
+      cors: [{
+        allowedMethods: [s3.HttpMethods.GET, s3.HttpMethods.PUT, s3.HttpMethods.POST, s3.HttpMethods.DELETE, s3.HttpMethods.HEAD],
+        allowedOrigins: ['*'],
+        allowedHeaders: ['*'],
+        exposedHeaders: ['ETag', 'x-amz-server-side-encryption', 'x-amz-request-id', 'x-amz-id-2'],
+        maxAge: 3000,
+      }],
     });
 
     // 3. Event-Driven
@@ -169,6 +176,38 @@ export class FoundationStack extends cdk.Stack {
       },
     });
 
+    // --- IDENTITY POOL FOR S3 STORAGE ---
+    const identityPool = new cognito.CfnIdentityPool(this, 'PrajnaIdentityPool', {
+      allowUnauthenticatedIdentities: false,
+      cognitoIdentityProviders: [
+        {
+          clientId: this.userPoolClient.userPoolClientId,
+          providerName: this.userPool.userPoolProviderName,
+        },
+      ],
+    });
+
+    const authenticatedRole = new cdk.aws_iam.Role(this, 'CognitoDefaultAuthenticatedRole', {
+      assumedBy: new cdk.aws_iam.FederatedPrincipal(
+        'cognito-identity.amazonaws.com',
+        {
+          StringEquals: { 'cognito-identity.amazonaws.com:aud': identityPool.ref },
+          'ForAnyValue:StringLike': { 'cognito-identity.amazonaws.com:amr': 'authenticated' },
+        },
+        'sts:AssumeRoleWithWebIdentity'
+      ),
+    });
+
+    // Grant the authenticated users permission to read/write to the S3 bucket
+    this.bucket.grantReadWrite(authenticatedRole);
+
+    new cognito.CfnIdentityPoolRoleAttachment(this, 'IdentityPoolRoleMapping', {
+      identityPoolId: identityPool.ref,
+      roles: {
+        authenticated: authenticatedRole.roleArn,
+      },
+    });
+
     // --- SSM PARAMETERS (Production Decoupling) ---
     new ssm.StringParameter(this, 'PrajnaTableNameParam', {
       parameterName: '/prajna/table-name',
@@ -186,5 +225,15 @@ export class FoundationStack extends cdk.Stack {
       parameterName: '/prajna/user-pool-client-id',
       stringValue: this.userPoolClient.userPoolClientId,
     });
+    new ssm.StringParameter(this, 'PrajnaIdentityPoolIdParam', {
+      parameterName: '/prajna/identity-pool-id',
+      stringValue: identityPool.ref,
+    });
+    new ssm.StringParameter(this, 'PrajnaBucketNameParam', {
+      parameterName: '/prajna/bucket-name',
+      stringValue: this.bucket.bucketName,
+    });
+
+    new cdk.CfnOutput(this, 'IdentityPoolId', { value: identityPool.ref });
   }
 }
