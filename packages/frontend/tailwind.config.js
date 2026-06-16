@@ -8,8 +8,8 @@ export default {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#2563EB', // Premium Royal Blue
-          hover: '#1D4ED8',   // Darker Blue
+          DEFAULT: '#ADD8E6', // Light Blue
+          hover: '#87CEEB',   // Sky Blue
         },
         secondary: {
           DEFAULT: '#F0E0C1', // GITAM Chamois

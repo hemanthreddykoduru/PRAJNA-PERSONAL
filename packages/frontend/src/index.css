@@ -10,15 +10,15 @@
 @config "../tailwind.config.js";
 
 @theme {
-  --color-primary: #2563EB;
-  --color-primary-hover: #1D4ED8;
+  --color-primary: #ADD8E6;
+  --color-primary-hover: #87CEEB;
   --color-secondary: #F0E0C1;
   --color-accent: #E33A0C;
-  --color-background: #0B121E;
-  --color-surface: #121B2B;
-  --color-text: #F0F4F5;
-  --color-textMuted: #8AA2A8;
-  --color-border: #1D2635;
+  --color-background: #FFFFFF;
+  --color-surface: #FFFFFF;
+  --color-text: #1A1A1A;
+  --color-textMuted: #666666;
+  --color-border: #EDEDED;
 }
 
 body {
@@ -69,33 +69,33 @@ body {
 }
 
 :root {
-  --background: #0B121E;
-  --foreground: #F0F4F5;
-  --card: #121B2B;
-  --card-foreground: #F0F4F5;
-  --popover: #121B2B;
-  --popover-foreground: #F0F4F5;
-  --primary: #2563EB;
-  --primary-foreground: #0B121E;
-  --secondary: #1D2635;
-  --secondary-foreground: #F0F4F5;
-  --muted: #121B2B;
-  --muted-foreground: #8AA2A8;
-  --accent: #2563EB;
-  --accent-foreground: #0B121E;
+  --background: #FFFFFF;
+  --foreground: #1A1A1A;
+  --card: #FFFFFF;
+  --card-foreground: #1A1A1A;
+  --popover: #FFFFFF;
+  --popover-foreground: #1A1A1A;
+  --primary: #ADD8E6;
+  --primary-foreground: #1A1A1A;
+  --secondary: #F0E0C1;
+  --secondary-foreground: #ADD8E6;
+  --muted: #F8F9FA;
+  --muted-foreground: #666666;
+  --accent: #E33A0C;
+  --accent-foreground: #FFFFFF;
   --destructive: #EF4444;
-  --border: #1D2635;
-  --input: #1D2635;
-  --ring: #2563EB;
+  --border: #EDEDED;
+  --input: #EDEDED;
+  --ring: #ADD8E6;
   --radius: 0.75rem;
-  --sidebar: #121B2B;
-  --sidebar-foreground: #F0F4F5;
-  --sidebar-primary: #2563EB;
-  --sidebar-primary-foreground: #0B121E;
-  --sidebar-accent: rgba(255, 255, 255, 0.05);
-  --sidebar-accent-foreground: #F0F4F5;
-  --sidebar-border: rgba(255, 255, 255, 0.1);
-  --sidebar-ring: #2563EB;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #1A1A1A;
+  --sidebar-primary: #ADD8E6;
+  --sidebar-primary-foreground: #1A1A1A;
+  --sidebar-accent: rgba(0, 0, 0, 0.05);
+  --sidebar-accent-foreground: #1A1A1A;
+  --sidebar-border: #EDEDED;
+  --sidebar-ring: #ADD8E6;
 }
 
 .dark {
