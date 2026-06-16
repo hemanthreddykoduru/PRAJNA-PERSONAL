@@ -8,8 +8,8 @@ export default {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#87CEEB', // Sky Blue
-          hover: '#5CACEE',   // Darker Sky Blue
+          DEFAULT: '#007366', // GITAM Tropical Rain Forest
+          hover: '#00594C',   // Darker shade of Primary
         },
         secondary: {
           DEFAULT: '#F0E0C1', // GITAM Chamois
