@@ -59,12 +59,16 @@ export function Settings() {
               </div>
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-textMuted uppercase tracking-wider">Department</label>
-                <input 
-                  type="text" 
-                  defaultValue="EECE Department" 
-                  disabled
-                  className="w-full px-4 py-2.5 rounded-xl border border-border bg-background/50 text-textMuted outline-none cursor-not-allowed"
-                />
+                <select 
+                  defaultValue="EECE" 
+                  className="w-full px-4 py-2.5 rounded-xl border border-border bg-background focus:ring-2 focus:ring-primary/50 outline-none text-text appearance-none"
+                >
+                  <option value="EECE">Electrical, Electronics and Communication Engineering (EECE)</option>
+                  <option value="CSE">Computer Science and Engineering (CSE)</option>
+                  <option value="MECH">Mechanical Engineering</option>
+                  <option value="CIVIL">Civil Engineering</option>
+                  <option value="BIOTECH">Biotechnology</option>
+                </select>
               </div>
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-textMuted uppercase tracking-wider">Role</label>
