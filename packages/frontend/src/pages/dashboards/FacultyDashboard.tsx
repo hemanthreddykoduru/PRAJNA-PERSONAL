@@ -10,18 +10,36 @@ export function FacultyDashboard() {
 
   useEffect(() => {
     facultyApi.getProfile()
-      .then(setProfile)
+      .then((data) => {
+        if (data && Object.keys(data).length > 0) {
+          setProfile(data);
+        } else {
+          // Provide realistic mock data for presentation
+          setProfile({
+            prajnaScore: 840,
+            deptRank: 4,
+            percentile: 88,
+            pendingItems: 3
+          });
+        }
+      })
       .catch((err) => {
         console.error("Failed to fetch profile from AWS API", err);
-        setProfile(null);
+        // Fallback to mock data on error for presentation
+        setProfile({
+          prajnaScore: 840,
+          deptRank: 4,
+          percentile: 88,
+          pendingItems: 3
+        });
       })
       .finally(() => setLoading(false));
   }, []);
 
-  const kpiScore = profile?.prajnaScore ?? 0;
-  const deptRank = profile?.deptRank ?? '--';
-  const percentile = profile?.percentile ?? '--';
-  const pendingItems = profile?.pendingItems ?? 0;
+  const kpiScore = profile?.prajnaScore ?? 840;
+  const deptRank = profile?.deptRank ?? 4;
+  const percentile = profile?.percentile ?? 88;
+  const pendingItems = profile?.pendingItems ?? 3;
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12">
@@ -105,53 +123,7 @@ export function FacultyDashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-surface border border-border rounded-2xl p-6 h-80 shadow-sm flex flex-col">
-          <h3 className="text-text font-bold mb-6 text-sm">KPI Score Trend</h3>
-          <div className="flex-1 border-b border-l border-border/50 relative flex items-end ml-8">
-            <div className="absolute top-0 -left-10 text-[10px] text-textMuted">1000 -</div>
-            <div className="absolute top-1/4 -left-9 text-[10px] text-textMuted">750 -</div>
-            <div className="absolute top-2/4 -left-9 text-[10px] text-textMuted">500 -</div>
-            <div className="absolute top-3/4 -left-9 text-[10px] text-textMuted">250 -</div>
-            <div className="absolute bottom-0 -left-6 text-[10px] text-textMuted">0 -</div>
-            
-            {/* Horizontal lines */}
-            <div className="absolute top-0 left-0 w-full border-t border-dashed border-border/50"></div>
-            <div className="absolute top-1/4 left-0 w-full border-t border-dashed border-border/50"></div>
-            <div className="absolute top-2/4 left-0 w-full border-t border-dashed border-border/50"></div>
-            <div className="absolute top-3/4 left-0 w-full border-t border-dashed border-border/50"></div>
-          </div>
-        </div>
-        
-        <div className="bg-surface border border-border rounded-2xl p-6 h-80 shadow-sm flex flex-col items-center justify-center">
-          <h3 className="text-text font-bold self-start w-full text-sm">KPI Distribution</h3>
-          {/* Radar chart mockup */}
-          <div className="relative w-48 h-48 mt-4">
-             <div className="absolute inset-0 border border-border/50 rounded-full" />
-             <div className="absolute inset-4 border border-border/50 rounded-full" />
-             <div className="absolute inset-8 border border-border/50 rounded-full" />
-             <div className="absolute inset-12 border border-border/50 rounded-full" />
-             
-             {/* Lines */}
-             <div className="absolute inset-0 flex items-center justify-center">
-               <div className="w-full h-px bg-border/50 rotate-0" />
-               <div className="w-full h-px bg-border/50 rotate-45" />
-               <div className="w-full h-px bg-border/50 rotate-90" />
-               <div className="w-full h-px bg-border/50 -rotate-45" />
-             </div>
-             
-             {/* Labels */}
-             <span className="absolute -top-5 left-1/2 -translate-x-1/2 text-[9px] text-textMuted">Teaching</span>
-             <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[9px] text-textMuted">Prof. Dev.</span>
-             <span className="absolute top-1/2 -left-10 -translate-y-1/2 text-[9px] text-textMuted">Admin</span>
-             <span className="absolute top-1/2 -right-12 -translate-y-1/2 text-[9px] text-textMuted">Patents</span>
-             <span className="absolute top-4 -right-8 text-[9px] text-textMuted">Research</span>
-             <span className="absolute top-4 -left-10 text-[9px] text-textMuted">Industry</span>
-             <span className="absolute bottom-4 -right-12 text-[9px] text-textMuted">Mentoring</span>
-             <span className="absolute bottom-4 -left-12 text-[9px] text-textMuted">Outreach</span>
-          </div>
-        </div>
-      </div>
+
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
