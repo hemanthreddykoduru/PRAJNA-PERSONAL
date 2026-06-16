@@ -8,8 +8,8 @@ export default {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#007366', // GITAM Tropical Rain Forest
-          hover: '#00594C',
+          DEFAULT: '#00BD97', // Light Sea Green
+          hover: '#008A7C',   // Teal
         },
         secondary: {
           DEFAULT: '#F0E0C1', // GITAM Chamois
@@ -17,11 +17,11 @@ export default {
         accent: {
           DEFAULT: '#E33A0C', // GITAM Trinidad Red
         },
-        background: '#FFFFFF',
-        surface: '#F8F9FA',    // Light gray for panels
-        border: '#EDEDED',
-        text: '#1A1A1A',
-        textMuted: '#6B7280',  // Gray 500
+        background: '#0B121E', // Very dark slate (Black)
+        surface: '#121B2B',    // Dark Slate
+        border: '#1D2635',     // Dark Slate Gray
+        text: '#F0F4F5',       // White Smoke
+        textMuted: '#8AA2A8',  // Dark Gray
       }
     },
   },

@@ -109,16 +109,16 @@ const LoginPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex bg-[#FFFFFF]">
+    <div className="min-h-screen flex bg-background">
       {/* Left Side: Branded Identity */}
-      <div className="hidden lg:flex w-7/12 bg-[#007366] flex-col justify-between p-12 relative overflow-hidden">
+      <div className="hidden lg:flex w-7/12 bg-surface flex-col justify-between p-12 relative overflow-hidden border-r border-border">
         {/* Abstract AI Orbs (Decorative) */}
         <div className="absolute top-[-10%] right-[-10%] w-96 h-96 bg-white/10 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-[-5%] left-[-5%] w-64 h-64 bg-secondary/20 rounded-full blur-3xl" />
         
         <div className="relative z-10">
           <div className="mb-12 transition-transform hover:scale-105 duration-300">
-            <img src={prajnaLogo} alt="PRAJNA - GITAM University" className="w-72 md:w-80 h-auto object-contain bg-white rounded-[2rem] shadow-2xl p-4" />
+            <img src={prajnaLogo} alt="PRAJNA - GITAM University" className="w-72 md:w-80 h-auto object-contain bg-background rounded-[2rem] shadow-2xl p-4 border border-border" />
           </div>
           
           <h1 className="text-6xl font-bold text-white leading-tight mb-6">
@@ -150,7 +150,7 @@ const LoginPage: React.FC = () => {
              <img src={gitamLogo} alt="GITAM" className="h-16 object-contain" />
           </div>
           <h2 className="text-4xl font-bold text-text mb-2">Welcome Back</h2>
-          <p className="text-gray-500">Please enter your credentials to access your dashboard.</p>
+          <p className="text-textMuted">Please enter your credentials to access your dashboard.</p>
         </div>
 
         {error && (
@@ -162,13 +162,13 @@ const LoginPage: React.FC = () => {
 
         <form onSubmit={handleLogin} className="space-y-6">
           <div className="space-y-2">
-            <label className="text-sm font-bold text-gray-700 uppercase tracking-wider">User ID</label>
+            <label className="text-sm font-bold text-textMuted uppercase tracking-wider">User ID</label>
             <div className="relative">
-              <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <User className="absolute left-4 top-1/2 -translate-y-1/2 text-textMuted w-5 h-5" />
               <input
                 type="text"
                 placeholder="Enter your ID"
-                className="w-full pl-12 pr-4 py-4 rounded-xl border border-border bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
+                className="w-full pl-12 pr-4 py-4 rounded-xl border border-border bg-surface focus:bg-surface focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all font-medium text-text placeholder:text-textMuted/50"
                 value={userId}
                 onChange={(e) => setUserId(e.target.value)}
                 required
@@ -178,15 +178,15 @@ const LoginPage: React.FC = () => {
 
           <div className="space-y-2">
             <div className="flex justify-between items-center">
-              <label className="text-sm font-bold text-gray-700 uppercase tracking-wider">Password</label>
+              <label className="text-sm font-bold text-textMuted uppercase tracking-wider">Password</label>
               <Link to="/forgot-password" size="sm" className="text-primary text-sm font-bold hover:underline">Forgot?</Link>
             </div>
             <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-textMuted w-5 h-5" />
               <input
                 type="password"
                 placeholder="••••••••"
-                className="w-full pl-12 pr-4 py-4 rounded-xl border border-border bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
+                className="w-full pl-12 pr-4 py-4 rounded-xl border border-border bg-surface focus:bg-surface focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all font-medium text-text placeholder:text-textMuted/50"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -195,8 +195,8 @@ const LoginPage: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2 py-2">
-            <input type="checkbox" id="remember" className="w-4 h-4 rounded border-border text-primary focus:ring-primary" />
-            <label htmlFor="remember" className="text-sm text-gray-600 font-medium">Stay logged in for 30 days</label>
+            <input type="checkbox" id="remember" className="w-4 h-4 rounded border-border text-primary focus:ring-primary bg-surface" />
+            <label htmlFor="remember" className="text-sm text-textMuted font-medium">Stay logged in for 30 days</label>
           </div>
 
           <button
@@ -210,7 +210,7 @@ const LoginPage: React.FC = () => {
         </form>
 
         <div className="mt-12 text-center">
-          <p className="text-gray-500 text-sm">
+          <p className="text-textMuted text-sm">
             Need help? Contact <a href="#" className="text-primary font-bold hover:underline">CATS Service Desk</a>
           </p>
         </div>
