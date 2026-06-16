@@ -1,9 +1,27 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Target, Trophy, BarChart2, FileText } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { facultyApi } from '../../utils/api';
 
 export function FacultyDashboard() {
   const { user } = useAuth();
+  const [profile, setProfile] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    facultyApi.getProfile()
+      .then(setProfile)
+      .catch((err) => {
+        console.error("Failed to fetch profile from AWS API", err);
+        setProfile(null);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  const kpiScore = profile?.prajnaScore ?? 0;
+  const deptRank = profile?.deptRank ?? '--';
+  const percentile = profile?.percentile ?? '--';
+  const pendingItems = profile?.pendingItems ?? 0;
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12">
@@ -24,7 +42,10 @@ export function FacultyDashboard() {
             </div>
           </div>
           <div className="mt-4">
-            <h2 className="text-4xl font-black text-white">0<span className="text-2xl text-white/70 font-bold">/1000</span></h2>
+            <h2 className="text-4xl font-black text-white">
+              {loading ? '...' : kpiScore}
+              <span className="text-2xl text-white/70 font-bold">/1000</span>
+            </h2>
             <p className="text-white/80 text-sm mt-1">Academic Year 2024-25</p>
           </div>
           <div className="mt-4 flex items-center gap-2">
@@ -42,7 +63,7 @@ export function FacultyDashboard() {
             </div>
           </div>
           <div className="mt-4">
-            <h2 className="text-4xl font-black text-text">#--</h2>
+            <h2 className="text-4xl font-black text-text">#{loading ? '--' : deptRank}</h2>
             <p className="text-textMuted text-sm mt-1">of 45 Faculty</p>
           </div>
           <div className="mt-4 flex items-center gap-2">
@@ -60,7 +81,7 @@ export function FacultyDashboard() {
             </div>
           </div>
           <div className="mt-4">
-            <h2 className="text-4xl font-black text-text">--%</h2>
+            <h2 className="text-4xl font-black text-text">{loading ? '--' : percentile}%</h2>
             <p className="text-textMuted text-sm mt-1">University-wide</p>
           </div>
           <div className="mt-4 flex items-center gap-2">
@@ -78,7 +99,7 @@ export function FacultyDashboard() {
             </div>
           </div>
           <div className="mt-4">
-            <h2 className="text-4xl font-black text-text">0</h2>
+            <h2 className="text-4xl font-black text-text">{loading ? '-' : pendingItems}</h2>
             <p className="text-textMuted text-sm mt-1">Evidence items</p>
           </div>
         </div>
