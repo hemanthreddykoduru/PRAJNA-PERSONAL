@@ -8,20 +8,20 @@ export default {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#10B981', // Emerald green
-          hover: '#059669',
+          DEFAULT: '#007366', // GITAM Tropical Rain Forest
+          hover: '#00594C',
         },
         secondary: {
-          DEFAULT: '#334155', // Slate 700
+          DEFAULT: '#F0E0C1', // GITAM Chamois
         },
         accent: {
-          DEFAULT: '#3B82F6', // Blue 500
+          DEFAULT: '#E33A0C', // GITAM Trinidad Red
         },
-        background: '#0F172A', // Slate 900
-        surface: '#1E293B',    // Slate 800
-        border: '#334155',     // Slate 700
-        text: '#F8FAFC',       // Slate 50
-        textMuted: '#94A3B8',  // Slate 400
+        background: '#FFFFFF',
+        surface: '#F8F9FA',    // Light gray for panels
+        border: '#EDEDED',
+        text: '#1A1A1A',
+        textMuted: '#6B7280',  // Gray 500
       }
     },
   },

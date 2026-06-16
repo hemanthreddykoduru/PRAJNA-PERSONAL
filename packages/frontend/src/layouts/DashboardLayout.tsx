@@ -144,7 +144,7 @@ export function DashboardLayout() {
               className={`flex items-center space-x-3 px-4 py-2.5 rounded-lg transition-all duration-200 group ${
                 isActive
                   ? 'bg-primary text-white font-medium shadow-md shadow-primary/20'
-                  : 'text-textMuted hover:bg-white/5 hover:text-text'
+                  : 'text-textMuted hover:bg-black/5 hover:text-text'
               }`}
             >
               <item.icon size={20} className={isActive ? 'text-white' : 'group-hover:scale-110 transition-transform'} />
@@ -159,7 +159,7 @@ export function DashboardLayout() {
       <div className="mt-auto p-4 space-y-2">
         <button
           onClick={() => setIsPasswordModalOpen(true)}
-          className="w-full flex items-center space-x-3 px-4 py-3 text-textMuted hover:text-text hover:bg-white/5 rounded-lg transition-all duration-200 group"
+          className="w-full flex items-center space-x-3 px-4 py-3 text-textMuted hover:text-text hover:bg-black/5 rounded-lg transition-all duration-200 group"
         >
           <Shield size={20} className="group-hover:scale-110 transition-transform" />
           <span className="text-sm font-bold tracking-wide">Security</span>
@@ -167,7 +167,7 @@ export function DashboardLayout() {
 
         <button
           onClick={handleSignOut}
-          className="w-full flex items-center space-x-3 px-4 py-3 text-textMuted hover:text-rose-400 hover:bg-white/5 rounded-lg transition-all duration-200 group"
+          className="w-full flex items-center space-x-3 px-4 py-3 text-textMuted hover:text-rose-600 hover:bg-black/5 rounded-lg transition-all duration-200 group"
         >
           <LogOut size={20} className="group-hover:rotate-12 transition-transform" />
           <span className="text-sm font-bold tracking-wide">Sign Out</span>
