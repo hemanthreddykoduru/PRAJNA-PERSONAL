@@ -1,22 +1,45 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User, Bell, Shield, Moon, Monitor, Mail, Key, Check } from 'lucide-react';
+import { updateUserAttributes } from 'aws-amplify/auth';
 import { useAuth } from '../../contexts/AuthContext';
 import { ChangePasswordModal } from '../../components/ChangePasswordModal';
 
 export function Settings() {
-  const { user } = useAuth();
+  const { user, reloadUser } = useAuth();
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSave = () => {
+  const [name, setName] = useState(user?.name || '');
+  const [department, setDepartment] = useState(user?.department || 'EECE');
+
+  useEffect(() => {
+    if (user) {
+      setName(user.name);
+      setDepartment(user.department);
+    }
+  }, [user]);
+
+  const handleSave = async () => {
     setIsSaving(true);
-    // Simulate API call
-    setTimeout(() => {
-      setIsSaving(false);
+    setError('');
+    try {
+      await updateUserAttributes({
+        userAttributes: {
+          name: name,
+          'custom:department': department
+        }
+      });
+      await reloadUser();
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
-    }, 1000);
+    } catch (err: any) {
+      console.error('Failed to update profile:', err);
+      setError(err.message || 'Failed to save changes');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const initials = user?.name
@@ -51,12 +74,18 @@ export function Settings() {
           </div>
 
           <div className="flex-1 space-y-4 w-full">
+            {error && (
+              <div className="p-3 bg-red-50 text-red-600 text-sm font-medium rounded-lg border border-red-200">
+                {error}
+              </div>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-textMuted uppercase tracking-wider">Full Name</label>
                 <input 
                   type="text" 
-                  defaultValue={user?.name || ''} 
+                  value={name} 
+                  onChange={(e) => setName(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl border border-border bg-background focus:ring-2 focus:ring-primary/50 outline-none text-text"
                 />
               </div>
@@ -64,7 +93,7 @@ export function Settings() {
                 <label className="text-xs font-bold text-textMuted uppercase tracking-wider">Email Address</label>
                 <input 
                   type="email" 
-                  defaultValue={user?.email || ''} 
+                  value={user?.email || ''} 
                   disabled
                   className="w-full px-4 py-2.5 rounded-xl border border-border bg-background/50 text-textMuted outline-none cursor-not-allowed"
                 />
@@ -72,7 +101,8 @@ export function Settings() {
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-textMuted uppercase tracking-wider">Department</label>
                 <select 
-                  defaultValue="EECE" 
+                  value={department} 
+                  onChange={(e) => setDepartment(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl border border-border bg-background focus:ring-2 focus:ring-primary/50 outline-none text-text appearance-none"
                 >
                   <option value="EECE">Electrical, Electronics and Communication Engineering (EECE)</option>
