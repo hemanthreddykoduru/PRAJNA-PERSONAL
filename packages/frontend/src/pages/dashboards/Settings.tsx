@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { User, Bell, Shield, Moon, Monitor, Mail, Key, Check, Camera } from 'lucide-react';
 import { updateUserAttributes } from 'aws-amplify/auth';
+import { uploadData, getUrl } from 'aws-amplify/storage';
 import { useAuth } from '../../contexts/AuthContext';
 import { ChangePasswordModal } from '../../components/ChangePasswordModal';
 
@@ -20,25 +21,43 @@ export function Settings() {
     if (user) {
       setName(user.name);
       setDepartment(user.department);
-      const savedAvatar = localStorage.getItem(`avatar_${user.sub}`);
-      if (savedAvatar) setAvatarPreview(savedAvatar);
+      if (user.picture) {
+        getUrl({ path: user.picture })
+          .then((res) => setAvatarPreview(res.url.toString()))
+          .catch((err) => console.error('Failed to load avatar:', err));
+      }
     }
   }, [user]);
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result as string;
-        setAvatarPreview(base64String);
-        if (user?.sub) {
-          localStorage.setItem(`avatar_${user.sub}`, base64String);
-          // Trigger a custom event so the sidebar can update instantly
-          window.dispatchEvent(new Event('avatarUpdated'));
-        }
-      };
-      reader.readAsDataURL(file);
+    if (file && user?.sub) {
+      try {
+        setError('');
+        // Show instant preview while uploading
+        const reader = new FileReader();
+        reader.onloadend = () => setAvatarPreview(reader.result as string);
+        reader.readAsDataURL(file);
+
+        const extension = file.name.split('.').pop();
+        const path = `public/avatars/${user.sub}.${extension}`;
+        
+        await uploadData({
+          path,
+          data: file,
+          options: { contentType: file.type }
+        }).result;
+
+        await updateUserAttributes({
+          userAttributes: { picture: path }
+        });
+
+        await reloadUser();
+        window.dispatchEvent(new Event('avatarUpdated'));
+      } catch (err: any) {
+        console.error('Upload failed:', err);
+        setError('Failed to upload profile picture to secure vault.');
+      }
     }
   };
 

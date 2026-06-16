@@ -11,6 +11,7 @@ export interface AuthUser {
   department: string;
   empId: string;
   name: string;
+  picture?: string;
 }
 
 interface AuthContextType {
@@ -79,6 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             department: payload?.['custom:department'] || 'CSE',
             empId: payload?.['custom:empId'] || '',
             name: attrs.name || attrs.email?.split('@')[0] || 'User',
+            picture: attrs.picture,
           });
         })(),
         timeoutPromise

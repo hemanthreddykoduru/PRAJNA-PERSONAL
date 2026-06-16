@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
+import { getUrl } from 'aws-amplify/storage';
 import {
   Home, BookOpen, Award, CheckSquare, MessageSquare, LogOut,
   Users, BarChart3, Shield, Settings, ClipboardList,
@@ -91,19 +92,20 @@ export function DashboardLayout() {
   const [headerAvatar, setHeaderAvatar] = useState<string | null>(null);
 
   useEffect(() => {
-    if (user?.sub) {
-      const saved = localStorage.getItem(`avatar_${user.sub}`);
-      if (saved) setHeaderAvatar(saved);
-    }
-    
-    const handleAvatarUpdate = () => {
-      if (user?.sub) {
-        setHeaderAvatar(localStorage.getItem(`avatar_${user.sub}`));
+    const fetchAvatar = async () => {
+      if (user?.picture) {
+        try {
+          const res = await getUrl({ path: user.picture });
+          setHeaderAvatar(res.url.toString());
+        } catch (err) {
+          console.error('Failed to load avatar:', err);
+        }
       }
     };
+    fetchAvatar();
     
-    window.addEventListener('avatarUpdated', handleAvatarUpdate);
-    return () => window.removeEventListener('avatarUpdated', handleAvatarUpdate);
+    window.addEventListener('avatarUpdated', fetchAvatar);
+    return () => window.removeEventListener('avatarUpdated', fetchAvatar);
   }, [user]);
 
   const handleSignOut = async () => {
