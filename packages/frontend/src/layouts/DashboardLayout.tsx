@@ -10,6 +10,7 @@ import { AICompanionChat } from '../components/AICompanionChat';
 import { useAuth, ROLE_HOME } from '../contexts/AuthContext';
 import type { UserRole } from '../contexts/AuthContext';
 import { ChangePasswordModal } from '../components/ChangePasswordModal';
+import gitamLogo from '../assets/gitam-Logo-new.png';
 
 const ROLE_LABELS: Record<UserRole, string> = {
   Faculty: 'Faculty',
@@ -110,10 +111,10 @@ export function DashboardLayout() {
   const Sidebar = () => (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Logo Section */}
-      <div className="px-6 py-8 border-b border-white/10 flex-shrink-0">
-        <div className="flex items-center space-x-4">
-          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
-             <GraduationCap className="text-white" size={24} />
+      <div className="px-6 py-8 border-b border-border flex-shrink-0">
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-lg overflow-hidden border border-border p-1">
+             <img src={gitamLogo} alt="GITAM" className="w-full h-full object-contain" />
           </div>
           <div className="flex flex-col">
             <h1 className="text-xl font-bold tracking-tight text-text leading-none">PRAJNA</h1>
