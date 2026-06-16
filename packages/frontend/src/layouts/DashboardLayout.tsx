@@ -107,18 +107,17 @@ export function DashboardLayout() {
       {/* Logo Section */}
       <div className="px-6 py-8 border-b border-white/10 flex-shrink-0">
         <div className="flex items-center space-x-4">
-          <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center p-1.5 shadow-xl shadow-black/20">
-             <img src="/assets/gitam-logo.png" alt="GITAM" className="w-full h-full object-contain" />
+          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
+             <GraduationCap className="text-white" size={24} />
           </div>
           <div className="flex flex-col">
-            <h1 className="text-2xl font-black tracking-tight text-white leading-none">PRAJNA</h1>
-            <p className="text-white/50 text-[10px] uppercase font-bold tracking-[0.2em] mt-2">GITAM University</p>
+            <h1 className="text-xl font-bold tracking-tight text-text leading-none">PRAJNA</h1>
+            <p className="text-textMuted text-xs font-medium mt-1">Academic Excellence</p>
           </div>
         </div>
       </div>
 
-      {/* Profile Section */}
-      <div className="px-6 py-6 border-b border-white/10 bg-black/10 flex-shrink-0">
+      <div className="px-6 py-6 border-b border-border bg-surface flex-shrink-0 hidden">
         <div className="flex items-center space-x-4">
           <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-white/20 to-white/5 flex items-center justify-center font-bold text-sm border border-white/20 shadow-lg text-white">
             {initials}
@@ -142,25 +141,25 @@ export function DashboardLayout() {
               key={item.to}
               to={item.to}
               onClick={() => setIsMobileMenuOpen(false)}
-              className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
+              className={`flex items-center space-x-3 px-4 py-2.5 rounded-lg transition-all duration-200 group ${
                 isActive
-                  ? 'bg-white text-primary shadow-lg shadow-black/10 font-bold translate-x-1'
-                  : 'text-white/70 hover:bg-white/10 hover:text-white'
+                  ? 'bg-primary text-white font-medium shadow-md shadow-primary/20'
+                  : 'text-textMuted hover:bg-white/5 hover:text-text'
               }`}
             >
-              <item.icon size={20} className={isActive ? 'text-primary' : 'group-hover:scale-110 transition-transform'} />
+              <item.icon size={20} className={isActive ? 'text-white' : 'group-hover:scale-110 transition-transform'} />
               <span className="text-sm tracking-wide">{item.label}</span>
-              {isActive && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />}
+              {/* {isActive && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-white" />} */}
             </Link>
           );
         })}
       </nav>
 
       {/* Sidebar Footer Section */}
-      <div className="mt-auto p-4 border-t border-white/10 space-y-2">
+      <div className="mt-auto p-4 space-y-2">
         <button
           onClick={() => setIsPasswordModalOpen(true)}
-          className="w-full flex items-center space-x-3 px-4 py-3 text-white/60 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-200 group"
+          className="w-full flex items-center space-x-3 px-4 py-3 text-textMuted hover:text-text hover:bg-white/5 rounded-lg transition-all duration-200 group"
         >
           <Shield size={20} className="group-hover:scale-110 transition-transform" />
           <span className="text-sm font-bold tracking-wide">Security</span>
@@ -168,7 +167,7 @@ export function DashboardLayout() {
 
         <button
           onClick={handleSignOut}
-          className="w-full flex items-center space-x-3 px-4 py-3 text-white/60 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-200 group"
+          className="w-full flex items-center space-x-3 px-4 py-3 text-textMuted hover:text-rose-400 hover:bg-white/5 rounded-lg transition-all duration-200 group"
         >
           <LogOut size={20} className="group-hover:rotate-12 transition-transform" />
           <span className="text-sm font-bold tracking-wide">Sign Out</span>
@@ -183,9 +182,9 @@ export function DashboardLayout() {
   );
 
   return (
-    <div className="h-screen bg-slate-50 flex overflow-hidden">
+    <div className="h-screen bg-background text-text flex overflow-hidden">
       {/* Desktop Sidebar */}
-      <aside className="w-64 bg-primary text-white hidden md:flex flex-col flex-shrink-0 h-full border-r border-black/10 shadow-2xl">
+      <aside className="w-64 bg-surface hidden md:flex flex-col flex-shrink-0 h-full border-r border-border">
         <Sidebar />
       </aside>
 
@@ -202,47 +201,63 @@ export function DashboardLayout() {
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <header className="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-6 shadow-sm sticky top-0 z-30">
+        <header className="bg-background border-b border-border h-16 flex items-center justify-between px-6 sticky top-0 z-30">
           <div className="flex items-center space-x-4">
             <button
-              className="md:hidden text-gray-600 hover:text-primary transition-all p-1"
+              className="md:hidden text-textMuted hover:text-primary transition-all p-1"
               onClick={() => setIsMobileMenuOpen(true)}
             >
               <img src="/assets/toggler.svg" alt="Menu" className="w-7 h-7" />
             </button>
-            <div className="hidden md:flex items-center space-x-2 text-sm text-gray-500">
-              <span className="font-bold text-gray-800">{ROLE_LABELS[user?.role || 'Faculty']}</span>
-              <span>·</span>
-              <span className="capitalize">{user?.campus} Campus</span>
+            <div className="hidden md:flex items-center bg-surface border border-border rounded-lg px-3 py-1.5 w-80">
+              <span className="text-textMuted mr-2">🔍</span>
+              <input 
+                type="text" 
+                placeholder="Search PRAJNA..." 
+                className="bg-transparent border-none outline-none text-sm text-text w-full placeholder:text-textMuted"
+              />
             </div>
           </div>
 
-          <div className="flex items-center space-x-3">
-            <div className="h-8 w-auto pr-4 border-r border-gray-200 hidden sm:block">
-              <img src="/assets/gitam-logo-green.png" alt="GITAM" className="h-full object-contain" />
-            </div>
-            <button className="relative p-2 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-primary transition-colors">
+          <div className="flex items-center space-x-6">
+            <button className="relative text-textMuted hover:text-text transition-colors">
               <Bell size={20} />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
+              <span className="absolute -top-1 -right-1 w-2 h-2 bg-rose-500 rounded-full" />
             </button>
-            {(user?.role === 'Faculty' || user?.role === 'Admin') && (
-              <button
-                onClick={() => setIsChatOpen(true)}
-                className="bg-accent text-white px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-accent/90 transition-all shadow-lg shadow-accent/20 flex items-center space-x-2"
-              >
-                <MessageSquare size={14} />
-                <span>AI Companion</span>
-              </button>
-            )}
-            <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
-              {initials}
+            <div className="flex items-center space-x-3 border-l border-border pl-6">
+              <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-xs">
+                {initials}
+              </div>
+              <div className="hidden md:block text-right">
+                <p className="text-sm font-semibold text-text leading-tight">{user?.name || user?.email}</p>
+                <p className="text-xs text-textMuted">{ROLE_LABELS[user?.role || 'Faculty']}</p>
+              </div>
             </div>
           </div>
         </header>
 
-        {/* Page Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+      {/* Page Content */}
+        <div className="flex-1 overflow-y-auto p-6 relative">
           <Outlet />
+
+          {/* AI Assistant Floating Action Button */}
+          {(user?.role === 'Faculty' || user?.role === 'Admin') && (
+            <button
+              onClick={() => setIsChatOpen(true)}
+              className="fixed bottom-6 right-6 w-14 h-14 bg-surface border-2 border-primary rounded-full shadow-2xl flex items-center justify-center hover:scale-105 transition-transform z-40 group"
+            >
+              <div className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center bg-background">
+                {/* Fallback avatar if pragati image not available */}
+                <span className="text-xl">👩‍💼</span>
+              </div>
+              <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-primary border-2 border-surface rounded-full"></span>
+              
+              {/* Tooltip */}
+              <span className="absolute right-full mr-4 bg-surface text-text text-xs font-semibold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap border border-border">
+                Ask Pragati ✨
+              </span>
+            </button>
+          )}
         </div>
       </main>
 
