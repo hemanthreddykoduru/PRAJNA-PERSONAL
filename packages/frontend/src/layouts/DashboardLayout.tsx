@@ -3,7 +3,8 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 import {
   Home, BookOpen, Award, CheckSquare, MessageSquare, LogOut,
   Users, BarChart3, Shield, Settings, ClipboardList,
-  TrendingUp, Building2, GraduationCap, Bell, FileText
+  TrendingUp, Building2, GraduationCap, Bell, FileText,
+  LayoutDashboard, Target, Trophy, LineChart, Crosshair, Calendar, Bot, HelpCircle
 } from 'lucide-react';
 import { AICompanionChat } from '../components/AICompanionChat';
 import { useAuth, ROLE_HOME } from '../contexts/AuthContext';
@@ -35,14 +36,17 @@ interface NavItem {
   roles: UserRole[];
 }
 
-const NAV_ITEMS: NavItem[] = [
   // Faculty
-  { to: '/dashboard/faculty', icon: Home, label: 'My Dashboard', roles: ['Faculty'] },
-  { to: '/dashboard/faculty/teaching', icon: BookOpen, label: 'Teaching', roles: ['Faculty'] },
-  { to: '/dashboard/faculty/research', icon: Award, label: 'Research', roles: ['Faculty'] },
-  { to: '/dashboard/faculty/achievements', icon: TrendingUp, label: 'Achievements', roles: ['Faculty'] },
-  { to: '/dashboard/faculty/development', icon: GraduationCap, label: 'Development', roles: ['Faculty'] },
-  { to: '/dashboard/attendance', icon: ClipboardList, label: 'Attendance', roles: ['Faculty', 'HoD', 'Director', 'Admin'] },
+  { to: '/dashboard/faculty', icon: LayoutDashboard, label: 'Dashboard', roles: ['Faculty'] },
+  { to: '/dashboard/faculty/kpi', icon: Target, label: 'My KPI', roles: ['Faculty'] },
+  { to: '/dashboard/faculty/leaderboard', icon: Trophy, label: 'Leaderboard', roles: ['Faculty'] },
+  { to: '/dashboard/faculty/analytics', icon: LineChart, label: 'Analytics', roles: ['Faculty'] },
+  { to: '/dashboard/faculty/goals', icon: Crosshair, label: 'Goals & Plans', roles: ['Faculty'] },
+  { to: '/dashboard/faculty/activities', icon: Calendar, label: 'Activities', roles: ['Faculty'] },
+  { to: '/dashboard/faculty/reports', icon: FileText, label: 'Reports', roles: ['Faculty'] },
+  { to: '/dashboard/faculty/notifications', icon: Bell, label: 'Notifications', roles: ['Faculty'] },
+  { to: '/dashboard/faculty/resources', icon: BookOpen, label: 'Resources', roles: ['Faculty'] },
+  { to: '/dashboard/faculty/ai-assistant', icon: Bot, label: 'AI Assistant', roles: ['Faculty'] },
 
   // HoD
   { to: '/dashboard/hod', icon: Home, label: 'Department Home', roles: ['HoD'] },
@@ -158,19 +162,25 @@ export function DashboardLayout() {
       {/* Sidebar Footer Section */}
       <div className="mt-auto p-4 space-y-2">
         <button
-          onClick={() => setIsPasswordModalOpen(true)}
           className="w-full flex items-center space-x-3 px-4 py-3 text-textMuted hover:text-text hover:bg-black/5 rounded-lg transition-all duration-200 group"
         >
-          <Shield size={20} className="group-hover:scale-110 transition-transform" />
-          <span className="text-sm font-bold tracking-wide">Security</span>
+          <Settings size={20} className="group-hover:scale-110 transition-transform" />
+          <span className="text-sm font-bold tracking-wide">Settings</span>
+        </button>
+
+        <button
+          className="w-full flex items-center space-x-3 px-4 py-3 text-textMuted hover:text-text hover:bg-black/5 rounded-lg transition-all duration-200 group"
+        >
+          <HelpCircle size={20} className="group-hover:scale-110 transition-transform" />
+          <span className="text-sm font-bold tracking-wide">Help Desk</span>
         </button>
 
         <button
           onClick={handleSignOut}
-          className="w-full flex items-center space-x-3 px-4 py-3 text-textMuted hover:text-rose-600 hover:bg-black/5 rounded-lg transition-all duration-200 group"
+          className="w-full flex items-center space-x-3 px-4 py-3 text-rose-500 hover:text-rose-600 hover:bg-rose-500/10 rounded-lg transition-all duration-200 group"
         >
           <LogOut size={20} className="group-hover:rotate-12 transition-transform" />
-          <span className="text-sm font-bold tracking-wide">Sign Out</span>
+          <span className="text-sm font-bold tracking-wide">Logout</span>
         </button>
       </div>
 
@@ -230,7 +240,7 @@ export function DashboardLayout() {
               </div>
               <div className="hidden md:block text-right">
                 <p className="text-sm font-semibold text-text leading-tight">{user?.name || user?.email}</p>
-                <p className="text-xs text-textMuted">{ROLE_LABELS[user?.role || 'Faculty']}</p>
+                <p className="text-xs text-textMuted">EECE Department</p>
               </div>
             </div>
           </div>
