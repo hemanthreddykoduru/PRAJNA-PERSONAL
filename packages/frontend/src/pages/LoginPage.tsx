@@ -132,11 +132,11 @@ const LoginPage: React.FC = () => {
         </div>
 
         <div className="relative z-10 flex gap-8">
-          <div className="bg-black/5 backdrop-blur-md p-6 rounded-2xl border border-black/10">
+          <div className="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/10">
             <div className="text-primary font-bold text-3xl mb-1">30+</div>
             <div className="text-textMuted text-sm font-medium">Core Modules</div>
           </div>
-          <div className="bg-black/5 backdrop-blur-md p-6 rounded-2xl border border-black/10">
+          <div className="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/10">
             <div className="text-primary font-bold text-3xl mb-1">AI-Ready</div>
             <div className="text-textMuted text-sm font-medium">Assistant Built-in</div>
           </div>
