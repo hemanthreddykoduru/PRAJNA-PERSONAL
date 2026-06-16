@@ -11,6 +11,9 @@ import CompleteNewPasswordPage from './pages/CompleteNewPassword';
 import { FacultyDashboard } from './pages/dashboards/FacultyDashboard';
 import { Leaderboard } from './pages/dashboards/Leaderboard';
 import { Analytics } from './pages/dashboards/Analytics';
+import { Goals } from './pages/dashboards/Goals';
+import { Activities } from './pages/dashboards/Activities';
+import { Reports } from './pages/dashboards/Reports';
 import { HoDDashboard } from './pages/dashboards/HoDDashboard';
 import { DirectorDashboard } from './pages/dashboards/DirectorDashboard';
 import { ProVCDashboard } from './pages/dashboards/ProVCDashboard';
@@ -51,9 +54,9 @@ function App() {
             <Route path="faculty/kpi" element={<ProtectedRoute allowedRoles={['Faculty', 'Admin']}><div className="p-8 text-center text-textMuted">My KPI — Coming Soon</div></ProtectedRoute>} />
             <Route path="faculty/leaderboard" element={<ProtectedRoute allowedRoles={['Faculty', 'Admin']}><Leaderboard /></ProtectedRoute>} />
             <Route path="faculty/analytics" element={<ProtectedRoute allowedRoles={['Faculty', 'Admin']}><Analytics /></ProtectedRoute>} />
-            <Route path="faculty/goals" element={<ProtectedRoute allowedRoles={['Faculty', 'Admin']}><div className="p-8 text-center text-textMuted">Goals & Plans — Coming Soon</div></ProtectedRoute>} />
-            <Route path="faculty/activities" element={<ProtectedRoute allowedRoles={['Faculty', 'Admin']}><div className="p-8 text-center text-textMuted">Activities — Coming Soon</div></ProtectedRoute>} />
-            <Route path="faculty/reports" element={<ProtectedRoute allowedRoles={['Faculty', 'Admin']}><div className="p-8 text-center text-textMuted">Reports — Coming Soon</div></ProtectedRoute>} />
+            <Route path="faculty/goals" element={<ProtectedRoute allowedRoles={['Faculty', 'Admin']}><Goals /></ProtectedRoute>} />
+            <Route path="faculty/activities" element={<ProtectedRoute allowedRoles={['Faculty', 'Admin']}><Activities /></ProtectedRoute>} />
+            <Route path="faculty/reports" element={<ProtectedRoute allowedRoles={['Faculty', 'Admin']}><Reports /></ProtectedRoute>} />
             <Route path="faculty/notifications" element={<ProtectedRoute allowedRoles={['Faculty', 'Admin']}><div className="p-8 text-center text-textMuted">Notifications — Coming Soon</div></ProtectedRoute>} />
             <Route path="faculty/resources" element={<ProtectedRoute allowedRoles={['Faculty', 'Admin']}><div className="p-8 text-center text-textMuted">Resources — Coming Soon</div></ProtectedRoute>} />
             <Route path="faculty/ai-assistant" element={<ProtectedRoute allowedRoles={['Faculty', 'Admin']}><div className="p-8 text-center text-textMuted">AI Assistant — Coming Soon</div></ProtectedRoute>} />
