@@ -90,6 +90,11 @@ export class FoundationStack extends cdk.Stack {
       selfSignUpEnabled: false,
       signInAliases: { email: true },
       autoVerify: { email: true },
+      customAttributes: {
+        department: new cognito.StringAttribute({ mutable: true }),
+        campus: new cognito.StringAttribute({ mutable: true }),
+        empId: new cognito.StringAttribute({ mutable: true }),
+      },
       userVerification: {
         emailSubject: 'Verify your PRAJNA Identity | GITAM University',
         emailBody: `
