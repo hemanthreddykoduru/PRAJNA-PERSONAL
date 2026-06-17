@@ -168,6 +168,20 @@ const LoginPage: React.FC = () => {
         </div>
         
         <div className={`z-10 flex flex-col items-center text-center animate-in fade-in zoom-in duration-1000 slide-in-from-bottom-10 w-full px-6 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${isLeaving ? 'opacity-0 scale-110 -translate-y-16 blur-xl pointer-events-none' : 'opacity-100 scale-100 translate-y-0 blur-0'}`}>
+           {/* Custom AI Animations */}
+           <style>{`
+             @keyframes float-avatar {
+               0%, 100% { transform: translateY(0) scale(1); filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.4)); }
+               50% { transform: translateY(-5px) scale(1.05); filter: drop-shadow(0 0 20px rgba(16, 185, 129, 0.8)); }
+             }
+             @keyframes hologram-scan {
+               0% { top: -10%; opacity: 0; }
+               10% { opacity: 1; }
+               90% { opacity: 1; }
+               100% { top: 110%; opacity: 0; }
+             }
+           `}</style>
+           
            <div className="w-28 h-28 bg-white/90 backdrop-blur-xl border border-white/40 rounded-[2rem] flex items-center justify-center shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] mb-10 p-3">
              <img src={gitamLogo} alt="GITAM" className="w-full h-full object-contain" />
            </div>
@@ -193,8 +207,13 @@ const LoginPage: React.FC = () => {
                
                {/* Interactive AI Warm Welcome Bubble */}
                <div className="bg-white/80 dark:bg-surface/80 backdrop-blur-2xl border border-white/50 dark:border-white/10 rounded-3xl p-6 mb-10 w-full max-w-2xl flex items-start sm:items-center gap-5 text-left shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.3)] animate-in slide-in-from-bottom-8 fade-in duration-700" style={{ animationFillMode: 'both' }}>
-                 <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-emerald-500 flex items-center justify-center shrink-0 shadow-lg">
-                   <img src={pragatiAvatar} alt="Pragati AI" className="w-full h-full rounded-full object-cover border-2 border-white/20 p-0.5" />
+                 <div className="relative w-16 h-16 rounded-full bg-gradient-to-br from-primary to-emerald-500 flex items-center justify-center shrink-0" style={{ animation: 'float-avatar 4s ease-in-out infinite' }}>
+                   <img src={pragatiAvatar} alt="Pragati AI" className="w-full h-full rounded-full object-cover border-2 border-white/20 p-0.5 relative z-10" />
+                   
+                   {/* Hologram Scanner Effect */}
+                   <div className="absolute inset-0 z-20 rounded-full overflow-hidden pointer-events-none">
+                     <div className="absolute w-full h-[2px] bg-white/80 shadow-[0_0_8px_4px_rgba(255,255,255,0.4)]" style={{ animation: 'hologram-scan 3s ease-in-out infinite' }} />
+                   </div>
                  </div>
                  <div>
                    <h3 className="text-sm font-bold text-primary uppercase tracking-wider mb-1">Pragati AI Companion</h3>
