@@ -177,7 +177,7 @@ export function FacultyDashboard() {
             </div>
           </div>
           
-          <button onClick={() => navigate('/dashboard/faculty/activities')} className="w-full mt-4 py-2 text-sm font-bold text-primary hover:bg-primary/5 rounded-lg transition-colors border border-transparent hover:border-primary/20">
+          <button type="button" className="w-full mt-4 py-2 text-sm font-bold text-primary hover:bg-primary/5 rounded-lg transition-colors border border-transparent hover:border-primary/20">
             View All Tasks
           </button>
         </div>

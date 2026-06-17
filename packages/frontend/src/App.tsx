@@ -12,7 +12,6 @@ import { FacultyDashboard } from './pages/dashboards/FacultyDashboard';
 import { Leaderboard } from './pages/dashboards/Leaderboard';
 import { Analytics } from './pages/dashboards/Analytics';
 import { Goals } from './pages/dashboards/Goals';
-import { Activities } from './pages/dashboards/Activities';
 import { Reports } from './pages/dashboards/Reports';
 import { HoDDashboard } from './pages/dashboards/HoDDashboard';
 import { DirectorDashboard } from './pages/dashboards/DirectorDashboard';
@@ -55,7 +54,6 @@ function App() {
             <Route path="faculty/leaderboard" element={<ProtectedRoute allowedRoles={['Faculty', 'Admin']}><Leaderboard /></ProtectedRoute>} />
             <Route path="faculty/analytics" element={<ProtectedRoute allowedRoles={['Faculty', 'Admin']}><Analytics /></ProtectedRoute>} />
             <Route path="faculty/goals" element={<ProtectedRoute allowedRoles={['Faculty', 'Admin']}><Goals /></ProtectedRoute>} />
-            <Route path="faculty/activities" element={<ProtectedRoute allowedRoles={['Faculty', 'Admin']}><Activities /></ProtectedRoute>} />
             <Route path="faculty/reports" element={<ProtectedRoute allowedRoles={['Faculty', 'Admin']}><Reports /></ProtectedRoute>} />
             <Route path="faculty/notifications" element={<ProtectedRoute allowedRoles={['Faculty', 'Admin']}><div className="p-8 text-center text-textMuted">Notifications — Coming Soon</div></ProtectedRoute>} />
             <Route path="faculty/resources" element={<ProtectedRoute allowedRoles={['Faculty', 'Admin']}><div className="p-8 text-center text-textMuted">Resources — Coming Soon</div></ProtectedRoute>} />
