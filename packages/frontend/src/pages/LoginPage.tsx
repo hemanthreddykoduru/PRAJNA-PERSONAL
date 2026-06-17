@@ -101,10 +101,8 @@ const LoginPage: React.FC = () => {
         // CRITICAL: Force AuthContext to reload user data BEFORE navigating
         await reloadUser();
         
-        // Trigger the Welcome Screen
-        setWelcomeName(name.split(' ')[0]); // Use first name
-        setDashboardPath(destination);
-        setIsWelcoming(true);
+        // Navigate directly to the dashboard, bypassing the welcome screen
+        navigate(destination, { replace: true });
       }
     } catch (err: any) {
       console.error("Login attempt error:", err);
@@ -144,128 +142,8 @@ const LoginPage: React.FC = () => {
             }
           );
         });
-      } else {
-        navigate(dashboardPath, { replace: true });
-      }
-    }, 400); // 400ms matches the exit transition duration
+    }
   };
-
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour >= 5 && hour < 12) return 'morning';
-    if (hour >= 12 && hour < 17) return 'afternoon';
-    return 'evening';
-  };
-
-  if (isWelcoming) {
-    return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center relative overflow-hidden selection:bg-primary/30">
-        {/* Ambient Glassmorphism Orbs - Stronger for better mesh gradient */}
-        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-           <div className="absolute top-[-10%] left-[10%] w-[50rem] h-[50rem] bg-primary/30 rounded-full blur-[120px] animate-[pulse_6s_ease-in-out_infinite]" />
-           <div className="absolute bottom-[-10%] right-[10%] w-[50rem] h-[50rem] bg-emerald-400/30 rounded-full blur-[120px] animate-[pulse_8s_ease-in-out_infinite_reverse]" />
-           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60rem] h-[60rem] bg-white/40 dark:bg-black/40 rounded-full blur-[150px]" />
-        </div>
-        
-        <div className={`z-10 flex flex-col items-center text-center animate-in fade-in zoom-in duration-1000 slide-in-from-bottom-10 w-full px-6 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${isLeaving ? 'opacity-0 scale-110 -translate-y-16 blur-xl pointer-events-none' : 'opacity-100 scale-100 translate-y-0 blur-0'}`}>
-           {/* Custom AI Animations */}
-           <style>{`
-             @keyframes float-avatar {
-               0%, 100% { transform: translateY(0) scale(1); filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.4)); }
-               50% { transform: translateY(-5px) scale(1.05); filter: drop-shadow(0 0 20px rgba(16, 185, 129, 0.8)); }
-             }
-             @keyframes hologram-scan {
-               0% { top: -10%; opacity: 0; }
-               10% { opacity: 1; }
-               90% { opacity: 1; }
-               100% { top: 110%; opacity: 0; }
-             }
-           `}</style>
-           
-           <div className="w-28 h-28 bg-white/90 backdrop-blur-xl border border-white/40 rounded-[2rem] flex items-center justify-center shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] mb-10 p-3">
-             <img src={gitamLogo} alt="GITAM" className="w-full h-full object-contain" />
-           </div>
-           
-           <h1 className="text-5xl md:text-6xl font-bold text-text mb-6 tracking-tight">
-             Welcome back, <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-emerald-400">{welcomeName}</span>
-           </h1>
-           
-           {progress < 100 ? (
-             <div className="flex flex-col items-center animate-in fade-in zoom-in duration-500">
-               <p className="text-xl md:text-2xl text-textMuted mb-12 font-medium">Preparing your intelligent workspace...</p>
-               
-               {/* Beautiful progress bar */}
-               <div className="w-72 h-1.5 bg-surface/80 backdrop-blur-md rounded-full overflow-hidden relative shadow-inner">
-                 <div 
-                   className="absolute top-0 left-0 h-full bg-gradient-to-r from-primary to-emerald-400 transition-all duration-300 ease-out shadow-[0_0_10px_rgba(52,211,153,0.5)]" 
-                   style={{ width: `${progress}%` }} 
-                 />
-               </div>
-             </div>
-           ) : (
-             <div className="flex flex-col items-center w-full max-w-3xl mt-4">
-               
-               {/* Interactive AI Warm Welcome Bubble */}
-               <div className="bg-white/80 dark:bg-surface/80 backdrop-blur-2xl border border-white/50 dark:border-white/10 rounded-3xl p-6 mb-10 w-full max-w-2xl flex items-start sm:items-center gap-5 text-left shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.3)] animate-in slide-in-from-bottom-8 fade-in duration-700" style={{ animationFillMode: 'both' }}>
-                 <div className="relative w-16 h-16 rounded-full bg-gradient-to-br from-primary to-emerald-500 flex items-center justify-center shrink-0" style={{ animation: 'float-avatar 4s ease-in-out infinite' }}>
-                   <img src={pragatiAvatar} alt="Pragati AI" className="w-full h-full rounded-full object-cover border-2 border-white/20 p-0.5 relative z-10" />
-                   
-                   {/* Hologram Scanner Effect */}
-                   <div className="absolute inset-0 z-20 rounded-full overflow-hidden pointer-events-none">
-                     <div className="absolute w-full h-[2px] bg-white/80 shadow-[0_0_8px_4px_rgba(255,255,255,0.4)]" style={{ animation: 'hologram-scan 3s ease-in-out infinite' }} />
-                   </div>
-                 </div>
-                 <div>
-                   <h3 className="text-sm font-bold text-primary uppercase tracking-wider mb-1">Pragati AI Companion</h3>
-                   <p className="text-lg text-text font-medium leading-relaxed">
-                     "Good {getGreeting()}, Professor {welcomeName}! Your workspace is ready. You're currently ranked <strong className="text-emerald-500">#4</strong> in the department. Let's clear those 2 urgent tasks and make it a highly productive day!"
-                   </p>
-                 </div>
-               </div>
-
-               {/* Daily Summary Cards */}
-               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mb-10">
-                 <div className="bg-white/70 dark:bg-surface/70 backdrop-blur-2xl border border-white/50 dark:border-white/10 p-6 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:-translate-y-2 transition-all duration-300 flex flex-col items-center animate-in slide-in-from-bottom-8 fade-in duration-700" style={{ animationDelay: '150ms', animationFillMode: 'both' }}>
-                   <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-4">
-                     <Target size={24} />
-                   </div>
-                   <div className="text-textMuted text-[10px] font-bold uppercase tracking-widest mb-1">PRAJNA Score</div>
-                   <div className="text-3xl font-black text-text">0<span className="text-lg text-textMuted font-medium">/1k</span></div>
-                 </div>
-                 
-                 <div className="bg-white/70 dark:bg-surface/70 backdrop-blur-2xl border border-white/50 dark:border-white/10 p-6 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:-translate-y-2 transition-all duration-300 flex flex-col items-center animate-in slide-in-from-bottom-8 fade-in duration-700" style={{ animationDelay: '300ms', animationFillMode: 'both' }}>
-                   <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center mb-4">
-                     <Trophy size={24} />
-                   </div>
-                   <div className="text-textMuted text-[10px] font-bold uppercase tracking-widest mb-1">Dept. Rank</div>
-                   <div className="text-3xl font-black text-emerald-500">#4</div>
-                 </div>
-                 
-                 <div className="bg-white/70 dark:bg-surface/70 backdrop-blur-2xl border border-white/50 dark:border-white/10 p-6 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:-translate-y-2 transition-all duration-300 flex flex-col items-center animate-in slide-in-from-bottom-8 fade-in duration-700" style={{ animationDelay: '450ms', animationFillMode: 'both' }}>
-                   <div className="w-12 h-12 rounded-2xl bg-accent/10 text-accent flex items-center justify-center mb-4">
-                     <CalendarCheck size={24} />
-                   </div>
-                   <div className="text-textMuted text-[10px] font-bold uppercase tracking-widest mb-1">Today's Tasks</div>
-                   <div className="text-3xl font-black text-text">2 <span className="text-lg text-textMuted font-medium">Urgent</span></div>
-                 </div>
-               </div>
-
-               {/* Let's Do It Button */}
-               <button 
-                 onClick={continueToDashboard}
-                 className="group relative px-12 py-5 bg-gradient-to-r from-primary to-emerald-500 rounded-full font-bold text-white text-xl shadow-[0_10px_40px_-10px_rgba(2,132,199,0.8)] hover:shadow-[0_20px_50px_-10px_rgba(2,132,199,1)] hover:-translate-y-1 transition-all duration-300 overflow-hidden flex items-center gap-3 animate-in fade-in zoom-in duration-700"
-                 style={{ animationDelay: '600ms', animationFillMode: 'both' }}
-               >
-                 <div className="absolute inset-0 bg-white/20 group-hover:translate-x-full -translate-x-full skew-x-12 transition-transform duration-700 ease-in-out" />
-                 <span>Let's do it</span>
-                 <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
-               </button>
-             </div>
-           )}
-        </div>
-      </div>
-    );
-  }
 
   if (isCheckingAuth) {
     return (
