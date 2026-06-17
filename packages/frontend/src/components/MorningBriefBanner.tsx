@@ -172,17 +172,6 @@ export function MorningBriefBanner() {
                 onClick={handleAvatarClick}
                 title={activated ? 'Pragati is active' : 'Click to activate Pragati'}>
 
-                {/* Orbit particles — only when activated */}
-                {activated && (<>
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="w-2 h-2 rounded-full bg-primary/80 shadow-[0_0_8px_2px_rgba(135,206,235,0.6)]"
-                      style={{ animation: 'prajna-orbit 3s linear infinite', position: 'absolute' }} />
-                    <div className="w-1.5 h-1.5 rounded-full bg-accent/80 shadow-[0_0_6px_2px_rgba(227,58,12,0.5)]"
-                      style={{ animation: 'prajna-orbit2 4.5s linear infinite', position: 'absolute' }} />
-                    <div className="w-1 h-1 rounded-full bg-emerald-400/80 shadow-[0_0_5px_1px_rgba(52,211,153,0.5)]"
-                      style={{ animation: 'prajna-orbit3 3.8s linear infinite', position: 'absolute' }} />
-                  </div>
-                </>)}
 
                 {/* Holographic rings */}
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
