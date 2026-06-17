@@ -2,13 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Target, Trophy, BarChart2, FileText, CheckCircle2, Clock, ChevronRight, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { facultyApi } from '../../utils/api';
-import { MorningBriefModal } from '../../components/MorningBriefModal';
+import { MorningBriefBanner } from '../../components/MorningBriefBanner';
 
 export function FacultyDashboard() {
   const { user } = useAuth();
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [showMorningBrief, setShowMorningBrief] = useState(false);
 
   useEffect(() => {
     facultyApi.getProfile()
@@ -37,8 +36,6 @@ export function FacultyDashboard() {
       })
       .finally(() => {
         setLoading(false);
-        // Show morning brief after a slight delay for better UX
-        setTimeout(() => setShowMorningBrief(true), 500);
       });
   }, []);
 
@@ -49,12 +46,8 @@ export function FacultyDashboard() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-text flex items-center gap-2">
-          Welcome back, {user?.name?.split(' ')[0] || 'Hemanth Reddy'} 👋
-        </h1>
-        <p className="text-textMuted mt-1">Here's your academic performance overview for 2024-25</p>
-      </div>
+      {/* Morning Briefing Banner (Module 21) replaces the old static welcome text */}
+      <MorningBriefBanner />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* PRAJNA Score */}
@@ -243,12 +236,6 @@ export function FacultyDashboard() {
           </div>
         </div>
       </div>
-
-      {/* Morning Briefing Integration (Module 21) */}
-      <MorningBriefModal 
-        isOpen={showMorningBrief} 
-        onClose={() => setShowMorningBrief(false)} 
-      />
     </div>
   );
 }
