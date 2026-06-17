@@ -10,15 +10,15 @@
 @config "../tailwind.config.js";
 
 @theme {
-  --color-primary: #87CEEB;
-  --color-primary-hover: #5CACEE;
-  --color-secondary: #1E293B;
-  --color-accent: #E33A0C;
-  --color-background: #0F172A;
-  --color-surface: #1E293B;
-  --color-text: #F8FAFC;
-  --color-textMuted: #94A3B8;
-  --color-border: #334155;
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-text: var(--foreground);
+  --color-textMuted: var(--muted-foreground);
+  --color-border: var(--border);
 }
 
 body {
@@ -69,13 +69,47 @@ body {
 }
 
 :root {
+  --background: #F8FAFC;
+  --surface: #FFFFFF;
+  --foreground: #0F172A;
+  --card: #FFFFFF;
+  --card-foreground: #0F172A;
+  --popover: #FFFFFF;
+  --popover-foreground: #0F172A;
+  --primary: #0284c7;
+  --primary-hover: #0369a1;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F1F5F9;
+  --secondary-foreground: #0F172A;
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
+  --accent: #E33A0C;
+  --accent-foreground: #FFFFFF;
+  --destructive: #EF4444;
+  --border: #E2E8F0;
+  --input: #E2E8F0;
+  --ring: #0284c7;
+  --radius: 0.75rem;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #0F172A;
+  --sidebar-primary: #0284c7;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: rgba(0, 0, 0, 0.05);
+  --sidebar-accent-foreground: #0F172A;
+  --sidebar-border: #E2E8F0;
+  --sidebar-ring: #0284c7;
+}
+
+.dark {
   --background: #0F172A;
+  --surface: #1E293B;
   --foreground: #F8FAFC;
   --card: #1E293B;
   --card-foreground: #F8FAFC;
   --popover: #1E293B;
   --popover-foreground: #F8FAFC;
   --primary: #87CEEB;
+  --primary-hover: #5CACEE;
   --primary-foreground: #0F172A;
   --secondary: #1E293B;
   --secondary-foreground: #F8FAFC;
@@ -87,7 +121,6 @@ body {
   --border: #334155;
   --input: #334155;
   --ring: #87CEEB;
-  --radius: 0.75rem;
   --sidebar: #1E293B;
   --sidebar-foreground: #F8FAFC;
   --sidebar-primary: #87CEEB;
@@ -96,40 +129,6 @@ body {
   --sidebar-accent-foreground: #F8FAFC;
   --sidebar-border: rgba(255, 255, 255, 0.1);
   --sidebar-ring: #87CEEB;
-}
-
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
 }
 
 @layer base {
