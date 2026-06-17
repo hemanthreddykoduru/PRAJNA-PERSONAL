@@ -7,6 +7,7 @@ import type { UserRole } from '../contexts/AuthContext';
 import { ROLE_HOME, useAuth } from '../contexts/AuthContext';
 import gitamLogo from '../assets/gitam-Logo-new.png';
 import prajnaLogo from '../assets/PRAJNA-LOGO-CROP.jpeg';
+import pragatiAvatar from '../assets/pragati-avatar.png';
 
 const LoginPage: React.FC = () => {
   const [userId, setUserId] = useState('');
@@ -193,7 +194,7 @@ const LoginPage: React.FC = () => {
                {/* Interactive AI Warm Welcome Bubble */}
                <div className="bg-white/80 dark:bg-surface/80 backdrop-blur-2xl border border-white/50 dark:border-white/10 rounded-3xl p-6 mb-10 w-full max-w-2xl flex items-start sm:items-center gap-5 text-left shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.3)] animate-in slide-in-from-bottom-8 fade-in duration-700" style={{ animationFillMode: 'both' }}>
                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-emerald-500 flex items-center justify-center shrink-0 shadow-lg">
-                   <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=150&h=150" alt="Pragati AI" className="w-13 h-13 rounded-full object-cover border-2 border-white/20 p-0.5" />
+                   <img src={pragatiAvatar} alt="Pragati AI" className="w-full h-full rounded-full object-cover border-2 border-white/20 p-0.5" />
                  </div>
                  <div>
                    <h3 className="text-sm font-bold text-primary uppercase tracking-wider mb-1">Pragati AI Companion</h3>
