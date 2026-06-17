@@ -178,13 +178,13 @@ export function DashboardLayout() {
   const Sidebar = () => (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Logo Section */}
-      <div className="px-6 py-8 border-b border-border flex-shrink-0">
+      <div className="px-6 py-8 border-b border-border/50 flex-shrink-0">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-lg overflow-hidden border border-border p-1">
-             <img src={gitamLogo} alt="GITAM" className="w-full h-full object-contain" />
+          <div className="w-10 h-10 bg-white/90 backdrop-blur-md rounded-lg flex items-center justify-center shadow-lg overflow-hidden border border-white/20 p-1">
+             <img src={gitamLogo} alt="GITAM" className="w-full h-full object-contain drop-shadow-sm" />
           </div>
           <div className="flex flex-col">
-            <h1 className="text-xl font-bold tracking-tight text-text leading-none">PRAJNA</h1>
+            <h1 className="text-xl font-bold tracking-tight text-text leading-none drop-shadow-sm">PRAJNA</h1>
             <p className="text-textMuted text-xs font-medium mt-1">Academic Excellence</p>
           </div>
         </div>
@@ -267,9 +267,13 @@ export function DashboardLayout() {
   );
 
   return (
-    <div className="h-screen bg-background text-text flex overflow-hidden">
-      {/* Desktop Sidebar */}
-      <aside className="w-64 bg-surface hidden md:flex flex-col flex-shrink-0 h-full border-r border-border">
+    <div className="h-screen bg-background text-text flex overflow-hidden relative selection:bg-primary/30">
+      {/* Background Ambient Orbs for Glassmorphism */}
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full mix-blend-multiply filter blur-[120px] animate-[pulse_8s_ease-in-out_infinite] opacity-50 dark:opacity-30 pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-emerald-500/20 rounded-full mix-blend-multiply filter blur-[120px] animate-[pulse_10s_ease-in-out_infinite_reverse] opacity-50 dark:opacity-30 pointer-events-none" />
+      
+      {/* Desktop Sidebar (Glass) */}
+      <aside className="w-64 bg-surface/40 backdrop-blur-2xl hidden md:flex flex-col flex-shrink-0 h-full border-r border-border/50 relative z-20 shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)]">
         <Sidebar />
       </aside>
 
@@ -284,9 +288,9 @@ export function DashboardLayout() {
       )}
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col min-w-0">
-        {/* Header */}
-        <header className="bg-background border-b border-border h-16 flex items-center justify-between px-6 sticky top-0 z-30">
+      <main className="flex-1 flex flex-col min-w-0 relative z-10">
+        {/* Header (Glass) */}
+        <header className="bg-background/40 backdrop-blur-2xl border-b border-border/50 h-16 flex items-center justify-between px-6 sticky top-0 z-30 shadow-[0_4px_24px_-12px_rgba(0,0,0,0.1)]">
           <div className="flex items-center space-x-4">
             <button
               className="md:hidden text-textMuted hover:text-primary transition-all p-1"
