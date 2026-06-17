@@ -6,7 +6,7 @@ import {
   Home, BookOpen, Award, CheckSquare, MessageSquare, LogOut,
   Users, BarChart3, Shield, Settings, ClipboardList,
   TrendingUp, Building2, GraduationCap, Bell, FileText,
-  LayoutDashboard, Target, Trophy, LineChart, Crosshair, Calendar, Bot, HelpCircle, Sun, Moon, Sparkles, MessageSquarePlus, UserRound
+  LayoutDashboard, Target, Trophy, LineChart, Crosshair, Calendar, Bot, HelpCircle, Sun, Moon, Sparkles, MessageSquarePlus, Headset
 } from 'lucide-react';
 import { AICompanionChat } from '../components/AICompanionChat';
 import { useAuth, ROLE_HOME } from '../contexts/AuthContext';
@@ -354,7 +354,7 @@ export function DashboardLayout() {
           <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           
           <div className="relative z-10 flex items-center justify-center text-white">
-            <UserRound size={28} className="group-hover:rotate-12 transition-transform duration-500" />
+            <Headset size={28} className="group-hover:rotate-12 transition-transform duration-500" />
             <Sparkles size={14} className="absolute -top-1 -right-1 text-amber-300 animate-pulse drop-shadow-md" />
           </div>
         </button>
