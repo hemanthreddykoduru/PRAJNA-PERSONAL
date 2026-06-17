@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { Target, Trophy, BarChart2, FileText, CheckCircle2, Clock, ChevronRight, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { facultyApi } from '../../utils/api';
+import { MorningBriefModal } from '../../components/MorningBriefModal';
 
 export function FacultyDashboard() {
   const { user } = useAuth();
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [showMorningBrief, setShowMorningBrief] = useState(false);
 
   useEffect(() => {
     facultyApi.getProfile()
@@ -33,7 +35,11 @@ export function FacultyDashboard() {
           pendingItems: 3
         });
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        setLoading(false);
+        // Show morning brief after a slight delay for better UX
+        setTimeout(() => setShowMorningBrief(true), 500);
+      });
   }, []);
 
   const kpiScore = profile?.prajnaScore ?? 840;
@@ -237,6 +243,12 @@ export function FacultyDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Morning Briefing Integration (Module 21) */}
+      <MorningBriefModal 
+        isOpen={showMorningBrief} 
+        onClose={() => setShowMorningBrief(false)} 
+      />
     </div>
   );
 }
