@@ -229,6 +229,10 @@ export function FacultyDashboard() {
               </div>
             </div>
           </div>
+
+          <button type="button" className="w-full mt-4 py-2 text-sm font-bold text-primary hover:bg-primary/5 rounded-lg transition-colors border border-transparent hover:border-primary/20">
+            View More
+          </button>
         </div>
 
         {/* Profile Completeness */}
