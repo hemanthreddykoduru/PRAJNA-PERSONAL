@@ -178,13 +178,13 @@ export function DashboardLayout() {
   const Sidebar = () => (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Logo Section */}
-      <div className="px-6 py-8 border-b border-border/50 flex-shrink-0">
+      <div className="px-6 py-8 border-b border-border/50 flex-shrink-0 relative z-10">
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-white/90 backdrop-blur-md rounded-lg flex items-center justify-center shadow-lg overflow-hidden border border-white/20 p-1">
-             <img src={gitamLogo} alt="GITAM" className="w-full h-full object-contain drop-shadow-sm" />
+             <img src={gitamLogo} alt="GITAM" className="w-full h-full object-contain" />
           </div>
           <div className="flex flex-col">
-            <h1 className="text-xl font-bold tracking-tight text-text leading-none drop-shadow-sm">PRAJNA</h1>
+            <h1 className="text-xl font-bold tracking-tight text-text leading-none">PRAJNA</h1>
             <p className="text-textMuted text-xs font-medium mt-1">Academic Excellence</p>
           </div>
         </div>
