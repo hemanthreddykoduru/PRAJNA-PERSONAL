@@ -14,8 +14,20 @@ const LoginPage: React.FC = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [isWelcoming, setIsWelcoming] = useState(false);
+  const [welcomeName, setWelcomeName] = useState('Faculty');
+  const [progress, setProgress] = useState(0);
   const navigate = useNavigate();
   const { reloadUser } = useAuth();
+
+  useEffect(() => {
+    if (isWelcoming) {
+      const interval = setInterval(() => {
+        setProgress(p => Math.min(p + (Math.random() * 20 + 10), 100));
+      }, 250);
+      return () => clearInterval(interval);
+    }
+  }, [isWelcoming]);
 
   useEffect(() => {
     checkExistingSession();
@@ -78,34 +90,42 @@ const LoginPage: React.FC = () => {
         const session = await fetchAuthSession();
         const groups: string[] = (session.tokens?.idToken?.payload as any)?.['cognito:groups'] || [];
         const destination = getRoleHome(groups);
+        const name = (session.tokens?.idToken?.payload as any)?.['name'] || 'Hemanth';
         
         // CRITICAL: Force AuthContext to reload user data BEFORE navigating
         await reloadUser();
         
-        // Single Page Navigation for instant transition with beautiful View Transition animation
-        if (document.startViewTransition) {
-          const transition = document.startViewTransition(() => {
-            flushSync(() => {
-              navigate(destination, { replace: true });
+        // Trigger the Welcome Screen
+        setWelcomeName(name.split(' ')[0]); // Use first name
+        setIsWelcoming(true);
+
+        // Wait for 2.5 seconds to show the beautiful welcome animation
+        setTimeout(() => {
+          // Single Page Navigation for instant transition with beautiful View Transition animation
+          if (document.startViewTransition) {
+            const transition = document.startViewTransition(() => {
+              flushSync(() => {
+                navigate(destination, { replace: true });
+              });
             });
-          });
-          
-          transition.ready.then(() => {
-            document.documentElement.animate(
-              [
-                { opacity: 0, transform: 'scale(0.95)', filter: 'blur(10px)' },
-                { opacity: 1, transform: 'scale(1)', filter: 'blur(0px)' }
-              ],
-              {
-                duration: 800,
-                easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
-                pseudoElement: '::view-transition-new(root)'
-              }
-            );
-          });
-        } else {
-          navigate(destination, { replace: true });
-        }
+            
+            transition.ready.then(() => {
+              document.documentElement.animate(
+                [
+                  { opacity: 0, transform: 'scale(0.95)', filter: 'blur(10px)' },
+                  { opacity: 1, transform: 'scale(1)', filter: 'blur(0px)' }
+                ],
+                {
+                  duration: 800,
+                  easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+                  pseudoElement: '::view-transition-new(root)'
+                }
+              );
+            });
+          } else {
+            navigate(destination, { replace: true });
+          }
+        }, 2500);
       }
     } catch (err: any) {
       console.error("Login attempt error:", err);
@@ -119,6 +139,37 @@ const LoginPage: React.FC = () => {
       // We don't set loading false here if redirecting to prevent flickering
     }
   };
+
+  if (isWelcoming) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center relative overflow-hidden selection:bg-primary/30">
+        {/* Ambient Glassmorphism Orbs */}
+        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+           <div className="absolute top-1/4 left-1/4 w-[40rem] h-[40rem] bg-primary/20 rounded-full blur-[120px] animate-[pulse_6s_ease-in-out_infinite]" />
+           <div className="absolute bottom-1/4 right-1/4 w-[40rem] h-[40rem] bg-emerald-500/20 rounded-full blur-[120px] animate-[pulse_8s_ease-in-out_infinite_reverse]" />
+        </div>
+        
+        <div className="z-10 flex flex-col items-center text-center animate-in fade-in zoom-in duration-1000 slide-in-from-bottom-10">
+           <div className="w-28 h-28 bg-white/90 backdrop-blur-xl border border-white/20 rounded-3xl flex items-center justify-center shadow-[0_20px_50px_-12px_rgba(0,0,0,0.2)] mb-8 p-3">
+             <img src={gitamLogo} alt="GITAM" className="w-full h-full object-contain" />
+           </div>
+           
+           <h1 className="text-5xl md:text-6xl font-bold text-text mb-6 tracking-tight">
+             Welcome back, <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-emerald-400">{welcomeName}</span>
+           </h1>
+           <p className="text-xl md:text-2xl text-textMuted mb-16 font-medium">Preparing your intelligent workspace...</p>
+           
+           {/* Beautiful progress bar */}
+           <div className="w-72 h-1.5 bg-surface/80 backdrop-blur-md rounded-full overflow-hidden relative shadow-inner">
+             <div 
+               className="absolute top-0 left-0 h-full bg-gradient-to-r from-primary to-emerald-400 transition-all duration-300 ease-out shadow-[0_0_10px_rgba(52,211,153,0.5)]" 
+               style={{ width: `${progress}%` }} 
+             />
+           </div>
+        </div>
+      </div>
+    );
+  }
 
   if (isCheckingAuth) {
     return (
