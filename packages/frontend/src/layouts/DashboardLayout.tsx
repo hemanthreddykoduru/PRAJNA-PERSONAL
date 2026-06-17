@@ -268,10 +268,15 @@ export function DashboardLayout() {
           <div className="flex items-center space-x-6">
             <button 
               onClick={toggleTheme}
-              className="text-textMuted hover:text-accent transition-colors"
+              className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors group"
               title="Toggle Theme"
             >
-              {isDarkMode ? <Sun size={20} className="text-amber-500" /> : <Moon size={20} className="text-indigo-400" />}
+              <div className={`absolute transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${isDarkMode ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-50'}`}>
+                <Sun size={20} className="text-amber-500 group-hover:drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]" />
+              </div>
+              <div className={`absolute transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${!isDarkMode ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 rotate-90 scale-50'}`}>
+                <Moon size={20} className="text-indigo-500 group-hover:drop-shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
+              </div>
             </button>
             <button className="relative text-textMuted hover:text-text transition-colors">
               <Bell size={20} />
