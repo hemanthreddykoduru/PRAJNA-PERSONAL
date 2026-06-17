@@ -15,25 +15,8 @@ const LoginPage: React.FC = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  const [isWelcoming, setIsWelcoming] = useState(false);
-  const [isLeaving, setIsLeaving] = useState(false);
-  const [welcomeName, setWelcomeName] = useState('Faculty');
-  const [dashboardPath, setDashboardPath] = useState('');
-  const [progress, setProgress] = useState(0);
   const navigate = useNavigate();
   const { reloadUser } = useAuth();
-
-  useEffect(() => {
-    if (isWelcoming && progress < 100) {
-      const interval = setInterval(() => {
-        setProgress(p => {
-          const next = p + (Math.random() * 15 + 5);
-          return next >= 100 ? 100 : next;
-        });
-      }, 150);
-      return () => clearInterval(interval);
-    }
-  }, [isWelcoming, progress]);
 
   useEffect(() => {
     checkExistingSession();
@@ -117,33 +100,6 @@ const LoginPage: React.FC = () => {
     }
   };
 
-  const continueToDashboard = () => {
-    setIsLeaving(true);
-    
-    // Wait for the exit animation to finish before navigating
-    setTimeout(() => {
-      if (document.startViewTransition) {
-        const transition = document.startViewTransition(() => {
-          flushSync(() => {
-            navigate(dashboardPath, { replace: true });
-          });
-        });
-        
-        transition.ready.then(() => {
-          document.documentElement.animate(
-            [
-              { opacity: 0, filter: 'blur(10px)' },
-              { opacity: 1, filter: 'blur(0px)' }
-            ],
-            {
-              duration: 800,
-              easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
-              pseudoElement: '::view-transition-new(root)'
-            }
-          );
-        });
-    }
-  };
 
   if (isCheckingAuth) {
     return (
