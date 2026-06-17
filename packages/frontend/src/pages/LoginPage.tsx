@@ -15,6 +15,7 @@ const LoginPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [isWelcoming, setIsWelcoming] = useState(false);
+  const [isLeaving, setIsLeaving] = useState(false);
   const [welcomeName, setWelcomeName] = useState('Faculty');
   const [dashboardPath, setDashboardPath] = useState('');
   const [progress, setProgress] = useState(0);
@@ -118,29 +119,34 @@ const LoginPage: React.FC = () => {
   };
 
   const continueToDashboard = () => {
-    if (document.startViewTransition) {
-      const transition = document.startViewTransition(() => {
-        flushSync(() => {
-          navigate(dashboardPath, { replace: true });
+    setIsLeaving(true);
+    
+    // Wait for the exit animation to finish before navigating
+    setTimeout(() => {
+      if (document.startViewTransition) {
+        const transition = document.startViewTransition(() => {
+          flushSync(() => {
+            navigate(dashboardPath, { replace: true });
+          });
         });
-      });
-      
-      transition.ready.then(() => {
-        document.documentElement.animate(
-          [
-            { opacity: 0, transform: 'scale(0.95)', filter: 'blur(10px)' },
-            { opacity: 1, transform: 'scale(1)', filter: 'blur(0px)' }
-          ],
-          {
-            duration: 800,
-            easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
-            pseudoElement: '::view-transition-new(root)'
-          }
-        );
-      });
-    } else {
-      navigate(dashboardPath, { replace: true });
-    }
+        
+        transition.ready.then(() => {
+          document.documentElement.animate(
+            [
+              { opacity: 0, filter: 'blur(10px)' },
+              { opacity: 1, filter: 'blur(0px)' }
+            ],
+            {
+              duration: 800,
+              easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+              pseudoElement: '::view-transition-new(root)'
+            }
+          );
+        });
+      } else {
+        navigate(dashboardPath, { replace: true });
+      }
+    }, 400); // 400ms matches the exit transition duration
   };
 
   const getGreeting = () => {
@@ -160,7 +166,7 @@ const LoginPage: React.FC = () => {
            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60rem] h-[60rem] bg-white/40 dark:bg-black/40 rounded-full blur-[150px]" />
         </div>
         
-        <div className="z-10 flex flex-col items-center text-center animate-in fade-in zoom-in duration-1000 slide-in-from-bottom-10 w-full px-6">
+        <div className={`z-10 flex flex-col items-center text-center animate-in fade-in zoom-in duration-1000 slide-in-from-bottom-10 w-full px-6 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${isLeaving ? 'opacity-0 scale-110 -translate-y-16 blur-xl pointer-events-none' : 'opacity-100 scale-100 translate-y-0 blur-0'}`}>
            <div className="w-28 h-28 bg-white/90 backdrop-blur-xl border border-white/40 rounded-[2rem] flex items-center justify-center shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] mb-10 p-3">
              <img src={gitamLogo} alt="GITAM" className="w-full h-full object-contain" />
            </div>
