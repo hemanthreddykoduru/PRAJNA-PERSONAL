@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { flushSync } from 'react-dom';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { getUrl } from 'aws-amplify/storage';
 import {
@@ -97,7 +98,45 @@ export function DashboardLayout() {
     }
   }, [isDarkMode]);
 
-  const toggleTheme = () => setIsDarkMode(!isDarkMode);
+  const toggleTheme = (e: React.MouseEvent) => {
+    const isDark = !isDarkMode;
+
+    // Fallback for browsers that don't support View Transitions API
+    if (!document.startViewTransition) {
+      setIsDarkMode(isDark);
+      return;
+    }
+
+    const x = e.clientX;
+    const y = e.clientY;
+    const endRadius = Math.hypot(
+      Math.max(x, innerWidth - x),
+      Math.max(y, innerHeight - y)
+    );
+
+    const transition = document.startViewTransition(() => {
+      flushSync(() => {
+        setIsDarkMode(isDark);
+      });
+    });
+
+    transition.ready.then(() => {
+      const clipPath = [
+        `circle(0px at ${x}px ${y}px)`,
+        `circle(${endRadius}px at ${x}px ${y}px)`
+      ];
+      
+      // Always expand the new view over the old view
+      document.documentElement.animate(
+        { clipPath },
+        {
+          duration: 700,
+          easing: 'cubic-bezier(0.64, 0, 0.05, 1)',
+          pseudoElement: '::view-transition-new(root)',
+        }
+      );
+    });
+  };
 
   useEffect(() => {
     const fetchAvatar = async () => {
