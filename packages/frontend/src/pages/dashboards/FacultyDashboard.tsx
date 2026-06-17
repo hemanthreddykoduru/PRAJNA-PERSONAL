@@ -176,7 +176,7 @@ export function FacultyDashboard() {
             </h3>
           </div>
           
-          <div className="relative pl-6 space-y-6 before:absolute before:inset-0 before:ml-[11px] before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-border before:to-transparent flex-1">
+          <div className="relative pl-6 space-y-6 before:absolute before:inset-0 before:left-[11px] before:h-full before:w-[2px] before:bg-gradient-to-b before:from-transparent before:via-border before:to-transparent flex-1">
             <div className="relative">
               <div className="absolute -left-[33px] w-4 h-4 rounded-full bg-surface border-4 border-emerald-500 mt-1" />
               <p className="text-sm font-bold text-text">IEEE Paper Published</p>
