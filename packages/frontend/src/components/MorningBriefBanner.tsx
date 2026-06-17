@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Sun, CheckCircle2, AlertCircle, Calendar, Sparkles, ChevronRight } from 'lucide-react';
+import { Sun, Moon, Sunrise, CheckCircle2, AlertCircle, Calendar, Sparkles, ChevronRight } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 export function MorningBriefBanner() {
@@ -7,11 +7,31 @@ export function MorningBriefBanner() {
   const [loading, setLoading] = useState(true);
   const [briefing, setBriefing] = useState<any>(null);
 
+  const [greetingInfo, setGreetingInfo] = useState({ text: 'Good morning', icon: Sunrise, color: 'text-amber-500' });
+
   useEffect(() => {
+    // Determine time of day
+    const hour = new Date().getHours();
+    let text = 'Good morning';
+    let icon = Sunrise;
+    let color = 'text-amber-500';
+
+    if (hour >= 12 && hour < 17) {
+      text = 'Good afternoon';
+      icon = Sun;
+      color = 'text-amber-400';
+    } else if (hour >= 17 || hour < 5) {
+      text = 'Good evening';
+      icon = Moon;
+      color = 'text-indigo-300';
+    }
+
+    setGreetingInfo({ text, icon, color });
+
     // Simulate API call to Module 21
     setTimeout(() => {
       setBriefing({
-        greeting: `Good morning, ${user?.name?.split(' ')[0] || 'Dr.'}! ☀️`,
+        greeting: `${text}, ${user?.name?.split(' ')[0] || 'Dr.'}!`,
         summary: "Welcome to a new day at PRAJNA. You're making excellent progress on your research goals.",
         agenda: [
           { icon: Calendar, text: "3 Classes Scheduled", type: "neutral", time: "9:00 AM" },
@@ -47,8 +67,8 @@ export function MorningBriefBanner() {
       <div className="relative p-8 lg:p-10 flex flex-col lg:flex-row gap-8 items-start lg:items-center">
         {/* Left Column: Greeting */}
         <div className="flex-1 animate-in slide-in-from-left-8 fade-in duration-700 ease-out">
-          <div className="flex items-center gap-2 mb-2">
-            <Sun size={24} className="text-amber-500 animate-[spin_10s_linear_infinite]" />
+          <div className="flex items-center gap-3 mb-2">
+            <greetingInfo.icon size={28} className={`${greetingInfo.color} ${greetingInfo.icon === Moon ? 'animate-pulse' : 'animate-[spin_10s_linear_infinite]'}`} />
             <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">
               {briefing.greeting}
             </h1>
