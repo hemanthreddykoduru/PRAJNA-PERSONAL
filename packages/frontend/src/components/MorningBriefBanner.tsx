@@ -73,9 +73,9 @@ export function MorningBriefBanner() {
               <div 
                 key={i} 
                 className="flex-1 lg:w-48 p-4 rounded-2xl bg-white dark:bg-black/20 border border-border hover:shadow-lg hover:-translate-y-1 transition-all duration-300 animate-in zoom-in-95 fade-in cursor-pointer"
-                style={{ animationDelay: \`\${i * 150}ms\`, animationFillMode: 'both' }}
+                style={{ animationDelay: `${i * 150}ms`, animationFillMode: 'both' }}
               >
-                <div className={\`w-10 h-10 rounded-xl flex items-center justify-center mb-3 \${colorClass}\`}>
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${colorClass}`}>
                   <Icon size={20} />
                 </div>
                 <h4 className="text-sm font-bold text-text mb-1">{item.text}</h4>
