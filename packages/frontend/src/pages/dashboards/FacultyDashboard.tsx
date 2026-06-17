@@ -316,7 +316,6 @@ export function FacultyDashboard() {
           </div>
         </div>
       )}
-      </div>
     </div>
   );
 }
