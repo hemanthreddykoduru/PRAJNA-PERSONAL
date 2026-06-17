@@ -16,18 +16,22 @@ const LoginPage: React.FC = () => {
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [isWelcoming, setIsWelcoming] = useState(false);
   const [welcomeName, setWelcomeName] = useState('Faculty');
+  const [dashboardPath, setDashboardPath] = useState('');
   const [progress, setProgress] = useState(0);
   const navigate = useNavigate();
   const { reloadUser } = useAuth();
 
   useEffect(() => {
-    if (isWelcoming) {
+    if (isWelcoming && progress < 100) {
       const interval = setInterval(() => {
-        setProgress(p => Math.min(p + (Math.random() * 20 + 10), 100));
-      }, 250);
+        setProgress(p => {
+          const next = p + (Math.random() * 15 + 5);
+          return next >= 100 ? 100 : next;
+        });
+      }, 150);
       return () => clearInterval(interval);
     }
-  }, [isWelcoming]);
+  }, [isWelcoming, progress]);
 
   useEffect(() => {
     checkExistingSession();
@@ -97,35 +101,8 @@ const LoginPage: React.FC = () => {
         
         // Trigger the Welcome Screen
         setWelcomeName(name.split(' ')[0]); // Use first name
+        setDashboardPath(destination);
         setIsWelcoming(true);
-
-        // Wait for 2.5 seconds to show the beautiful welcome animation
-        setTimeout(() => {
-          // Single Page Navigation for instant transition with beautiful View Transition animation
-          if (document.startViewTransition) {
-            const transition = document.startViewTransition(() => {
-              flushSync(() => {
-                navigate(destination, { replace: true });
-              });
-            });
-            
-            transition.ready.then(() => {
-              document.documentElement.animate(
-                [
-                  { opacity: 0, transform: 'scale(0.95)', filter: 'blur(10px)' },
-                  { opacity: 1, transform: 'scale(1)', filter: 'blur(0px)' }
-                ],
-                {
-                  duration: 800,
-                  easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
-                  pseudoElement: '::view-transition-new(root)'
-                }
-              );
-            });
-          } else {
-            navigate(destination, { replace: true });
-          }
-        }, 2500);
       }
     } catch (err: any) {
       console.error("Login attempt error:", err);
@@ -137,6 +114,32 @@ const LoginPage: React.FC = () => {
       }
     } finally {
       // We don't set loading false here if redirecting to prevent flickering
+    }
+  };
+
+  const continueToDashboard = () => {
+    if (document.startViewTransition) {
+      const transition = document.startViewTransition(() => {
+        flushSync(() => {
+          navigate(dashboardPath, { replace: true });
+        });
+      });
+      
+      transition.ready.then(() => {
+        document.documentElement.animate(
+          [
+            { opacity: 0, transform: 'scale(0.95)', filter: 'blur(10px)' },
+            { opacity: 1, transform: 'scale(1)', filter: 'blur(0px)' }
+          ],
+          {
+            duration: 800,
+            easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+            pseudoElement: '::view-transition-new(root)'
+          }
+        );
+      });
+    } else {
+      navigate(dashboardPath, { replace: true });
     }
   };
 
@@ -157,15 +160,48 @@ const LoginPage: React.FC = () => {
            <h1 className="text-5xl md:text-6xl font-bold text-text mb-6 tracking-tight">
              Welcome back, <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-emerald-400">{welcomeName}</span>
            </h1>
-           <p className="text-xl md:text-2xl text-textMuted mb-16 font-medium">Preparing your intelligent workspace...</p>
            
-           {/* Beautiful progress bar */}
-           <div className="w-72 h-1.5 bg-surface/80 backdrop-blur-md rounded-full overflow-hidden relative shadow-inner">
-             <div 
-               className="absolute top-0 left-0 h-full bg-gradient-to-r from-primary to-emerald-400 transition-all duration-300 ease-out shadow-[0_0_10px_rgba(52,211,153,0.5)]" 
-               style={{ width: `${progress}%` }} 
-             />
-           </div>
+           {progress < 100 ? (
+             <div className="flex flex-col items-center animate-in fade-in zoom-in duration-500">
+               <p className="text-xl md:text-2xl text-textMuted mb-12 font-medium">Preparing your intelligent workspace...</p>
+               
+               {/* Beautiful progress bar */}
+               <div className="w-72 h-1.5 bg-surface/80 backdrop-blur-md rounded-full overflow-hidden relative shadow-inner">
+                 <div 
+                   className="absolute top-0 left-0 h-full bg-gradient-to-r from-primary to-emerald-400 transition-all duration-300 ease-out shadow-[0_0_10px_rgba(52,211,153,0.5)]" 
+                   style={{ width: `${progress}%` }} 
+                 />
+               </div>
+             </div>
+           ) : (
+             <div className="flex flex-col items-center animate-in slide-in-from-bottom-8 fade-in duration-700 w-full max-w-2xl mt-4">
+               {/* Daily Summary Cards */}
+               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mb-12">
+                 <div className="bg-white/50 dark:bg-surface/50 backdrop-blur-md border border-white/20 p-6 rounded-2xl shadow-xl hover:-translate-y-1 transition-transform">
+                   <div className="text-textMuted text-sm font-bold uppercase tracking-wider mb-2">PRAJNA Score</div>
+                   <div className="text-3xl font-black text-primary">0<span className="text-xl text-textMuted font-medium">/1000</span></div>
+                 </div>
+                 <div className="bg-white/50 dark:bg-surface/50 backdrop-blur-md border border-white/20 p-6 rounded-2xl shadow-xl hover:-translate-y-1 transition-transform delay-100">
+                   <div className="text-textMuted text-sm font-bold uppercase tracking-wider mb-2">Dept. Rank</div>
+                   <div className="text-3xl font-black text-emerald-500">#4</div>
+                 </div>
+                 <div className="bg-white/50 dark:bg-surface/50 backdrop-blur-md border border-white/20 p-6 rounded-2xl shadow-xl hover:-translate-y-1 transition-transform delay-200">
+                   <div className="text-textMuted text-sm font-bold uppercase tracking-wider mb-2">Today's Tasks</div>
+                   <div className="text-3xl font-black text-accent">2 <span className="text-xl text-textMuted font-medium">Urgent</span></div>
+                 </div>
+               </div>
+
+               {/* Let's Do It Button */}
+               <button 
+                 onClick={continueToDashboard}
+                 className="group relative px-10 py-5 bg-gradient-to-r from-primary to-emerald-500 rounded-full font-bold text-white text-xl shadow-[0_10px_40px_-10px_rgba(2,132,199,0.8)] hover:shadow-[0_20px_50px_-10px_rgba(2,132,199,1)] hover:-translate-y-1 transition-all duration-300 overflow-hidden flex items-center gap-3"
+               >
+                 <div className="absolute inset-0 bg-white/20 group-hover:translate-x-full -translate-x-full skew-x-12 transition-transform duration-700 ease-in-out" />
+                 <span>Let's do it</span>
+                 <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+               </button>
+             </div>
+           )}
         </div>
       </div>
     );
