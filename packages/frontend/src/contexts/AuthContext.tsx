@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import { getCurrentUser, fetchAuthSession, signOut } from 'aws-amplify/auth';
+import { getCurrentUser, fetchUserAttributes, fetchAuthSession, signOut } from 'aws-amplify/auth';
 
 export type UserRole = 'Faculty' | 'HoD' | 'Director' | 'ProVC' | 'IQAC' | 'Admin';
 
@@ -56,7 +56,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await Promise.race([
         (async () => {
           await getCurrentUser();
-          const session = await fetchAuthSession();
+          const [attrs, session] = await Promise.all([
+            fetchUserAttributes(),
+            fetchAuthSession(),
+          ]);
 
           const payload = session.tokens?.idToken?.payload as any;
           const groups: string[] = payload?.['cognito:groups'] || [];
@@ -71,13 +74,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
           setUser({
             sub: payload?.sub || '',
-            email: payload?.email || '',
+            email: attrs.email || '',
             role,
             campus: payload?.['custom:campus'] || 'Bengaluru',
             department: payload?.['custom:department'] || 'CSE',
             empId: payload?.['custom:empId'] || '',
-            name: payload?.name || payload?.email?.split('@')[0] || 'User',
-            picture: payload?.picture,
+            name: attrs.name || attrs.email?.split('@')[0] || 'User',
+            picture: attrs.picture,
           });
         })(),
         timeoutPromise
