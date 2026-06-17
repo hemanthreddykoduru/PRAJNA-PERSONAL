@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { flushSync } from 'react-dom';
 import { useNavigate, Link } from 'react-router-dom';
 import { User, Lock, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
 import { signIn, getCurrentUser, fetchAuthSession } from 'aws-amplify/auth';
@@ -81,8 +82,30 @@ const LoginPage: React.FC = () => {
         // CRITICAL: Force AuthContext to reload user data BEFORE navigating
         await reloadUser();
         
-        // Single Page Navigation for instant transition
-        navigate(destination, { replace: true });
+        // Single Page Navigation for instant transition with beautiful View Transition animation
+        if (document.startViewTransition) {
+          const transition = document.startViewTransition(() => {
+            flushSync(() => {
+              navigate(destination, { replace: true });
+            });
+          });
+          
+          transition.ready.then(() => {
+            document.documentElement.animate(
+              [
+                { opacity: 0, transform: 'scale(0.95)', filter: 'blur(10px)' },
+                { opacity: 1, transform: 'scale(1)', filter: 'blur(0px)' }
+              ],
+              {
+                duration: 800,
+                easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+                pseudoElement: '::view-transition-new(root)'
+              }
+            );
+          });
+        } else {
+          navigate(destination, { replace: true });
+        }
       }
     } catch (err: any) {
       console.error("Login attempt error:", err);
