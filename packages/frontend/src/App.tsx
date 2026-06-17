@@ -14,7 +14,6 @@ import { Analytics } from './pages/dashboards/Analytics';
 import { Goals } from './pages/dashboards/Goals';
 import { Activities } from './pages/dashboards/Activities';
 import { Reports } from './pages/dashboards/Reports';
-import { Settings } from './pages/dashboards/Settings';
 import { HoDDashboard } from './pages/dashboards/HoDDashboard';
 import { DirectorDashboard } from './pages/dashboards/DirectorDashboard';
 import { ProVCDashboard } from './pages/dashboards/ProVCDashboard';
@@ -153,12 +152,6 @@ function App() {
             <Route path="attendance" element={
               <ProtectedRoute allowedRoles={['Faculty', 'HoD', 'Director', 'Admin']}>
                 <Attendance />
-              </ProtectedRoute>
-            } />
-
-            <Route path="settings" element={
-              <ProtectedRoute allowedRoles={['Faculty', 'HoD', 'Director', 'ProVC', 'IQAC', 'Admin']}>
-                <Settings />
               </ProtectedRoute>
             } />
 
