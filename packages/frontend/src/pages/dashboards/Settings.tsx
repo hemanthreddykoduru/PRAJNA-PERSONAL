@@ -90,8 +90,8 @@ export function Settings() {
   return (
     <div className="space-y-8 max-w-4xl mx-auto pb-12">
       <div>
-        <h1 className="text-2xl font-bold text-text">Account Settings</h1>
-        <p className="text-textMuted mt-1">Manage your profile, preferences, and security</p>
+        <h1 className="text-2xl font-bold text-text">Profile Settings</h1>
+        <p className="text-textMuted mt-1">Manage your academic profile and personal information</p>
       </div>
 
       {/* Profile Section */}
