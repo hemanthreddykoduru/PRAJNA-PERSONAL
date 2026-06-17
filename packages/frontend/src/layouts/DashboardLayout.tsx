@@ -6,7 +6,7 @@ import {
   Home, BookOpen, Award, CheckSquare, MessageSquare, LogOut,
   Users, BarChart3, Shield, Settings, ClipboardList,
   TrendingUp, Building2, GraduationCap, Bell, FileText,
-  LayoutDashboard, Target, Trophy, LineChart, Crosshair, Calendar, Bot, HelpCircle, Sun, Moon, Sparkles, MessageSquarePlus
+  LayoutDashboard, Target, Trophy, LineChart, Crosshair, Calendar, Bot, HelpCircle, Sun, Moon, Sparkles, MessageSquarePlus, UserRound
 } from 'lucide-react';
 import { AICompanionChat } from '../components/AICompanionChat';
 import { useAuth, ROLE_HOME } from '../contexts/AuthContext';
@@ -353,13 +353,9 @@ export function DashboardLayout() {
           <div className="absolute inset-0 rounded-full border-2 border-white/20 animate-[ping_3s_cubic-bezier(0,0,0.2,1)_infinite]" />
           <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           
-          <div className="relative z-10 w-full h-full p-0.5 rounded-full">
-            <img 
-              src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=150&h=150" 
-              alt="Pragati AI Companion" 
-              className="w-full h-full object-cover rounded-full shadow-inner group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-500"
-            />
-            <Sparkles size={16} className="absolute -top-1 -right-1 text-amber-300 animate-pulse drop-shadow-md" />
+          <div className="relative z-10 flex items-center justify-center text-white">
+            <UserRound size={28} className="group-hover:rotate-12 transition-transform duration-500" />
+            <Sparkles size={14} className="absolute -top-1 -right-1 text-amber-300 animate-pulse drop-shadow-md" />
           </div>
         </button>
 
