@@ -176,25 +176,42 @@ export function FacultyDashboard() {
             </h3>
           </div>
           
-          <div className="relative pl-6 space-y-6 before:absolute before:inset-0 before:left-[11px] before:h-full before:w-[2px] before:bg-gradient-to-b before:from-transparent before:via-border before:to-transparent flex-1">
-            <div className="relative">
-              <div className="absolute -left-[33px] w-4 h-4 rounded-full bg-surface border-4 border-emerald-500 mt-1" />
-              <p className="text-sm font-bold text-text">IEEE Paper Published</p>
-              <p className="text-xs text-emerald-600 font-medium mt-0.5">+50 PRAJNA Points</p>
-              <p className="text-xs text-textMuted mt-1">2 days ago</p>
+          <div className="space-y-0 flex-1 mt-2">
+            {/* Item 1 */}
+            <div className="flex gap-4">
+              <div className="flex flex-col items-center">
+                <div className="w-4 h-4 rounded-full bg-surface border-4 border-emerald-500 z-10 shrink-0 mt-1" />
+                <div className="w-0.5 h-full bg-border -mt-2" />
+              </div>
+              <div className="pb-6">
+                <p className="text-sm font-bold text-text">IEEE Paper Published</p>
+                <p className="text-xs text-emerald-600 font-medium mt-0.5">+50 PRAJNA Points</p>
+                <p className="text-xs text-textMuted mt-1">2 days ago</p>
+              </div>
             </div>
             
-            <div className="relative">
-              <div className="absolute -left-[33px] w-4 h-4 rounded-full bg-surface border-4 border-primary mt-1" />
-              <p className="text-sm font-bold text-text">Completed FDP Program</p>
-              <p className="text-xs text-emerald-600 font-medium mt-0.5">+20 PRAJNA Points</p>
-              <p className="text-xs text-textMuted mt-1">Last week</p>
+            {/* Item 2 */}
+            <div className="flex gap-4">
+              <div className="flex flex-col items-center">
+                <div className="w-4 h-4 rounded-full bg-surface border-4 border-primary z-10 shrink-0 mt-1" />
+                <div className="w-0.5 h-full bg-border -mt-2" />
+              </div>
+              <div className="pb-6">
+                <p className="text-sm font-bold text-text">Completed FDP Program</p>
+                <p className="text-xs text-primary font-medium mt-0.5">+20 PRAJNA Points</p>
+                <p className="text-xs text-textMuted mt-1">Last week</p>
+              </div>
             </div>
             
-            <div className="relative">
-              <div className="absolute -left-[33px] w-4 h-4 rounded-full bg-surface border-4 border-border mt-1" />
-              <p className="text-sm font-bold text-text">Joined Mentorship Committee</p>
-              <p className="text-xs text-textMuted mt-1">2 weeks ago</p>
+            {/* Item 3 */}
+            <div className="flex gap-4">
+              <div className="flex flex-col items-center">
+                <div className="w-4 h-4 rounded-full bg-surface border-4 border-border z-10 shrink-0 mt-1" />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-text">Joined Mentorship Committee</p>
+                <p className="text-xs text-textMuted mt-1">2 weeks ago</p>
+              </div>
             </div>
           </div>
         </div>
