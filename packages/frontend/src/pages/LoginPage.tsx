@@ -143,6 +143,13 @@ const LoginPage: React.FC = () => {
     }
   };
 
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 12) return 'morning';
+    if (hour >= 12 && hour < 17) return 'afternoon';
+    return 'evening';
+  };
+
   if (isWelcoming) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center relative overflow-hidden selection:bg-primary/30">
@@ -176,30 +183,44 @@ const LoginPage: React.FC = () => {
              </div>
            ) : (
              <div className="flex flex-col items-center w-full max-w-3xl mt-4">
+               
+               {/* Interactive AI Warm Welcome Bubble */}
+               <div className="bg-white/80 dark:bg-surface/80 backdrop-blur-2xl border border-white/50 dark:border-white/10 rounded-3xl p-6 mb-10 w-full max-w-2xl flex items-start sm:items-center gap-5 text-left shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.3)] animate-in slide-in-from-bottom-8 fade-in duration-700" style={{ animationFillMode: 'both' }}>
+                 <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-emerald-500 flex items-center justify-center shrink-0 shadow-lg">
+                   <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=150&h=150" alt="Pragati AI" className="w-13 h-13 rounded-full object-cover border-2 border-white/20 p-0.5" />
+                 </div>
+                 <div>
+                   <h3 className="text-sm font-bold text-primary uppercase tracking-wider mb-1">Pragati AI Companion</h3>
+                   <p className="text-lg text-text font-medium leading-relaxed">
+                     "Good {getGreeting()}, Professor {welcomeName}! Your workspace is ready. You're currently ranked <strong className="text-emerald-500">#4</strong> in the department. Let's clear those 2 urgent tasks and make it a highly productive day!"
+                   </p>
+                 </div>
+               </div>
+
                {/* Daily Summary Cards */}
-               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mb-12">
-                 <div className="bg-white/70 dark:bg-surface/70 backdrop-blur-2xl border border-white/50 dark:border-white/10 p-8 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:-translate-y-2 transition-all duration-300 flex flex-col items-center animate-in slide-in-from-bottom-8 fade-in duration-700" style={{ animationFillMode: 'both' }}>
-                   <div className="w-14 h-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-5">
-                     <Target size={28} />
+               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mb-10">
+                 <div className="bg-white/70 dark:bg-surface/70 backdrop-blur-2xl border border-white/50 dark:border-white/10 p-6 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:-translate-y-2 transition-all duration-300 flex flex-col items-center animate-in slide-in-from-bottom-8 fade-in duration-700" style={{ animationDelay: '150ms', animationFillMode: 'both' }}>
+                   <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-4">
+                     <Target size={24} />
                    </div>
-                   <div className="text-textMuted text-xs font-bold uppercase tracking-widest mb-1">PRAJNA Score</div>
-                   <div className="text-4xl font-black text-text">0<span className="text-xl text-textMuted font-medium">/1000</span></div>
+                   <div className="text-textMuted text-[10px] font-bold uppercase tracking-widest mb-1">PRAJNA Score</div>
+                   <div className="text-3xl font-black text-text">0<span className="text-lg text-textMuted font-medium">/1k</span></div>
                  </div>
                  
-                 <div className="bg-white/70 dark:bg-surface/70 backdrop-blur-2xl border border-white/50 dark:border-white/10 p-8 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:-translate-y-2 transition-all duration-300 flex flex-col items-center animate-in slide-in-from-bottom-8 fade-in duration-700" style={{ animationDelay: '150ms', animationFillMode: 'both' }}>
-                   <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center mb-5">
-                     <Trophy size={28} />
+                 <div className="bg-white/70 dark:bg-surface/70 backdrop-blur-2xl border border-white/50 dark:border-white/10 p-6 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:-translate-y-2 transition-all duration-300 flex flex-col items-center animate-in slide-in-from-bottom-8 fade-in duration-700" style={{ animationDelay: '300ms', animationFillMode: 'both' }}>
+                   <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center mb-4">
+                     <Trophy size={24} />
                    </div>
-                   <div className="text-textMuted text-xs font-bold uppercase tracking-widest mb-1">Dept. Rank</div>
-                   <div className="text-4xl font-black text-emerald-500">#4</div>
+                   <div className="text-textMuted text-[10px] font-bold uppercase tracking-widest mb-1">Dept. Rank</div>
+                   <div className="text-3xl font-black text-emerald-500">#4</div>
                  </div>
                  
-                 <div className="bg-white/70 dark:bg-surface/70 backdrop-blur-2xl border border-white/50 dark:border-white/10 p-8 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:-translate-y-2 transition-all duration-300 flex flex-col items-center animate-in slide-in-from-bottom-8 fade-in duration-700" style={{ animationDelay: '300ms', animationFillMode: 'both' }}>
-                   <div className="w-14 h-14 rounded-2xl bg-accent/10 text-accent flex items-center justify-center mb-5">
-                     <CalendarCheck size={28} />
+                 <div className="bg-white/70 dark:bg-surface/70 backdrop-blur-2xl border border-white/50 dark:border-white/10 p-6 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:-translate-y-2 transition-all duration-300 flex flex-col items-center animate-in slide-in-from-bottom-8 fade-in duration-700" style={{ animationDelay: '450ms', animationFillMode: 'both' }}>
+                   <div className="w-12 h-12 rounded-2xl bg-accent/10 text-accent flex items-center justify-center mb-4">
+                     <CalendarCheck size={24} />
                    </div>
-                   <div className="text-textMuted text-xs font-bold uppercase tracking-widest mb-1">Today's Tasks</div>
-                   <div className="text-4xl font-black text-text">2 <span className="text-xl text-textMuted font-medium">Urgent</span></div>
+                   <div className="text-textMuted text-[10px] font-bold uppercase tracking-widest mb-1">Today's Tasks</div>
+                   <div className="text-3xl font-black text-text">2 <span className="text-lg text-textMuted font-medium">Urgent</span></div>
                  </div>
                </div>
 
