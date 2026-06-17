@@ -6,7 +6,7 @@ import {
   Home, BookOpen, Award, CheckSquare, MessageSquare, LogOut,
   Users, BarChart3, Shield, Settings, ClipboardList,
   TrendingUp, Building2, GraduationCap, Bell, FileText,
-  LayoutDashboard, Target, Trophy, LineChart, Crosshair, Calendar, Bot, HelpCircle, Sun, Moon
+  LayoutDashboard, Target, Trophy, LineChart, Crosshair, Calendar, Bot, HelpCircle, Sun, Moon, Sparkles, MessageSquarePlus
 } from 'lucide-react';
 import { AICompanionChat } from '../components/AICompanionChat';
 import { useAuth, ROLE_HOME } from '../contexts/AuthContext';
@@ -342,6 +342,33 @@ export function DashboardLayout() {
           <Outlet />
         </div>
       </main>
+
+      {/* Floating AI Companion Shortcut */}
+      <div className="fixed bottom-8 right-8 z-40 group">
+        <button
+          onClick={() => setIsChatOpen(true)}
+          className="relative w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500 via-primary to-emerald-500 shadow-2xl flex items-center justify-center hover:scale-[1.15] hover:-translate-y-2 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:shadow-[0_10px_40px_rgba(2,132,199,0.5)] overflow-hidden"
+        >
+          {/* Animated Glow Rings */}
+          <div className="absolute inset-0 rounded-full border-2 border-white/20 animate-[ping_3s_cubic-bezier(0,0,0.2,1)_infinite]" />
+          <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          
+          <div className="relative z-10 flex items-center justify-center text-white">
+            <Bot size={28} className="group-hover:rotate-12 transition-transform duration-500" />
+            <Sparkles size={14} className="absolute -top-1 -right-1 text-amber-300 animate-pulse" />
+          </div>
+        </button>
+
+        {/* Hover Tooltip/Label */}
+        <div className="absolute top-1/2 -translate-y-1/2 right-full mr-4 pointer-events-none opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]">
+          <div className="bg-surface border border-border shadow-xl px-4 py-2 rounded-2xl whitespace-nowrap flex items-center gap-2">
+            <Sparkles size={16} className="text-primary" />
+            <span className="text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
+              Ask Pragati AI
+            </span>
+          </div>
+        </div>
+      </div>
 
       {/* AI Chat Overlay */}
       <AICompanionChat isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
