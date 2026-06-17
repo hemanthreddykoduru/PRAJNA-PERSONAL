@@ -5,7 +5,7 @@ import {
   Home, BookOpen, Award, CheckSquare, MessageSquare, LogOut,
   Users, BarChart3, Shield, Settings, ClipboardList,
   TrendingUp, Building2, GraduationCap, Bell, FileText,
-  LayoutDashboard, Target, Trophy, LineChart, Crosshair, Calendar, Bot, HelpCircle
+  LayoutDashboard, Target, Trophy, LineChart, Crosshair, Calendar, Bot, HelpCircle, Sun, Moon
 } from 'lucide-react';
 import { AICompanionChat } from '../components/AICompanionChat';
 import { useAuth, ROLE_HOME } from '../contexts/AuthContext';
@@ -81,6 +81,23 @@ export function DashboardLayout() {
   const location = useLocation();
 
   const [headerAvatar, setHeaderAvatar] = useState<string | null>(null);
+  
+  // Theme Toggle State
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    return document.documentElement.classList.contains('dark');
+  });
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDarkMode]);
+
+  const toggleTheme = () => setIsDarkMode(!isDarkMode);
 
   useEffect(() => {
     const fetchAvatar = async () => {
@@ -249,6 +266,13 @@ export function DashboardLayout() {
           </div>
 
           <div className="flex items-center space-x-6">
+            <button 
+              onClick={toggleTheme}
+              className="text-textMuted hover:text-accent transition-colors"
+              title="Toggle Theme"
+            >
+              {isDarkMode ? <Sun size={20} className="text-amber-500" /> : <Moon size={20} className="text-indigo-400" />}
+            </button>
             <button className="relative text-textMuted hover:text-text transition-colors">
               <Bell size={20} />
               <span className="absolute -top-1 -right-1 w-2 h-2 bg-rose-500 rounded-full" />
