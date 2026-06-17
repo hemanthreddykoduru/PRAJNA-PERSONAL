@@ -3,7 +3,7 @@ import { flushSync } from 'react-dom';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { getUrl } from 'aws-amplify/storage';
 import {
-  Home, BookOpen, Award, CheckSquare, MessageSquare, LogOut,
+  Home, BookOpen, Award, CheckSquare, MessageSquare, LogOut, User,
   Users, BarChart3, Shield, Settings, ClipboardList,
   TrendingUp, Building2, GraduationCap, Bell, FileText,
   LayoutDashboard, Target, Trophy, LineChart, Crosshair, Calendar, Bot, HelpCircle, Sun, Moon, Sparkles, MessageSquarePlus
@@ -239,16 +239,9 @@ export function DashboardLayout() {
           onClick={() => setIsMobileMenuOpen(false)}
           className="w-full flex items-center space-x-3 px-4 py-3 text-textMuted hover:text-text hover:bg-black/5 rounded-lg transition-all duration-200 group"
         >
-          <Settings size={20} className="group-hover:scale-110 transition-transform" />
-          <span className="text-sm font-bold tracking-wide">Settings</span>
+          <User size={20} className="group-hover:scale-110 transition-transform" />
+          <span className="text-sm font-bold tracking-wide">Profile</span>
         </Link>
-
-        <button
-          className="w-full flex items-center space-x-3 px-4 py-3 text-textMuted hover:text-text hover:bg-black/5 rounded-lg transition-all duration-200 group"
-        >
-          <HelpCircle size={20} className="group-hover:scale-110 transition-transform" />
-          <span className="text-sm font-bold tracking-wide">Help Desk</span>
-        </button>
 
         <button
           onClick={handleSignOut}
