@@ -4,6 +4,15 @@ import { Amplify } from 'aws-amplify';
 import './index.css'
 import App from './App.tsx'
 
+// Initialize theme preference to prevent flicker and keep theme across sessions
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+  document.documentElement.classList.add('dark');
+  localStorage.setItem('theme', 'dark'); // Set if it was matched from system
+} else {
+  document.documentElement.classList.remove('dark');
+}
+
 Amplify.configure({
   Auth: {
     Cognito: {
