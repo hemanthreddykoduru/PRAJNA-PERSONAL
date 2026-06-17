@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { flushSync } from 'react-dom';
 import { useNavigate, Link } from 'react-router-dom';
-import { User, Lock, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
+import { User, Lock, ArrowRight, ShieldCheck, AlertCircle, Target, Trophy, CalendarCheck } from 'lucide-react';
 import { signIn, getCurrentUser, fetchAuthSession } from 'aws-amplify/auth';
 import type { UserRole } from '../contexts/AuthContext';
 import { ROLE_HOME, useAuth } from '../contexts/AuthContext';
@@ -146,14 +146,15 @@ const LoginPage: React.FC = () => {
   if (isWelcoming) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center relative overflow-hidden selection:bg-primary/30">
-        {/* Ambient Glassmorphism Orbs */}
+        {/* Ambient Glassmorphism Orbs - Stronger for better mesh gradient */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-           <div className="absolute top-1/4 left-1/4 w-[40rem] h-[40rem] bg-primary/20 rounded-full blur-[120px] animate-[pulse_6s_ease-in-out_infinite]" />
-           <div className="absolute bottom-1/4 right-1/4 w-[40rem] h-[40rem] bg-emerald-500/20 rounded-full blur-[120px] animate-[pulse_8s_ease-in-out_infinite_reverse]" />
+           <div className="absolute top-[-10%] left-[10%] w-[50rem] h-[50rem] bg-primary/30 rounded-full blur-[120px] animate-[pulse_6s_ease-in-out_infinite]" />
+           <div className="absolute bottom-[-10%] right-[10%] w-[50rem] h-[50rem] bg-emerald-400/30 rounded-full blur-[120px] animate-[pulse_8s_ease-in-out_infinite_reverse]" />
+           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60rem] h-[60rem] bg-white/40 dark:bg-black/40 rounded-full blur-[150px]" />
         </div>
         
-        <div className="z-10 flex flex-col items-center text-center animate-in fade-in zoom-in duration-1000 slide-in-from-bottom-10">
-           <div className="w-28 h-28 bg-white/90 backdrop-blur-xl border border-white/20 rounded-3xl flex items-center justify-center shadow-[0_20px_50px_-12px_rgba(0,0,0,0.2)] mb-8 p-3">
+        <div className="z-10 flex flex-col items-center text-center animate-in fade-in zoom-in duration-1000 slide-in-from-bottom-10 w-full px-6">
+           <div className="w-28 h-28 bg-white/90 backdrop-blur-xl border border-white/40 rounded-[2rem] flex items-center justify-center shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] mb-10 p-3">
              <img src={gitamLogo} alt="GITAM" className="w-full h-full object-contain" />
            </div>
            
@@ -174,27 +175,39 @@ const LoginPage: React.FC = () => {
                </div>
              </div>
            ) : (
-             <div className="flex flex-col items-center animate-in slide-in-from-bottom-8 fade-in duration-700 w-full max-w-2xl mt-4">
+             <div className="flex flex-col items-center w-full max-w-3xl mt-4">
                {/* Daily Summary Cards */}
                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mb-12">
-                 <div className="bg-white/50 dark:bg-surface/50 backdrop-blur-md border border-white/20 p-6 rounded-2xl shadow-xl hover:-translate-y-1 transition-transform">
-                   <div className="text-textMuted text-sm font-bold uppercase tracking-wider mb-2">PRAJNA Score</div>
-                   <div className="text-3xl font-black text-primary">0<span className="text-xl text-textMuted font-medium">/1000</span></div>
+                 <div className="bg-white/70 dark:bg-surface/70 backdrop-blur-2xl border border-white/50 dark:border-white/10 p-8 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:-translate-y-2 transition-all duration-300 flex flex-col items-center animate-in slide-in-from-bottom-8 fade-in duration-700" style={{ animationFillMode: 'both' }}>
+                   <div className="w-14 h-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-5">
+                     <Target size={28} />
+                   </div>
+                   <div className="text-textMuted text-xs font-bold uppercase tracking-widest mb-1">PRAJNA Score</div>
+                   <div className="text-4xl font-black text-text">0<span className="text-xl text-textMuted font-medium">/1000</span></div>
                  </div>
-                 <div className="bg-white/50 dark:bg-surface/50 backdrop-blur-md border border-white/20 p-6 rounded-2xl shadow-xl hover:-translate-y-1 transition-transform delay-100">
-                   <div className="text-textMuted text-sm font-bold uppercase tracking-wider mb-2">Dept. Rank</div>
-                   <div className="text-3xl font-black text-emerald-500">#4</div>
+                 
+                 <div className="bg-white/70 dark:bg-surface/70 backdrop-blur-2xl border border-white/50 dark:border-white/10 p-8 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:-translate-y-2 transition-all duration-300 flex flex-col items-center animate-in slide-in-from-bottom-8 fade-in duration-700" style={{ animationDelay: '150ms', animationFillMode: 'both' }}>
+                   <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center mb-5">
+                     <Trophy size={28} />
+                   </div>
+                   <div className="text-textMuted text-xs font-bold uppercase tracking-widest mb-1">Dept. Rank</div>
+                   <div className="text-4xl font-black text-emerald-500">#4</div>
                  </div>
-                 <div className="bg-white/50 dark:bg-surface/50 backdrop-blur-md border border-white/20 p-6 rounded-2xl shadow-xl hover:-translate-y-1 transition-transform delay-200">
-                   <div className="text-textMuted text-sm font-bold uppercase tracking-wider mb-2">Today's Tasks</div>
-                   <div className="text-3xl font-black text-accent">2 <span className="text-xl text-textMuted font-medium">Urgent</span></div>
+                 
+                 <div className="bg-white/70 dark:bg-surface/70 backdrop-blur-2xl border border-white/50 dark:border-white/10 p-8 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:-translate-y-2 transition-all duration-300 flex flex-col items-center animate-in slide-in-from-bottom-8 fade-in duration-700" style={{ animationDelay: '300ms', animationFillMode: 'both' }}>
+                   <div className="w-14 h-14 rounded-2xl bg-accent/10 text-accent flex items-center justify-center mb-5">
+                     <CalendarCheck size={28} />
+                   </div>
+                   <div className="text-textMuted text-xs font-bold uppercase tracking-widest mb-1">Today's Tasks</div>
+                   <div className="text-4xl font-black text-text">2 <span className="text-xl text-textMuted font-medium">Urgent</span></div>
                  </div>
                </div>
 
                {/* Let's Do It Button */}
                <button 
                  onClick={continueToDashboard}
-                 className="group relative px-10 py-5 bg-gradient-to-r from-primary to-emerald-500 rounded-full font-bold text-white text-xl shadow-[0_10px_40px_-10px_rgba(2,132,199,0.8)] hover:shadow-[0_20px_50px_-10px_rgba(2,132,199,1)] hover:-translate-y-1 transition-all duration-300 overflow-hidden flex items-center gap-3"
+                 className="group relative px-12 py-5 bg-gradient-to-r from-primary to-emerald-500 rounded-full font-bold text-white text-xl shadow-[0_10px_40px_-10px_rgba(2,132,199,0.8)] hover:shadow-[0_20px_50px_-10px_rgba(2,132,199,1)] hover:-translate-y-1 transition-all duration-300 overflow-hidden flex items-center gap-3 animate-in fade-in zoom-in duration-700"
+                 style={{ animationDelay: '600ms', animationFillMode: 'both' }}
                >
                  <div className="absolute inset-0 bg-white/20 group-hover:translate-x-full -translate-x-full skew-x-12 transition-transform duration-700 ease-in-out" />
                  <span>Let's do it</span>
