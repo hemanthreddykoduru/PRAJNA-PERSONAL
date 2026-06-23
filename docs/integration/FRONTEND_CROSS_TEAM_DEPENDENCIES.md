@@ -1,283 +1,355 @@
-# PRAJNA — Dashboard Cross-Team Dependency Report
+# PRAJNA — Faculty Dashboard (Module 24)
+# Cross-Team Dependency Report
 
-**Module:** 24 (Faculty Dashboard) → 25 (HoD Dashboard)
-**From:** Hemanth Reddy — Frontend / Dashboard Team
+**Module Owner:** Hemanth Reddy
+**Document Type:** API Integration Contract
+**Audience:** All upstream module owners whose APIs we consume
 **Date:** 2026-06-23
-**Status:** 🟡 Draft — Pending review by each module owner
+**Status:** 🟡 Draft — Pending acknowledgement from each section owner
 
 ---
 
-## About This Document
+## How to Use This Document
 
-This document is the **official API contract** between the Dashboard team (Module 24/25) and every upstream module we consume data from. It is written in the same style as the Business Logic team's cross-team dependency report so all module leads can follow a consistent format.
+Each section below corresponds to one upstream module. Read your section. It tells you:
 
-**Read this if you own any module listed in the dependency table below.** Your section tells you exactly what JSON shape your API must return so the Faculty Dashboard can consume it without any frontend changes.
+1. **Exactly what data** the Faculty Dashboard reads from your API
+2. **Which UI widget** breaks if your API is wrong or missing
+3. **The exact JSON response shape** your Lambda must return
+4. **TypeScript interface** we use in our code — your response must satisfy this
+5. **What silently breaks** vs. **what loudly crashes**
 
----
-
-## Phase Plan
-
-> The Dashboard is being built in two phases. **HoD Dashboard work does not begin until Phase 1 is live.**
-
-| Phase | Module | Dashboard | Delivery Status | Blocking Modules |
-|---|---|---|---|---|
-| **🟢 Phase 1 — ACTIVE NOW** | 24 | Faculty Dashboard | ✅ UI 100% complete. Awaiting live APIs. | M3, M4, M7, M14, M15, M23 |
-| **⏳ Phase 2 — Not Started** | 25 | HoD Dashboard | Starts only after M24 is in production | M3, M4, M7, M13, M14, M15 |
-| **⚪ Phase 3 — Out of Scope** | 26 | Director / Pro-VC / IQAC | Owned by Bharath, not this team | — |
+**This is a two-way contract.** If you have questions or need to change anything described here, reach Hemanth Reddy before deploying changes to production.
 
 ---
 
-## Phase 1 — Faculty Dashboard Dependency Map
+## Phase Scope
 
-The table below is the single source of truth for every module the Faculty Dashboard reads from. Each row identifies the **module number, module name, module domain lead (SME), and the assigned developer.**
+> **This document covers Phase 1 only: Faculty Dashboard (Module 24).**
+> HoD Dashboard (Module 25) has its own dependency document. That work does not start until Module 24 is live.
 
-| # | Module Name | Domain SME Lead | Developer / Owner | What We Need From Them | Phase |
+| Module | Dashboard | Status |
+|---|---|---|
+| **24** | Faculty Dashboard | 🟢 UI 100% built. Blocked on live APIs. |
+| **25** | HoD Dashboard | ⏳ Pending. Starts after M24 is in production. |
+
+---
+
+## Dependency Summary — Who We Need and Why
+
+| Priority | Module | Module Name | Domain SME | Developer | Blocks Which UI Widget |
 |---|---|---|---|---|---|
-| **M3** | Auth & User Management | Goondla Balaji | Balaji | Cognito JWT claims (`name`, `email`, `cognito:groups`, `custom:campus`) | Phase 1 🔴 Blocker |
-| **M4** | API Gateway & Middleware | Goondla Balaji | Neha | CORS headers, base URL, OPTIONS preflight routes | Phase 1 🔴 Blocker |
-| **M7** | Personal & Professional Profile | Greeshmitha Bingumalla | Greeshmitha | Faculty profile + profile completeness % | Phase 1 🔴 Blocker |
-| **M9** | Research & Innovation | Greeshmitha Bingumalla | Abhigna | Publications count for personal timeline events | Phase 1 🟡 Needed |
-| **M11** | Faculty Development & Growth | Greeshmitha Bingumalla | *(Unassigned)* | FDP completion events for personal timeline | Phase 1 🟡 Needed |
-| **M14** | PRAJNA Score Engine | Komma Bhanu Teja | Santosh | Total score, tier, points to next tier | Phase 1 🔴 Blocker |
-| **M15** | Leaderboard System | Komma Bhanu Teja | Bhavesh | Department rank, total faculty count, percentile | Phase 1 🔴 Blocker |
-| **M23** | Dynamic To-Do Engine | Jaya Harshitha Mannela | Deeksha Oruganti | Today's to-do checklist with urgency flags | Phase 1 🔴 Blocker |
+| 🔴 Critical | **M3** | Auth & User Management | Goondla Balaji | Balaji | Entire app — login, routing, identity |
+| 🔴 Critical | **M4** | API Gateway & Middleware | Goondla Balaji | Neha | All API calls — CORS, base URL, auth pass-through |
+| 🔴 Critical | **M7** | Personal & Professional Profile | Greeshmitha Bingumalla | Greeshmitha | Profile Completeness widget + top header |
+| 🔴 Critical | **M14** | PRAJNA Score Engine | Komma Bhanu Teja | Santosh | PRAJNA Score card + Morning Brief banner stats |
+| 🔴 Critical | **M15** | Leaderboard System | Komma Bhanu Teja | Bhavesh | Dept. Rank card + Percentile card + Pending card |
+| 🔴 Critical | **M23** | Dynamic To-Do Engine | Jaya Harshitha Mannela | Deeksha Oruganti | Today's Priorities checklist |
+| 🟡 Important | **M21** | Morning Briefing & End-of-Day | Jaya Harshitha Mannela | Jaya Harshitha Mannela | AI message in Morning Brief banner |
+| 🟡 Important | **M9** | Research & Innovation | Greeshmitha Bingumalla | Abhigna | Personal Timeline (publication events) |
+| 🟡 Important | **M11** | Faculty Development & Growth | Greeshmitha Bingumalla | *(Unassigned)* | Personal Timeline (FDP events) |
 
-> 🔴 **Blocker** = The Faculty Dashboard will show empty/broken sections without this API.
-> 🟡 **Needed** = The timeline will have fewer events but the dashboard will still load.
-
----
-
-## Section-by-Section API Contracts
+> 🔴 **Critical** = The dashboard section will be empty, broken, or crash without this API.
+> 🟡 **Important** = The section will partially render with fallback text but look incomplete.
 
 ---
 
-### M3 — Auth & User Management
+## Visual Map — Widget → Module
+
+```
+Faculty Dashboard
+│
+├── [Morning Briefing Banner]
+│     ├── Faculty first name               ← M3 (JWT: `name` claim)
+│     ├── AI greeting message              ← M21 (GET /briefing/today/{facultyId})
+│     ├── Score: 840/1k                    ← M14 (GET /score/{facultyId})
+│     ├── Dept Rank: #4                    ← M15 (GET /leaderboard/rankings/{facultyId})
+│     └── Today's Tasks: 2 Urgent         ← M23 (GET /faculty/{facultyId}/todos/today)
+│
+├── [KPI Cards Row — 4 cards]
+│     ├── PRAJNA Score (840/1000)          ← M14
+│     ├── Dept. Rank (#4 of 45 Faculty)   ← M15
+│     ├── Percentile (88% University-wide) ← M15
+│     └── Pending (3 Evidence Items)       ← M15
+│
+├── [Today's Priorities]                   ← M23
+│     ├── Task 1: Submit Q1 Research...
+│     ├── Task 2: Verify Mid-term...
+│     └── Task 3: Peer Review...
+│
+├── [Personal Timeline]
+│     ├── IEEE Paper Published (+50 pts)   ← M9
+│     ├── Completed FDP Program (+20 pts)  ← M11
+│     └── Joined Mentorship Committee      ← M12
+│
+└── [Profile Completeness]                 ← M7
+      ├── 85% ring chart
+      ├── Add ORCID ID (button)
+      └── Link Google Scholar (button)
+```
+
+---
+
+## Section 1 — Module 3: Auth & User Management
 
 **Domain SME:** Goondla Balaji | **Developer:** Balaji
-**Used in:** `src/contexts/AuthContext.tsx` and `src/pages/LoginPage.tsx`
 
-The frontend decodes the Cognito JWT on login to build the user session and route each user to their correct dashboard.
+The frontend reads the Cognito JWT on login to:
+1. Build the user session (`name`, `email`, `department`)
+2. Route the user to the correct dashboard (`cognito:groups`)
+3. Build the `facultyId` used in every downstream API call (`sub` claim)
 
-#### JWT Claims We Read
+### JWT Claims Contract
 
-| Claim Key | Type | Required | Used For in UI |
-|---|---|---|---|
-| `name` | `string` | ✅ Yes | Displayed in the Morning Briefing banner — *"Welcome back, Hemanth"* |
-| `email` | `string` | ✅ Yes | Shown in the profile header (top-right corner) |
-| `cognito:groups` | `string[]` | ✅ Yes | Routes user to `/dashboard/faculty` or `/dashboard/hod` |
-| `custom:campus` | `string` | ✅ Yes | Campus label in the profile card — *"EECE Department"* |
-| `sub` | `string` | ✅ Yes | Used as the `facultyId` for all downstream API calls |
+| Claim | Type | Required | Used In | Breaks If Missing |
+|---|---|---|---|---|
+| `sub` | `string` | ✅ | Passed as `facultyId` to all API calls | Every API call fails — no faculty ID |
+| `name` | `string` | ✅ | Morning Brief: *"Welcome back, Hemanth"* | Banner says *"Welcome back, Professor"* |
+| `email` | `string` | ✅ | Top-right profile header | Shows blank |
+| `cognito:groups` | `string[]` | ✅ | Route to `/dashboard/faculty` or `/dashboard/hod` | User stuck at login or sent to wrong page |
+| `custom:campus` | `string` | ✅ | Profile sub-label: *"EECE Department"* | Shows blank |
 
-#### Allowed Values
+### Our TypeScript Interface
 
-- `cognito:groups` must contain one of: `Faculty`, `HoD`, `Director`, `IQAC`, `ProVC`, `Admin`
-- `custom:campus` must be one of: `BENGALURU`, `VIZAG`, `HYDERABAD`
+```typescript
+// src/contexts/AuthContext.tsx
+interface User {
+  id: string;          // from JWT: sub
+  name: string;        // from JWT: name
+  email: string;       // from JWT: email
+  role: UserRole;      // from JWT: cognito:groups[0]
+  campus: string;      // from JWT: custom:campus
+}
 
-#### What Would Break Us
+type UserRole = 'Faculty' | 'HoD' | 'Director' | 'IQAC' | 'ProVC' | 'Admin';
+```
 
-- ❌ Renaming `name` → `given_name`. The welcome banner will show *"Welcome back, undefined"*.
-- ❌ Changing group names (e.g., `Faculty` → `Teachers`). Our router will not recognize the role and redirect back to login.
-- ❌ Missing `sub` claim. We have no facultyId to make any downstream API call.
+### Routing Logic We Apply
+
+```typescript
+// The group names in cognito:groups must match EXACTLY
+const ROLE_HOME: Record<UserRole, string> = {
+  'Faculty':   '/dashboard/faculty',
+  'HoD':       '/dashboard/hod',
+  'Director':  '/dashboard/director',
+  'IQAC':      '/dashboard/iqac',
+  'ProVC':     '/dashboard/provc',
+  'Admin':     '/dashboard/admin',
+};
+```
+
+### Breaking Changes
+
+| Change | Impact |
+|---|---|
+| `name` → `given_name` | Banner shows *"Welcome back, undefined"* |
+| `Faculty` → `FACULTY` (casing) | Router falls through — user redirected to login |
+| Remove `sub` from token | All downstream API calls have no `facultyId` — every widget breaks |
+| Add new role not in the 6 above | User gets a blank page — no matching route |
 
 ---
 
-### M4 — API Gateway & Middleware
+## Section 2 — Module 4: API Gateway & Middleware
 
 **Domain SME:** Goondla Balaji | **Developer:** Neha
-**Used in:** `src/utils/api.ts` — every single API call in the dashboard goes through this.
 
-#### What We Need From You
+Every single API call in the dashboard goes through API Gateway. This is the foundation.
 
-| Requirement | Detail |
+### What We Need
+
+| Requirement | Exact Value Needed |
 |---|---|
-| **CORS** | `Access-Control-Allow-Origin: *` (or our CloudFront domain) on every endpoint |
-| **Allowed Headers** | `Authorization`, `Content-Type` must be in `Access-Control-Allow-Headers` |
-| **OPTIONS preflight** | Every route must handle `OPTIONS` and return 200 |
-| **Base URL** | A single stable URL injected into `VITE_API_URL` in our `.env` |
-| **Auth pass-through** | `requestContext.authorizer.claims` must be forwarded to Lambda — we read JWT claims from there |
+| **Base URL** | Stable production URL → injected into `VITE_API_URL` env var. Share this with Hemanth to configure the build. |
+| **CORS: Allow-Origin** | `Access-Control-Allow-Origin: *` or `https://prajna.hemanthreddykoduru.dev` |
+| **CORS: Allow-Headers** | Must include `Authorization`, `Content-Type` |
+| **CORS: Allow-Methods** | Must include `GET`, `POST`, `OPTIONS` |
+| **OPTIONS preflight** | Every route must return `200` on `OPTIONS` — browsers send this before every real request |
+| **Auth pass-through** | `requestContext.authorizer.claims` forwarded to Lambda — we read `facultyId` from there |
 
-#### What Would Break Us
+### How We Call APIs
 
-- ❌ Missing CORS headers — the browser blocks the request entirely. The dashboard shows blank boxes. This is the #1 silent killer.
-- ❌ Stripping `requestContext.authorizer` — all our Lambda calls assume JWT claims come from there.
+```typescript
+// src/utils/api.ts
+const BASE_URL = import.meta.env.VITE_API_URL; // e.g., https://api.prajna.gitam.edu
+
+const headers = {
+  'Authorization': `Bearer ${cognitoToken}`,
+  'Content-Type': 'application/json',
+};
+
+// Every module call looks like this:
+const res = await fetch(`${BASE_URL}/score/${facultyId}`, { headers });
+```
+
+### Breaking Changes
+
+| Change | Impact |
+|---|---|
+| No CORS headers | Browser blocks the request silently. Dashboard shows empty boxes. **This is the #1 silent killer.** |
+| OPTIONS returns 4xx | Browser never sends the real request. Same result as above. |
+| Strip `requestContext.authorizer` | Lambda gets no JWT claims — returns 401 for every user |
 
 ---
 
-### M7 — Personal & Professional Profile
+## Section 3 — Module 7: Personal & Professional Profile
 
 **Domain SME:** Greeshmitha Bingumalla | **Developer:** Greeshmitha
-**Used in:** `src/pages/dashboards/FacultyDashboard.tsx` — Profile Completeness widget and top greeting.
 
-#### Endpoint We Will Call
+**Feeds:** Profile Completeness widget (bottom-right card) and the faculty header label.
+
+### Endpoint We Call
 
 ```
 GET /faculty/{facultyId}/profile
 Authorization: Bearer <CognitoJWT>
 ```
 
-#### Expected Response Shape
+### Expected JSON Response
 
 ```json
 {
+  "facultyId": "sub-from-jwt",
   "name": "Hemanth Reddy",
   "email": "hemanth.reddyk@gitam.edu",
   "department": "Computer Science and Engineering (CSE)",
-  "role": "Faculty",
+  "designation": "Assistant Professor",
   "campus": "HYDERABAD",
   "profileCompleteness": 85,
-  "missingIntegrations": [
-    { "id": "orcid", "label": "ORCID ID", "status": "missing" },
-    { "id": "google_scholar", "label": "Google Scholar", "status": "linked" }
+  "missingFields": [
+    {
+      "id": "orcid",
+      "label": "ORCID ID",
+      "status": "missing"
+    },
+    {
+      "id": "google_scholar",
+      "label": "Google Scholar",
+      "status": "linked"
+    }
   ]
 }
 ```
 
-#### Field-by-Field Usage
+### Our TypeScript Interface
 
-| Field | UI Component | Notes |
-|---|---|---|
-| `name` | Morning Briefing greeting | Same as JWT `name` claim — either source is fine |
-| `email` | Profile header | Displayed under the user's initials avatar |
-| `department` | Profile header sub-label | e.g., *"EECE Department"* |
-| `profileCompleteness` | Circular ring chart (0–100%) | Must be a `number`, not a string |
-| `missingIntegrations` | "Add ORCID ID" / "Link Google Scholar" buttons | If `status: "missing"`, button shows. If `status: "linked"`, it hides. |
+```typescript
+interface FacultyProfile {
+  facultyId: string;
+  name: string;
+  email: string;
+  department: string;
+  designation: string;
+  campus: string;
+  profileCompleteness: number;     // integer 0–100
+  missingFields: Array<{
+    id: string;
+    label: string;
+    status: 'missing' | 'linked';  // MUST be one of these two values
+  }>;
+}
+```
 
-#### What Would Break Us
+### UI Widget Map
 
-- ❌ Renaming `profileCompleteness` → `completionPercentage`. The ring chart shows `0%`.
-- ❌ Returning `profileCompleteness` as a string `"85"`. Our SVG calculation crashes.
-- ❌ Changing `status` values from `"missing"` / `"linked"` to `"0"` / `"1"`. Our conditional rendering breaks.
+| JSON Field | Exactly Renders In |
+|---|---|
+| `profileCompleteness` | SVG ring chart. Formula: `strokeDashoffset = 100 - profileCompleteness` |
+| `missingFields[n].label` | Button text: *"Add ORCID ID"*, *"Link Google Scholar"* |
+| `missingFields[n].status` | `'missing'` → button shown. `'linked'` → button hidden |
+
+### Breaking Changes
+
+| Change | Impact |
+|---|---|
+| `profileCompleteness: "85"` (string) | SVG math breaks — ring shows `0%` or `NaN%` |
+| `status: 0` or `status: "incomplete"` | Buttons never hide even after user links account |
+| Rename `missingFields` → `incompleteFields` | Array is `undefined` — code crashes with `.map is not a function` |
 
 ---
 
-### M9 — Research & Innovation
-
-**Domain SME:** Greeshmitha Bingumalla | **Developer:** Abhigna
-**Used in:** Personal Timeline widget on `FacultyDashboard.tsx`
-
-#### Endpoint We Will Call
-
-```
-GET /faculty/{facultyId}/research/timeline
-Authorization: Bearer <CognitoJWT>
-```
-
-#### Expected Response Shape
-
-```json
-[
-  {
-    "id": "pub-001",
-    "type": "PUBLICATION",
-    "title": "IEEE Paper Published",
-    "pointsAwarded": 50,
-    "timestamp": "2026-06-20T10:00:00Z"
-  }
-]
-```
-
-#### Field-by-Field Usage
-
-| Field | UI Component | Notes |
-|---|---|---|
-| `type` | Icon next to event | `PUBLICATION` shows a document icon. Future types: `PATENT`, `GRANT`. |
-| `title` | Event title text | e.g., *"IEEE Paper Published"* |
-| `pointsAwarded` | Green badge | e.g., *"+50 PRAJNA Points"* |
-| `timestamp` | Relative time display | e.g., *"2 days ago"*. Must be ISO 8601. |
-
----
-
-### M11 — Faculty Development & Growth
-
-**Domain SME:** Greeshmitha Bingumalla | **Developer:** *(Unassigned — please confirm)*
-**Used in:** Personal Timeline widget on `FacultyDashboard.tsx`
-
-#### Endpoint We Will Call
-
-```
-GET /faculty/{facultyId}/development/timeline
-Authorization: Bearer <CognitoJWT>
-```
-
-#### Expected Response Shape
-
-```json
-[
-  {
-    "id": "fdp-001",
-    "type": "FDP",
-    "title": "Completed FDP Program",
-    "pointsAwarded": 20,
-    "timestamp": "2026-06-15T14:30:00Z"
-  }
-]
-```
-
-> **Note:** This can be merged into M7's single `GET /faculty/{facultyId}/timeline` response if Greeshmitha and the M11 owner agree. We are flexible on the approach — just confirm before shipping.
-
----
-
-### M14 — PRAJNA Score Engine
+## Section 4 — Module 14: PRAJNA Score Engine
 
 **Domain SME:** Komma Bhanu Teja | **Developer:** Santosh
-**Used in:** PRAJNA Score card and Morning Briefing banner (`src/components/MorningBriefBanner.tsx`)
 
-#### Endpoint We Will Call
+**Feeds:** PRAJNA Score KPI card (top-left), Morning Brief banner score stat, and the motivational tip line.
+
+### Endpoint We Call
 
 ```
 GET /score/{facultyId}
 Authorization: Bearer <CognitoJWT>
 ```
 
-#### Expected Response Shape
+### Expected JSON Response
 
 ```json
 {
+  "facultyId": "sub-from-jwt",
   "totalScore": 840,
   "maxScore": 1000,
   "academicYear": "2024-25",
   "tier": "Gold",
   "previousScore": 750,
-  "rankTrend": 12,
+  "yearOnYearTrend": 12,
   "pointsToNextTier": 15,
   "nextTierName": "PRAJNA Fellow"
 }
 ```
 
-#### Field-by-Field Usage
+### Our TypeScript Interface
 
-| Field | UI Component | Notes |
-|---|---|---|
-| `totalScore` | Animated score number (`SlotCounter`) | **Must be a `number`, not a string.** Will crash if `"840"` is returned. |
-| `maxScore` | Score denominator — *"840/1000"* | Defaults to 1000 if missing |
-| `tier` | Tier badge label | e.g., *"Gold"* |
-| `rankTrend` | *"↑ 12% vs last year"* badge | Positive = improvement. Negative = dropped. |
-| `pointsToNextTier` | Morning Briefing tip line | e.g., *"You are only 15 points away from PRAJNA Fellow!"* |
-| `nextTierName` | Same tip line | The name of the next tier above current |
+```typescript
+interface PrajnaScore {
+  facultyId: string;
+  totalScore: number;           // MUST be number, not string
+  maxScore: number;             // Default 1000
+  academicYear: string;         // e.g., "2024-25"
+  tier: string;                 // e.g., "Gold", "Silver", "Bronze"
+  previousScore: number;
+  yearOnYearTrend: number;      // Positive = improved, Negative = dropped
+  pointsToNextTier: number;
+  nextTierName: string;
+}
+```
 
-#### What Would Break Us
+### UI Widget Map
 
-- ❌ Returning `totalScore` as a string. The `SlotCounter` animation uses it directly in number math.
-- ❌ Missing `pointsToNextTier` and `nextTierName`. The motivational tip in the Morning Briefing will be blank.
+| JSON Field | Exactly Renders In |
+|---|---|
+| `totalScore` | `SlotCounter` animation (spinning digits). Value `840` becomes animated `8`, `4`, `0` |
+| `maxScore` | Denominator: *"840/1000"* |
+| `academicYear` | Sub-label: *"Academic Year 2024-25"* |
+| `yearOnYearTrend` | Badge: *"↑ 12% vs last year"* |
+| `pointsToNextTier` + `nextTierName` | Morning Brief tip: *"You are only 15 points from PRAJNA Fellow!"* |
+
+### Breaking Changes
+
+| Change | Impact |
+|---|---|
+| `totalScore: "840"` (string) | `SlotCounter` passes it to `String().split('').map(Number)` — `NaN` crashes the animation |
+| Missing `pointsToNextTier` | Morning Brief shows tip with *"undefined points"* |
+| `tier: null` | Tier badge shows *"null"* on the card |
 
 ---
 
-### M15 — Leaderboard System
+## Section 5 — Module 15: Leaderboard System
 
 **Domain SME:** Komma Bhanu Teja | **Developer:** Bhavesh
-**Used in:** Department Rank, Percentile, and Pending Evidence cards on the dashboard
 
-#### Endpoint We Will Call
+**Feeds:** Three KPI cards — Dept. Rank, Percentile, and Pending Evidence count.
+
+### Endpoint We Call
 
 ```
 GET /leaderboard/rankings/{facultyId}
 Authorization: Bearer <CognitoJWT>
 ```
 
-#### Expected Response Shape
+### Expected JSON Response
 
 ```json
 {
+  "facultyId": "sub-from-jwt",
   "departmentRank": 4,
   "departmentTotalFaculty": 45,
   "rankTrend": 5,
@@ -287,112 +359,363 @@ Authorization: Bearer <CognitoJWT>
 }
 ```
 
-#### Field-by-Field Usage
+### Our TypeScript Interface
 
-| Field | UI Component | Notes |
-|---|---|---|
-| `departmentRank` | *"#4"* in Dept. Rank card | Displayed as `#${departmentRank}` |
-| `departmentTotalFaculty` | *"of 45 Faculty"* sub-label | The UI explicitly renders this — must be present |
-| `rankTrend` | *"↑ 5% positions up"* badge | Positive = improved. Negative = dropped. |
-| `universityPercentile` | *"88%"* in Percentile card | Must be a `number` (0–100) |
-| `percentileTrend` | *"↑ 8% improvement"* badge | Same sign convention as rankTrend |
-| `pendingEvidenceItems` | *"3 Evidence Items"* in Pending card | Count of items awaiting HoD approval |
+```typescript
+interface LeaderboardData {
+  facultyId: string;
+  departmentRank: number;          // e.g., 4
+  departmentTotalFaculty: number;  // e.g., 45 — renders as "#4 of 45 Faculty"
+  rankTrend: number;               // +5 = moved up 5 positions
+  universityPercentile: number;    // 0–100, NOT 0.0–1.0
+  percentileTrend: number;         // +8 = 8% improvement
+  pendingEvidenceItems: number;    // Count of items awaiting HoD approval
+}
+```
 
-#### What Would Break Us
+### UI Widget Map
 
-- ❌ Removing `departmentTotalFaculty`. The UI literally says *"of 45 Faculty"*. Without it, that line breaks.
-- ❌ Returning percentile as a decimal (`0.88` instead of `88`). The UI shows `0%` instead of `88%`.
+| JSON Field | Exactly Renders In |
+|---|---|
+| `departmentRank` | *"#4"* in the Dept. Rank card |
+| `departmentTotalFaculty` | *"of 45 Faculty"* — sub-label directly uses this number |
+| `rankTrend` | *"↑ 5% positions up"* — positive = up arrow, negative = down arrow |
+| `universityPercentile` | *"88%"* in the Percentile card |
+| `percentileTrend` | *"↑ 8% improvement"* badge |
+| `pendingEvidenceItems` | *"3 Evidence Items"* in the Pending card |
+
+### Breaking Changes
+
+| Change | Impact |
+|---|---|
+| `universityPercentile: 0.88` (decimal instead of int) | Card shows *"0%"* — looks completely wrong |
+| Remove `departmentTotalFaculty` | Card renders *"#4 of undefined Faculty"* |
+| `pendingEvidenceItems: null` | Pending card crashes — `SlotCounter` receives `null` |
 
 ---
 
-### M23 — Dynamic To-Do Engine
+## Section 6 — Module 23: Dynamic To-Do Engine
 
 **Domain SME:** Jaya Harshitha Mannela | **Developer:** Deeksha Oruganti
-**Used in:** *"Today's Priorities"* checklist section — the most prominent action area on the dashboard
 
-#### Endpoint We Will Call
+**Feeds:** "Today's Priorities" section — the most action-critical widget on the entire dashboard.
+
+### Endpoint We Call
 
 ```
 GET /faculty/{facultyId}/todos/today
 Authorization: Bearer <CognitoJWT>
 ```
 
-#### Expected Response Shape
+### Expected JSON Response
 
 ```json
 [
   {
-    "id": "task-1",
+    "id": "task-001",
     "title": "Submit Q1 Research Evidence",
     "description": "Due today at 5:00 PM",
     "isUrgent": true,
     "status": "pending",
-    "category": "Research"
+    "category": "Research",
+    "dueAt": "2026-06-23T17:00:00Z"
   },
   {
-    "id": "task-2",
+    "id": "task-002",
     "title": "Verify Mid-term Attendance",
     "description": "Pending for CSE-302",
+    "isUrgent": true,
+    "status": "pending",
+    "category": "Teaching",
+    "dueAt": null
+  },
+  {
+    "id": "task-003",
+    "title": "Peer Review: AI Journal",
+    "description": "Due in 3 days",
     "isUrgent": false,
     "status": "pending",
-    "category": "Teaching"
+    "category": "Research",
+    "dueAt": "2026-06-26T23:59:00Z"
   }
 ]
 ```
 
-#### Field-by-Field Usage
+### Our TypeScript Interface
 
-| Field | UI Component | Notes |
-|---|---|---|
-| `id` | React list `key` prop | Must be unique per task |
-| `title` | Task label text | e.g., *"Submit Q1 Research Evidence"* |
-| `description` | Task sub-label in grey | e.g., *"Due today at 5:00 PM"* |
-| `isUrgent` | Red dot + *"Urgent"* badge | **Must be boolean `true`/`false`.** Not a string. |
-| `status` | Used to filter out completed tasks | `"pending"` or `"completed"` |
-| `category` | Category label in task modal | e.g., *"Research"*, *"Teaching"* |
+```typescript
+interface TodoItem {
+  id: string;
+  title: string;
+  description: string;
+  isUrgent: boolean;                          // strict boolean, not string
+  status: 'pending' | 'completed';
+  category: 'Research' | 'Teaching' | 'Admin' | 'Development';
+  dueAt: string | null;                       // ISO 8601 or null
+}
 
-#### What Would Break Us
+type TodoResponse = TodoItem[];               // Always an array, never null
+```
 
-- ❌ Changing `isUrgent` from `boolean` → `string` (e.g., `"high"`). Our UI does `if (task.isUrgent)` — a non-empty string is always truthy, making everything look urgent.
-- ❌ Returning an empty array `[]` when there are no tasks — this is fine and expected. Do **not** return `null` or `undefined` — we call `.map()` on the response directly.
+### UI Widget Map
+
+| JSON Field | Exactly Renders In |
+|---|---|
+| `title` | Task label: *"Submit Q1 Research Evidence"* |
+| `description` | Sub-label: *"Due today at 5:00 PM"* |
+| `isUrgent` | `true` → red dot + *"Urgent"* badge count. `false` → green dot, no badge |
+| `status` | `'completed'` tasks filtered out — not shown in the list |
+| `category` | Shown in the task detail modal when user taps the task |
+
+### Task Modal Trigger
+
+When a faculty member taps any task in the list, a glassmorphism modal appears:
+
+```
+[ ⚠ Submit Q1 Research Evidence ]
+"This task requires your attention..."
+[Cancel]  [Begin Task →]
+```
+
+The `id` field is used to pass the task to the `POST /todos/{id}/complete` endpoint when *"Begin Task"* is clicked. **(This write endpoint is also owned by M23 — see below.)**
+
+### Write Endpoint We Also Need
+
+```
+POST /faculty/{facultyId}/todos/{taskId}/complete
+Authorization: Bearer <CognitoJWT>
+Body: {}
+
+Response: 200 OK
+{ "success": true, "remainingUrgentCount": 1 }
+```
+
+### Breaking Changes
+
+| Change | Impact |
+|---|---|
+| `isUrgent: "high"` (string) | Non-empty string is always truthy in JS. Everything becomes "Urgent". |
+| Return `null` instead of `[]` | `null.map()` crashes the entire dashboard — white screen |
+| `status: "PENDING"` (uppercase) | Our filter `status === 'pending'` fails — completed tasks remain visible |
+| Missing `id` field | Tapping task does nothing — modal has no task ID to pass |
+
+---
+
+## Section 7 — Module 21: Morning Briefing & End-of-Day
+
+**Domain SME:** Jaya Harshitha Mannela | **Developer:** Jaya Harshitha Mannela
+
+**Feeds:** The AI-generated typewriter text in the Morning Briefing banner.
+
+### Current State
+
+Currently the Morning Brief message is **hard-coded** in the frontend:
+
+```typescript
+// src/components/MorningBriefBanner.tsx — Line 41
+const aiMessage = `${greeting.text}, Professor ${firstName}! Your workspace is ready. 
+You're currently ranked #4 in the department. Let's clear those 2 urgent tasks...`
+```
+
+This text **should** come from the M21 API with Bedrock-generated personalized content.
+
+### Endpoint We Need
+
+```
+GET /briefing/today/{facultyId}
+Authorization: Bearer <CognitoJWT>
+```
+
+### Expected JSON Response
+
+```json
+{
+  "facultyId": "sub-from-jwt",
+  "message": "Good evening, Professor Hemanth! Your workspace is ready. You're currently ranked #4 in the department. Let's clear those 2 urgent tasks and make it a highly productive day!",
+  "generatedAt": "2026-06-23T08:00:00Z",
+  "taskCount": 2,
+  "urgentCount": 2
+}
+```
+
+### Our TypeScript Interface
+
+```typescript
+interface MorningBriefing {
+  facultyId: string;
+  message: string;       // The full AI-generated text — typewriter animation plays on this
+  generatedAt: string;   // ISO 8601 — used to show "Today's Briefing"
+  taskCount: number;     // Shown in the "Today's Tasks" mini-stat card
+  urgentCount: number;   // Shown in the "Today's Tasks" mini-stat: "2 Urgent"
+}
+```
+
+> **Note for M21 team:** Until your API is live, the banner uses a hard-coded message with mock numbers. The `taskCount` and `urgentCount` currently come from the M23 response — M21 can override or source these from M23 directly.
+
+---
+
+## Section 8 — Module 9: Research & Innovation
+
+**Domain SME:** Greeshmitha Bingumalla | **Developer:** Abhigna
+
+**Feeds:** Personal Timeline — publication milestone events.
+
+### Endpoint We Need
+
+```
+GET /faculty/{facultyId}/research/milestones?limit=5
+Authorization: Bearer <CognitoJWT>
+```
+
+### Expected JSON Response
+
+```json
+[
+  {
+    "id": "pub-001",
+    "type": "PUBLICATION",
+    "title": "IEEE Paper Published",
+    "subtitle": "SCI Indexed — IEEE Transactions on AI",
+    "pointsAwarded": 50,
+    "timestamp": "2026-06-21T10:00:00Z"
+  }
+]
+```
+
+### TypeScript Interface
+
+```typescript
+interface TimelineEvent {
+  id: string;
+  type: 'PUBLICATION' | 'PATENT' | 'GRANT' | 'FDP' | 'AWARD' | 'COMMITTEE';
+  title: string;
+  subtitle?: string;
+  pointsAwarded?: number;     // null if no PRAJNA points awarded for this event
+  timestamp: string;          // ISO 8601 — rendered as "2 days ago", "Last week"
+}
+```
+
+---
+
+## Section 9 — Module 11: Faculty Development & Growth
+
+**Domain SME:** Greeshmitha Bingumalla | **Developer:** *(Currently unassigned — please confirm)*
+
+**Feeds:** Personal Timeline — FDP and certification milestone events.
+
+### Endpoint We Need
+
+```
+GET /faculty/{facultyId}/development/milestones?limit=5
+Authorization: Bearer <CognitoJWT>
+```
+
+### Expected JSON Response
+
+```json
+[
+  {
+    "id": "fdp-001",
+    "type": "FDP",
+    "title": "Completed FDP Program",
+    "subtitle": "AI for Educators — NPTEL",
+    "pointsAwarded": 20,
+    "timestamp": "2026-06-16T14:30:00Z"
+  }
+]
+```
+
+Same `TimelineEvent` interface as M9 above.
+
+> **Alternative:** M9 and M11 timelines can be merged. If Greeshmitha (M7) can expose a unified `GET /faculty/{facultyId}/timeline?limit=10` that combines research + FDP events sorted by timestamp, that is also acceptable. Please confirm the approach before shipping.
+
+---
+
+## API Call Summary
+
+Below is the complete list of every HTTP request the Faculty Dashboard fires on page load:
+
+```typescript
+// All fired in parallel via Promise.all on mount:
+
+Promise.all([
+  fetch(`${BASE_URL}/faculty/${facultyId}/profile`),           // M7
+  fetch(`${BASE_URL}/score/${facultyId}`),                     // M14
+  fetch(`${BASE_URL}/leaderboard/rankings/${facultyId}`),      // M15
+  fetch(`${BASE_URL}/faculty/${facultyId}/todos/today`),       // M23
+  fetch(`${BASE_URL}/briefing/today/${facultyId}`),            // M21
+  fetch(`${BASE_URL}/faculty/${facultyId}/research/milestones?limit=5`),    // M9
+  fetch(`${BASE_URL}/faculty/${facultyId}/development/milestones?limit=5`), // M11
+])
+```
+
+All requests include `Authorization: Bearer <token>` from Cognito.
+
+---
+
+## Error Handling Contract
+
+The dashboard has graceful fallback behavior but only if your API returns proper HTTP status codes:
+
+| Your API Returns | Dashboard Behavior |
+|---|---|
+| `200` with valid JSON | Widget renders live data ✅ |
+| `200` with empty/null data | Widget shows `--` placeholder |
+| `401 Unauthorized` | User is logged out and redirected to `/login` |
+| `403 Forbidden` | Widget shows *"Access denied"* message |
+| `404 Not Found` | Widget shows *"No data yet"* placeholder |
+| `500 Internal Server Error` | Widget shows *"Could not load data"* with a retry button |
+| Network timeout (>10s) | Widget shows *"Could not load data"* with a retry button |
+
+**Do NOT return `200` with an error message inside the JSON body.** We check the HTTP status code, not the body, for error detection.
+
+---
+
+## Open Questions for Each Team
+
+| # | Question | Addressed To | Why It Matters |
+|---|---|---|---|
+| 1 | Can M9 + M11 timelines be merged into a single `/faculty/{id}/timeline` endpoint? | Greeshmitha + M11 owner | Reduces parallel API calls on page load |
+| 2 | Is M21 (Morning Briefing API) ready for Phase 1, or do we keep hard-coded text until Phase 2? | Jaya Harshitha | Affects how we wire the banner |
+| 3 | Will `GET /leaderboard/rankings/{facultyId}` include `pendingEvidenceItems`, or is that a separate M13 API call? | Bhavesh + Bhanu Teja | Affects the Pending card data source |
+| 4 | What is the stable production API Gateway base URL for `VITE_API_URL`? | Neha | We cannot build and deploy without this |
+| 5 | Is M11 (Faculty Development) assigned? If not, who owns FDP milestone data? | Greeshmitha / Balaji | Timeline will be incomplete without FDP events |
+
+---
+
+## How to Notify Us of a Breaking Change
+
+1. Message **Hemanth Reddy** directly before deploying any schema change to production.
+2. We update TypeScript interfaces + component code in the same deployment window.
+3. **Never deploy a payload change without coordinating** — the dashboard will crash silently.
 
 ---
 
 ## Phase 2 Preview — HoD Dashboard (Module 25)
 
-> **Not active yet.** This section is for awareness only. HoD Dashboard work begins after Faculty Dashboard goes live.
+*Not active yet. Listed for awareness only.*
 
-The HoD Dashboard will additionally require data from:
+The HoD Dashboard will additionally need from:
+- **M13 (Bhanu Teja)** — Department approval queue
+- **M14 (Santosh)** — Department-wide score distribution
+- **M15 (Bhavesh)** — Department faculty ranking table, faculty needing attention
+- **M7 (Greeshmitha)** — Department faculty list
 
-| # | Module Name | Domain SME | Developer | What We Need |
-|---|---|---|---|---|
-| **M13** | Approval Workflow Engine | Komma Bhanu Teja | K Bhanu Teja | Pending approval queue for the HoD's department |
-| **M7** | Personal & Professional Profile | Greeshmitha Bingumalla | Greeshmitha | Faculty list for the department |
-| **M14** | PRAJNA Score Engine | Komma Bhanu Teja | Santosh | Department-wide score distribution |
-| **M15** | Leaderboard System | Komma Bhanu Teja | Bhavesh | Department rank table, faculty needing attention |
-
-A separate HoD dependency contract will be published before Phase 2 begins.
-
----
-
-## How to Propose a Breaking Change
-
-If you need to rename a field, change a type, or restructure a response after we've integrated your API:
-
-1. Message Hemanth Reddy **before** deploying to prod.
-2. We update our TypeScript interfaces and component code in the same PR window.
-3. Never deploy a breaking payload change to production without coordinating — the dashboard will crash silently.
+A separate Phase 2 document will be shared before HoD work begins.
 
 ---
 
 ## Contact
 
-- **Frontend / Dashboard Team:** Hemanth Reddy (Module 24, 25)
-- **Faculty Data Domain SME:** Greeshmitha Bingumalla (Modules 7–12)
-- **Business Logic Domain SME:** Komma Bhanu Teja (Modules 13–18)
-- **AI / To-Do Domain SME:** Jaya Harshitha Mannela (Modules 19–23)
-- **Core Platform Domain SME:** Goondla Balaji (Modules 1–6)
+| Role | Name | Module |
+|---|---|---|
+| **Dashboard Owner (this doc)** | Hemanth Reddy | M24, M25 |
+| **Faculty Data Domain SME** | Greeshmitha Bingumalla | M7–M12 |
+| **Business Logic Domain SME** | Komma Bhanu Teja | M13–M18 |
+| **AI / Briefing Domain SME** | Jaya Harshitha Mannela | M19–M23 |
+| **Core Platform Domain SME** | Goondla Balaji | M1–M6 |
 
 ---
 
-*PRAJNA — प्रज्ञा | Super-30 | Dashboard Cross-Team Dependency Report · 2026-06-23*
+*PRAJNA — प्रज्ञा | Super-30*
+*Faculty Dashboard (Module 24) — Cross-Team Dependency Report · 2026-06-23*
