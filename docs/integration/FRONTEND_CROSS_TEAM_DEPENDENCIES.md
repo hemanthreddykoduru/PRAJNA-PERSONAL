@@ -18,7 +18,7 @@
 | **Module 15 (Leaderboard)** | [§15](#15-module-15--leaderboard-rankings) | Rank and percentile data for the dashboard cards |
 | **Module 23 (To-Do Engine)** | [§23](#23-module-23--to-do-engine) | The urgent tasks and daily checklist JSON payloads |
 
-If you change the structure of your JSON responses or the expected claims, please coordinate with us so we do not break the UI.
+> **⚠️ Phase 1 Priority Notice:** Sections §7, §14, §15, and §23 are **immediately blocking Phase 1 (Faculty Dashboard)**. Module 3 and Module 4 are foundational and needed by everyone. HoD-specific integrations (Module 13) are Phase 2 and not listed here yet.
 
 ---
 
@@ -33,13 +33,19 @@ Every frontend dependency is listed here with:
 
 This is a working contract. **Until your live APIs are shipped matching these contracts, the Frontend is using hard-coded mock data.**
 
-## 2. What modules we own
+---
 
-| Module | Name | Status | Owner |
-|---|---|---|---|
-| 24 | Faculty Dashboard | ✅ UI Complete, awaiting live APIs | Hemanth Reddy |
-| 25 | HoD Dashboard | 🟡 In progress | Hemanth Reddy |
-| 26 | Admin Dashboard | ⚪ Pending | TBD |
+## 2. Phased Delivery Plan
+
+| Phase | Module | Name | Status | Unblocked By |
+|---|---|---|---|---|
+| **Phase 1 — ACTIVE 🟢** | 24 | Faculty Dashboard | ✅ UI Complete, awaiting live APIs | M7, M14, M15, M23 |
+| **Phase 2 — Pending** | 25 | HoD Dashboard | ⏳ Starts only after M24 is live | M7, M13, M14, M15 |
+| **Phase 3 — Out of scope** | 26 | Director / Pro-VC / IQAC Dashboard | ⚪ Bharath's module | — |
+
+### What Phase 1 means for your team
+
+If your module is listed as a dependency of Module 24, **you are blocking Phase 1 going live**. The Faculty Dashboard UI is fully built. The only thing preventing us from removing mock data and connecting to real APIs is the availability of your endpoints matching the contracts below.
 
 ---
 
