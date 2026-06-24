@@ -42,8 +42,9 @@ Each section below corresponds to one upstream module. Read your section. It tel
 | 🔴 Critical | **M3** | Auth & User Management | Goondla Balaji | Balaji | Entire app — login, routing, identity |
 | 🔴 Critical | **M4** | API Gateway & Middleware | Goondla Balaji | Neha | All API calls — CORS, base URL, auth pass-through |
 | 🔴 Critical | **M7** | Personal & Professional Profile | Greeshmitha Bingumalla | Greeshmitha | Profile Completeness widget + top header |
+| 🔴 Critical | **M13** | Approval Workflow Engine | Komma Bhanu Teja | K Bhanu Teja | Pending approvals count |
 | 🔴 Critical | **M14** | PRAJNA Score Engine | Komma Bhanu Teja | Santosh | PRAJNA Score card + Morning Brief banner stats |
-| 🔴 Critical | **M15** | Leaderboard System | Komma Bhanu Teja | Bhavesh | Dept. Rank card + Percentile card + Pending card |
+| 🔴 Critical | **M15** | Leaderboard System | Komma Bhanu Teja | Bhavesh | Dept. Rank card + Percentile card |
 | 🔴 Critical | **M23** | Dynamic To-Do Engine | Jaya Harshitha Mannela | Deeksha Oruganti | Today's Priorities checklist |
 | 🟡 Important | **M21** | Morning Briefing & End-of-Day | Jaya Harshitha Mannela | Jaya Harshitha Mannela | AI message in Morning Brief banner |
 | 🟡 Important | **M9** | Research & Innovation | Greeshmitha Bingumalla | Abhigna | Personal Timeline (publication events) |
@@ -70,7 +71,7 @@ Faculty Dashboard
 │     ├── PRAJNA Score (840/1000)          ← M14
 │     ├── Dept. Rank (#4 of 45 Faculty)   ← M15
 │     ├── Percentile (88% University-wide) ← M15
-│     └── Pending (3 Evidence Items)       ← M15
+│     └── Pending (3 Evidence Items)       ← M13 (GET /approval/pending/me/count)
 │
 ├── [Today's Priorities]                   ← M23
 │     ├── Task 1: Submit Q1 Research...
@@ -100,6 +101,8 @@ The frontend reads the Cognito JWT on login to:
 3. Build the `facultyId` used in every downstream API call (`sub` claim)
 
 ### JWT Claims Contract
+
+> **⚠️ BLOCKER:** There are currently 3 different JWT claim naming conventions circulating (between M24, M15, and M13). A 3-way sync is scheduled this week (by 2026-06-25) between Hemanth, Bhanu, and Balaji to lock the names. **Do not code against these exact claim keys yet.**
 
 | Claim | Type | Required | Used In | Breaks If Missing |
 |---|---|---|---|---|
@@ -336,7 +339,7 @@ interface PrajnaScore {
 
 **Domain SME:** Komma Bhanu Teja | **Developer:** Bhavesh
 
-**Feeds:** Three KPI cards — Dept. Rank, Percentile, and Pending Evidence count.
+**Feeds:** Two KPI cards — Dept. Rank and Percentile.
 
 ### Endpoint We Call
 
@@ -354,8 +357,7 @@ Authorization: Bearer <CognitoJWT>
   "departmentTotalFaculty": 45,
   "rankTrend": 5,
   "universityPercentile": 88,
-  "percentileTrend": 8,
-  "pendingEvidenceItems": 3
+  "percentileTrend": 8
 }
 ```
 
@@ -367,9 +369,8 @@ interface LeaderboardData {
   departmentRank: number;          // e.g., 4
   departmentTotalFaculty: number;  // e.g., 45 — renders as "#4 of 45 Faculty"
   rankTrend: number;               // +5 = moved up 5 positions
-  universityPercentile: number;    // 0–100, NOT 0.0–1.0
+  universityPercentile: number;    // 0–100 (integer)
   percentileTrend: number;         // +8 = 8% improvement
-  pendingEvidenceItems: number;    // Count of items awaiting HoD approval
 }
 ```
 
@@ -382,7 +383,6 @@ interface LeaderboardData {
 | `rankTrend` | *"↑ 5% positions up"* — positive = up arrow, negative = down arrow |
 | `universityPercentile` | *"88%"* in the Percentile card |
 | `percentileTrend` | *"↑ 8% improvement"* badge |
-| `pendingEvidenceItems` | *"3 Evidence Items"* in the Pending card |
 
 ### Breaking Changes
 
@@ -390,7 +390,41 @@ interface LeaderboardData {
 |---|---|
 | `universityPercentile: 0.88` (decimal instead of int) | Card shows *"0%"* — looks completely wrong |
 | Remove `departmentTotalFaculty` | Card renders *"#4 of undefined Faculty"* |
-| `pendingEvidenceItems: null` | Pending card crashes — `SlotCounter` receives `null` |
+
+---
+
+## Section 5.5 — Module 13: Approval Workflow Engine
+
+**Domain SME:** Komma Bhanu Teja | **Developer:** K Bhanu Teja
+
+**Feeds:** Pending Evidence KPI card.
+
+### Endpoint We Call
+
+```
+GET /approval/pending/me/count
+Authorization: Bearer <CognitoJWT>
+```
+
+### Expected JSON Response
+
+```json
+{
+  "count": 3
+}
+```
+
+### UI Widget Map
+
+| JSON Field | Exactly Renders In |
+|---|---|
+| `count` | *"3 Evidence Items"* in the Pending card |
+
+### Breaking Changes
+
+| Change | Impact |
+|---|---|
+| `count: null` | Pending card crashes — `SlotCounter` receives `null` |
 
 ---
 
@@ -642,6 +676,7 @@ Promise.all([
   fetch(`${BASE_URL}/faculty/${facultyId}/profile`),           // M7
   fetch(`${BASE_URL}/score/${facultyId}`),                     // M14
   fetch(`${BASE_URL}/leaderboard/rankings/${facultyId}`),      // M15
+  fetch(`${BASE_URL}/approval/pending/me/count`),              // M13
   fetch(`${BASE_URL}/faculty/${facultyId}/todos/today`),       // M23
   fetch(`${BASE_URL}/briefing/today/${facultyId}`),            // M21
   fetch(`${BASE_URL}/faculty/${facultyId}/research/milestones?limit=5`),    // M9
@@ -677,7 +712,7 @@ The dashboard has graceful fallback behavior but only if your API returns proper
 |---|---|---|---|
 | 1 | Can M9 + M11 timelines be merged into a single `/faculty/{id}/timeline` endpoint? | Greeshmitha + M11 owner | Reduces parallel API calls on page load |
 | 2 | Is M21 (Morning Briefing API) ready for Phase 1, or do we keep hard-coded text until Phase 2? | Jaya Harshitha | Affects how we wire the banner |
-| 3 | Will `GET /leaderboard/rankings/{facultyId}` include `pendingEvidenceItems`, or is that a separate M13 API call? | Bhavesh + Bhanu Teja | Affects the Pending card data source |
+| 3 | ~~Will `GET /leaderboard...` include pending items?~~ | ~~Bhavesh~~ | **Resolved:** M13 providing `/approval/pending/me/count` |
 | 4 | What is the stable production API Gateway base URL for `VITE_API_URL`? | Neha | We cannot build and deploy without this |
 | 5 | Is M11 (Faculty Development) assigned? If not, who owns FDP milestone data? | Greeshmitha / Balaji | Timeline will be incomplete without FDP events |
 
