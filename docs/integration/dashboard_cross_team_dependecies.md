@@ -102,26 +102,26 @@ The frontend reads the Cognito JWT on login to:
 
 ### JWT Claims Contract
 
-> **⚠️ BLOCKER:** There are currently 3 different JWT claim naming conventions circulating (between M24, M15, and M13). A 3-way sync is scheduled this week (by 2026-06-25) between Hemanth, Bhanu, and Balaji to lock the names. **Do not code against these exact claim keys yet.**
+> **✅ RESOLVED:** Auth keys have been locked by Balaji's Integration Guide (2026-06-24). The expected claims are now flat fields. 
 
 | Claim | Type | Required | Used In | Breaks If Missing |
 |---|---|---|---|---|
-| `sub` | `string` | ✅ | Passed as `facultyId` to all API calls | Every API call fails — no faculty ID |
+| `userId` | `string` | ✅ | Passed as `facultyId` to all API calls | Every API call fails — no faculty ID |
 | `name` | `string` | ✅ | Morning Brief: *"Welcome back, Hemanth"* | Banner says *"Welcome back, Professor"* |
 | `email` | `string` | ✅ | Top-right profile header | Shows blank |
-| `cognito:groups` | `string[]` | ✅ | Route to `/dashboard/faculty` or `/dashboard/hod` | User stuck at login or sent to wrong page |
-| `custom:campus` | `string` | ✅ | Profile sub-label: *"EECE Department"* | Shows blank |
+| `role` | `string` | ✅ | Route to `/dashboard/faculty` or `/dashboard/hod` | User stuck at login or sent to wrong page |
+| `campusId` | `string` | ✅ | Profile sub-label: *"EECE Department"* | Shows blank |
 
 ### Our TypeScript Interface
 
 ```typescript
 // src/contexts/AuthContext.tsx
 interface User {
-  id: string;          // from JWT: sub
+  id: string;          // from JWT: userId
   name: string;        // from JWT: name
   email: string;       // from JWT: email
-  role: UserRole;      // from JWT: cognito:groups[0]
-  campus: string;      // from JWT: custom:campus
+  role: UserRole;      // from JWT: role
+  campus: string;      // from JWT: campusId
 }
 
 type UserRole = 'Faculty' | 'HoD' | 'Director' | 'IQAC' | 'ProVC' | 'Admin';
@@ -199,6 +199,8 @@ const res = await fetch(`${BASE_URL}/score/${facultyId}`, { headers });
 **Domain SME:** Greeshmitha Bingumalla | **Developer:** Greeshmitha
 
 **Feeds:** Profile Completeness widget (bottom-right card) and the faculty header label.
+
+> **🔴 INTEGRATION GAP (REQ-01):** As of 2026-06-24, `GET /faculty/{facultyId}` does not return `name`, `department`, or `ORCID` integrations yet. Hemanth is driving this directly with the M7 team.
 
 ### Endpoint We Call
 
@@ -594,6 +596,8 @@ interface MorningBriefing {
 
 **Feeds:** Personal Timeline — publication milestone events.
 
+> **🔴 INTEGRATION GAP (REQ-04):** As of 2026-06-24, there are no `GET` endpoints for research data. Hemanth is driving this with the M9 team. Also, be aware of event-name drift (e.g., `LessonPlanCreated` vs `deliverable.published`).
+
 ### Endpoint We Need
 
 ```
@@ -636,6 +640,8 @@ interface TimelineEvent {
 **Domain SME:** Greeshmitha Bingumalla | **Developer:** *(Currently unassigned — please confirm)*
 
 **Feeds:** Personal Timeline — FDP and certification milestone events.
+
+> **🔴 INTEGRATION GAP (REQ-06):** As of 2026-06-24, there are no `GET` endpoints for FDPs. Hemanth is driving this with the M11 team.
 
 ### Endpoint We Need
 
