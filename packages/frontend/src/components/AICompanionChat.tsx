@@ -99,7 +99,7 @@ export function AICompanionChat({ isOpen, onClose }: { isOpen: boolean; onClose:
       setMessages([{
         id: 'initial_welcome',
         role: 'assistant',
-        content: `Namaste, ${user.name || 'Faculty'}! I'm Pragati, your AI career companion. How can I help you today?`,
+        content: `Namaste, ${user.name || 'Faculty'}! I'm PRAJNA AI, your AI career companion. How can I help you today?`,
         timestamp: new Date(),
       }]);
     };
@@ -175,11 +175,11 @@ export function AICompanionChat({ isOpen, onClose }: { isOpen: boolean; onClose:
       <div className="relative z-10 flex items-center justify-between px-5 py-4 border-b border-border/50 flex-shrink-0">
         <div className="flex items-center gap-3">
           <div className="relative">
-            <img src={pragatiAvatar} alt="Pragati" className="w-10 h-10 rounded-2xl object-cover ring-2 ring-primary/30" />
+            <img src={pragatiAvatar} alt="PRAJNA AI" className="w-10 h-10 rounded-2xl object-cover ring-2 ring-primary/30" />
             <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 rounded-full border-2 border-surface" />
           </div>
           <div>
-            <p className="text-sm font-bold text-text leading-none">Pragati AI</p>
+            <p className="text-sm font-bold text-text leading-none">PRAJNA AI</p>
             <p className="text-[10px] text-textMuted mt-0.5 font-medium">Powered by Amazon Nova</p>
           </div>
         </div>
@@ -229,7 +229,7 @@ export function AICompanionChat({ isOpen, onClose }: { isOpen: boolean; onClose:
                 {/* Avatar */}
                 <div className="flex-shrink-0 w-7 h-7 rounded-full overflow-hidden ring-1 ring-border/60">
                   {msg.role === 'assistant' ? (
-                    <img src={pragatiAvatar} alt="Pragati" className="w-full h-full object-cover" />
+                    <img src={pragatiAvatar} alt="PRAJNA AI" className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full bg-primary flex items-center justify-center text-[9px] font-black text-primary-foreground">
                       {initials}
@@ -270,7 +270,7 @@ export function AICompanionChat({ isOpen, onClose }: { isOpen: boolean; onClose:
             {isSending && (
               <div className="flex items-end gap-2">
                 <div className="flex-shrink-0 w-7 h-7 rounded-full overflow-hidden ring-1 ring-border/60">
-                  <img src={pragatiAvatar} alt="Pragati" className="w-full h-full object-cover" />
+                  <img src={pragatiAvatar} alt="PRAJNA AI" className="w-full h-full object-cover" />
                 </div>
                 <div className="bg-white/10 dark:bg-white/5 border border-border/40 backdrop-blur-sm px-4 py-3 rounded-2xl rounded-bl-sm">
                   <div className="flex items-center gap-1.5">
@@ -291,7 +291,7 @@ export function AICompanionChat({ isOpen, onClose }: { isOpen: boolean; onClose:
         <div className="flex items-center gap-2 bg-white/10 dark:bg-white/5 border border-border/60 rounded-2xl px-4 py-2.5 focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10 transition-all">
           <input
             type="text"
-            placeholder={isHistoryLoading ? 'Syncing...' : 'Ask Pragati anything...'}
+            placeholder={isHistoryLoading ? 'Syncing...' : 'Ask PRAJNA AI anything...'}
             disabled={isHistoryLoading || isSending}
             className="flex-1 bg-transparent border-none outline-none text-sm text-text placeholder:text-textMuted disabled:opacity-50"
             value={input}

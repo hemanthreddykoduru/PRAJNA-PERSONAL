@@ -149,7 +149,7 @@ export function HoDDashboard() {
                       <div className="flex items-center gap-3 self-end md:self-center">
                         <button 
                           onClick={() => handleApprove(item.id)}
-                          className="px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl text-xs font-black flex items-center gap-1.5 transition-colors"
+                          className="px-4 py-2 bg-primary-50 hover:bg-primary-100 text-primary-700 rounded-xl text-xs font-black flex items-center gap-1.5 transition-colors"
                         >
                           <Check size={14} /> Approve
                         </button>
@@ -168,7 +168,7 @@ export function HoDDashboard() {
                     animate={{ opacity: 1 }}
                     className="p-12 text-center text-gray-400 flex flex-col items-center justify-center gap-2"
                   >
-                    <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center">
+                    <div className="w-12 h-12 bg-primary-50 text-primary-600 rounded-full flex items-center justify-center">
                       ✓
                     </div>
                     <p className="font-bold text-gray-700 text-sm">All Clear!</p>
@@ -248,7 +248,7 @@ export function HoDDashboard() {
                       <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-md ${
                         f.status === 'attention' 
                           ? 'bg-red-50 text-[#E33A0C] border border-red-100' 
-                          : 'bg-emerald-50 text-emerald-700 border border-emerald-100'
+                          : 'bg-primary-50 text-primary-700 border border-primary-100'
                       }`}>
                         {f.tier}
                       </span>
@@ -333,7 +333,7 @@ export function HoDDashboard() {
                       ? 'bg-red-50 text-[#E33A0C]' 
                       : isUnderloaded 
                       ? 'bg-amber-50 text-amber-600' 
-                      : 'bg-emerald-50 text-emerald-600'
+                      : 'bg-primary-50 text-primary-600'
                   }`}>
                     {isOverloaded ? 'Overload' : isUnderloaded ? 'Underload' : 'Balanced'}
                   </span>

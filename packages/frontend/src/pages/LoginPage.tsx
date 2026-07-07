@@ -115,14 +115,20 @@ const LoginPage: React.FC = () => {
   return (
     <div className="min-h-screen flex bg-background">
       {/* Left Side: Branded Identity */}
-      <div className="hidden lg:flex w-7/12 bg-surface flex-col justify-between p-12 relative overflow-hidden border-r border-border">
+      <div className="hidden lg:flex w-7/12 bg-secondary flex-col justify-between p-12 relative overflow-hidden border-r border-border">
         {/* Abstract AI Orbs (Decorative) */}
-        <div className="absolute top-[-10%] right-[-10%] w-96 h-96 bg-white/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-[-5%] left-[-5%] w-64 h-64 bg-secondary/20 rounded-full blur-3xl" />
+        <div className="absolute top-[-10%] right-[-10%] w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-[-5%] left-[-5%] w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
         
         <div className="relative z-10">
-          <div className="mb-12 transition-transform hover:scale-105 duration-300">
-            <img src={prajnaLogo} alt="PRAJNA - GITAM University" className="w-72 md:w-80 h-auto object-contain bg-background rounded-[2rem] shadow-2xl p-4 border border-border" />
+          <div className="mb-12 flex items-center gap-6">
+             {/* Using standard logo instead of illegal custom lockup */}
+             <img src={gitamLogo} alt="GITAM University" className="h-16 object-contain" />
+             <div className="h-12 w-px bg-primary/20"></div>
+             <div>
+               <div className="text-2xl font-bold tracking-widest text-primary">PRAJNA AI</div>
+               <div className="text-xs font-bold tracking-widest text-primary/70 uppercase">Your Career Companion</div>
+             </div>
           </div>
           
           <h1 className="text-6xl font-bold text-text leading-tight mb-6">
@@ -136,13 +142,13 @@ const LoginPage: React.FC = () => {
         </div>
 
         <div className="relative z-10 flex gap-8">
-          <div className="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/10">
-            <div className="text-primary font-bold text-3xl mb-1">30+</div>
-            <div className="text-textMuted text-sm font-medium">Core Modules</div>
+          <div className="bg-white/40 backdrop-blur-md p-6 rounded-2xl border border-primary/10 shadow-sm">
+            <div className="text-primary font-bold text-4xl mb-1">30+</div>
+            <div className="text-textMuted text-sm font-bold uppercase tracking-wider">Core Modules</div>
           </div>
-          <div className="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/10">
-            <div className="text-primary font-bold text-3xl mb-1">AI-Ready</div>
-            <div className="text-textMuted text-sm font-medium">Assistant Built-in</div>
+          <div className="bg-white/40 backdrop-blur-md p-6 rounded-2xl border border-primary/10 shadow-sm">
+            <div className="text-primary font-bold text-4xl mb-1">AI-Ready</div>
+            <div className="text-textMuted text-sm font-bold uppercase tracking-wider">Assistant Built-in</div>
           </div>
         </div>
       </div>

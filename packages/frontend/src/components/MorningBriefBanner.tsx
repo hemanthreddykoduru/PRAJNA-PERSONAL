@@ -170,7 +170,7 @@ export function MorningBriefBanner() {
             <div className="flex-shrink-0 flex flex-col items-center gap-3">
               <div className="relative w-36 h-36 cursor-pointer select-none"
                 onClick={handleAvatarClick}
-                title={activated ? 'Pragati is active' : 'Click to activate Pragati'}>
+                title={activated ? 'PRAJNA AI is active' : 'Click to activate PRAJNA AI'}>
 
 
                 {/* Holographic rings */}
@@ -197,7 +197,7 @@ export function MorningBriefBanner() {
                   ${!scanning && !activated ? 'prajna-float' : ''}
                   transition-all duration-500`}
                 >
-                  <img src={pragatiAvatar} alt="Pragati AI" className="w-full h-full object-cover" />
+                  <img src={pragatiAvatar} alt="PRAJNA AI" className="w-full h-full object-cover" />
 
                   {/* Laser scan overlay */}
                   {scanning && (
@@ -229,7 +229,7 @@ export function MorningBriefBanner() {
                 </div>
               </div>
 
-              <p className="text-[10px] font-bold text-textMuted uppercase tracking-widest mt-1">Pragati AI Companion</p>
+              <p className="text-[10px] font-bold text-textMuted uppercase tracking-widest mt-1">PRAJNA AI Companion</p>
             </div>
 
             {/* ── Right column ── */}
@@ -247,7 +247,7 @@ export function MorningBriefBanner() {
 
                 <div className="flex items-start gap-2 mb-2">
                   <Sparkles size={14} className="text-primary mt-0.5 flex-shrink-0" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-primary">Pragati AI</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-primary">PRAJNA AI</span>
                 </div>
                 <p className="text-sm text-text leading-relaxed font-medium min-h-[3.5rem]">
                   {typewriterText}

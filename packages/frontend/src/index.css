@@ -28,6 +28,9 @@ body {
 @theme inline {
   --font-heading: "Forma DJR Display", "Inter", sans-serif;
   --font-sans: "Inter", sans-serif;
+  --color-tertiary-blue: var(--tertiary-blue);
+  --color-tertiary-yellow: var(--tertiary-yellow);
+  --color-tertiary-coral: var(--tertiary-coral);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -76,28 +79,31 @@ body {
   --card-foreground: #0F172A;
   --popover: #FFFFFF;
   --popover-foreground: #0F172A;
-  --primary: #0284c7;
-  --primary-hover: #0369a1;
+  --primary: #007367;
+  --primary-hover: #004740;
   --primary-foreground: #FFFFFF;
-  --secondary: #F1F5F9;
+  --secondary: #F4E4C9;
   --secondary-foreground: #0F172A;
   --muted: #F1F5F9;
   --muted-foreground: #64748B;
-  --accent: #E33A0C;
-  --accent-foreground: #FFFFFF;
+  --accent: #CCBA8D;
+  --accent-foreground: #0F172A;
   --destructive: #EF4444;
   --border: #E2E8F0;
   --input: #E2E8F0;
-  --ring: #0284c7;
+  --ring: #007367;
   --radius: 0.75rem;
   --sidebar: #FFFFFF;
   --sidebar-foreground: #0F172A;
-  --sidebar-primary: #0284c7;
+  --sidebar-primary: #007367;
   --sidebar-primary-foreground: #FFFFFF;
   --sidebar-accent: rgba(0, 0, 0, 0.05);
   --sidebar-accent-foreground: #0F172A;
   --sidebar-border: #E2E8F0;
-  --sidebar-ring: #0284c7;
+  --sidebar-ring: #007367;
+  --tertiary-blue: #5E95CD;
+  --tertiary-yellow: #E0B541;
+  --tertiary-coral: #DD736E;
 }
 
 .dark {
@@ -108,27 +114,27 @@ body {
   --card-foreground: #F8FAFC;
   --popover: #1E293B;
   --popover-foreground: #F8FAFC;
-  --primary: #87CEEB;
-  --primary-hover: #5CACEE;
+  --primary: #8BCBB7;
+  --primary-hover: #007367;
   --primary-foreground: #0F172A;
   --secondary: #1E293B;
   --secondary-foreground: #F8FAFC;
   --muted: #1E293B;
   --muted-foreground: #94A3B8;
-  --accent: #E33A0C;
-  --accent-foreground: #FFFFFF;
+  --accent: #CCBA8D;
+  --accent-foreground: #0F172A;
   --destructive: #EF4444;
   --border: #334155;
   --input: #334155;
-  --ring: #87CEEB;
+  --ring: #8BCBB7;
   --sidebar: #1E293B;
   --sidebar-foreground: #F8FAFC;
-  --sidebar-primary: #87CEEB;
+  --sidebar-primary: #8BCBB7;
   --sidebar-primary-foreground: #0F172A;
   --sidebar-accent: rgba(255, 255, 255, 0.05);
   --sidebar-accent-foreground: #F8FAFC;
   --sidebar-border: rgba(255, 255, 255, 0.1);
-  --sidebar-ring: #87CEEB;
+  --sidebar-ring: #8BCBB7;
 }
 
 @layer base {

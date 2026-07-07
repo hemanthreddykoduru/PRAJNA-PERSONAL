@@ -360,7 +360,7 @@ export function DashboardLayout() {
           <div className="bg-surface border border-border shadow-xl px-4 py-2 rounded-2xl whitespace-nowrap flex items-center gap-2">
             <Sparkles size={16} className="text-primary" />
             <span className="text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
-              Ask Pragati AI
+              Ask PRAJNA AI
             </span>
           </div>
         </div>

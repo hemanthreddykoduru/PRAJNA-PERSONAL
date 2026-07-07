@@ -82,8 +82,8 @@ export function FacultyDashboard() {
         <div className="bg-surface border border-border rounded-2xl p-6 shadow-sm">
           <div className="flex justify-between items-start">
             <h3 className="text-textMuted text-xs font-bold uppercase tracking-wider">Dept. Rank</h3>
-            <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
-              <Trophy size={14} className="text-emerald-500" />
+            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
+              <Trophy size={14} className="text-primary" />
             </div>
           </div>
           <div className="mt-4">
@@ -94,7 +94,7 @@ export function FacultyDashboard() {
             <p className="text-textMuted text-sm mt-1">of 45 Faculty</p>
           </div>
           <div className="mt-4 flex items-center gap-2">
-            <span className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 text-xs font-bold px-2 py-1 rounded">↑ 5%</span>
+            <span className="bg-primary/20 text-primary border border-primary/20 text-xs font-bold px-2 py-1 rounded">↑ 5%</span>
             <span className="text-textMuted text-xs">positions up</span>
           </div>
         </div>
@@ -103,8 +103,8 @@ export function FacultyDashboard() {
         <div className="bg-surface border border-border rounded-2xl p-6 shadow-sm">
           <div className="flex justify-between items-start">
             <h3 className="text-textMuted text-xs font-bold uppercase tracking-wider">Percentile</h3>
-            <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
-              <BarChart2 size={14} className="text-emerald-500" />
+            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
+              <BarChart2 size={14} className="text-primary" />
             </div>
           </div>
           <div className="mt-4">
@@ -115,7 +115,7 @@ export function FacultyDashboard() {
             <p className="text-textMuted text-sm mt-1">University-wide</p>
           </div>
           <div className="mt-4 flex items-center gap-2">
-            <span className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 text-xs font-bold px-2 py-1 rounded">↑ 8%</span>
+            <span className="bg-primary/20 text-primary border border-primary/20 text-xs font-bold px-2 py-1 rounded">↑ 8%</span>
             <span className="text-textMuted text-xs">improvement</span>
           </div>
         </div>
@@ -124,8 +124,8 @@ export function FacultyDashboard() {
         <div className="bg-surface border border-border rounded-2xl p-6 shadow-sm">
           <div className="flex justify-between items-start">
             <h3 className="text-textMuted text-xs font-bold uppercase tracking-wider">Pending</h3>
-            <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
-              <FileText size={14} className="text-emerald-500" />
+            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
+              <FileText size={14} className="text-primary" />
             </div>
           </div>
           <div className="mt-4">
@@ -169,7 +169,7 @@ export function FacultyDashboard() {
             </div>
             
             <div onClick={() => setSelectedTask('Peer Review: AI Journal')} className="flex items-start gap-3 p-3 rounded-xl border border-border hover:bg-black/5 transition-colors cursor-pointer group opacity-60">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 mt-1.5" />
+              <div className="w-2 h-2 rounded-full bg-primary mt-1.5" />
               <div>
                 <p className="text-sm font-bold text-text">Peer Review: AI Journal</p>
                 <p className="text-xs text-textMuted mt-0.5">Due in 3 days</p>
@@ -195,12 +195,12 @@ export function FacultyDashboard() {
             {/* Item 1 */}
             <div className="flex gap-4">
               <div className="flex flex-col items-center">
-                <div className="w-4 h-4 rounded-full bg-surface border-4 border-emerald-500 z-10 shrink-0 mt-1" />
+                <div className="w-4 h-4 rounded-full bg-surface border-4 border-primary z-10 shrink-0 mt-1" />
                 <div className="w-0.5 h-full bg-border -mt-2" />
               </div>
               <div className="pb-6">
                 <p className="text-sm font-bold text-text">IEEE Paper Published</p>
-                <p className="text-xs text-emerald-600 font-medium mt-0.5">+50 PRAJNA Points</p>
+                <p className="text-xs text-primary font-medium mt-0.5">+50 PRAJNA Points</p>
                 <p className="text-xs text-textMuted mt-1">2 days ago</p>
               </div>
             </div>
@@ -239,7 +239,7 @@ export function FacultyDashboard() {
         <div className="bg-surface border border-border rounded-2xl p-6 shadow-sm min-h-[300px] flex flex-col">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-text font-bold text-base flex items-center gap-2">
-              <CheckCircle2 size={18} className="text-emerald-500" />
+              <CheckCircle2 size={18} className="text-primary" />
               Profile Completeness
             </h3>
           </div>
@@ -250,7 +250,7 @@ export function FacultyDashboard() {
                 {/* Background Circle */}
                 <circle cx="18" cy="18" r="16" fill="none" className="stroke-current text-border" strokeWidth="2" />
                 {/* Progress Circle (85%) */}
-                <circle cx="18" cy="18" r="16" fill="none" className="stroke-current text-emerald-500" strokeWidth="3" strokeDasharray="100 100" strokeDashoffset="15" strokeLinecap="round" />
+                <circle cx="18" cy="18" r="16" fill="none" className="stroke-current text-primary" strokeWidth="3" strokeDasharray="100 100" strokeDashoffset="15" strokeLinecap="round" />
               </svg>
               <div className="absolute flex flex-col items-center justify-center">
                 <span className="text-3xl font-black text-text">85%</span>
@@ -287,7 +287,7 @@ export function FacultyDashboard() {
             <p className="text-textMuted mb-8 text-sm">This task requires your attention. Submitting your documentation on time ensures your PRAJNA score is accurately calculated.</p>
             <div className="flex gap-3 justify-end">
               <button onClick={() => setSelectedTask(null)} className="px-5 py-2.5 rounded-xl text-textMuted hover:bg-black/5 font-bold transition-colors">Cancel</button>
-              <button onClick={() => setSelectedTask(null)} className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-primary to-emerald-500 text-white font-bold hover:-translate-y-0.5 shadow-lg shadow-primary/20 transition-all">Begin Task</button>
+              <button onClick={() => setSelectedTask(null)} className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-primary to-primary text-white font-bold hover:-translate-y-0.5 shadow-lg shadow-primary/20 transition-all">Begin Task</button>
             </div>
           </div>
         </div>
@@ -315,7 +315,7 @@ export function FacultyDashboard() {
 
             <div className="flex gap-3 justify-end">
               <button onClick={() => setProfileAction(null)} className="px-5 py-2.5 rounded-xl text-textMuted hover:bg-black/5 font-bold transition-colors">Cancel</button>
-              <button onClick={() => setProfileAction(null)} className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-primary to-emerald-500 text-white font-bold hover:-translate-y-0.5 shadow-lg shadow-primary/20 transition-all">Sync Account</button>
+              <button onClick={() => setProfileAction(null)} className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-primary to-primary text-white font-bold hover:-translate-y-0.5 shadow-lg shadow-primary/20 transition-all">Sync Account</button>
             </div>
           </div>
         </div>
