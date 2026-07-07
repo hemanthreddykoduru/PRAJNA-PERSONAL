@@ -17,34 +17,26 @@ export function FacultyDashboard() {
   const [profileAction, setProfileAction] = useState<string | null>(null);
 
   useEffect(() => {
-    facultyApi.getProfile()
-      .then((data) => {
-        if (data && Object.keys(data).length > 0) {
-          setProfile(data);
-        } else {
-          // Provide realistic mock data for presentation
-          setProfile({
-            prajnaScore: 840,
-            deptRank: 4,
-            percentile: 88,
-            pendingItems: 3
-          });
-        }
-      })
-      .catch((err) => {
-        console.error("Failed to fetch profile from AWS API", err);
-        // Fallback to mock data on error for presentation
-        setProfile({
-          prajnaScore: 840,
-          deptRank: 4,
-          percentile: 88,
-          pendingItems: 3
-        });
-      })
-      .finally(() => {
-        setLoading(false);
+    if (!user?.sub) return;
+    Promise.all([
+      facultyApi.getProfile().catch(() => null),
+      facultyApi.getScore(user.sub).catch(() => null),
+      facultyApi.getRankings(user.sub).catch(() => null),
+      facultyApi.getPendingCount().catch(() => null)
+    ]).then(([profileData, scoreData, rankingData, pendingData]) => {
+      setProfile({
+        ...profileData,
+        prajnaScore: scoreData?.totalScore ?? 840,
+        deptRank: rankingData?.departmentRank ?? 4,
+        percentile: rankingData?.universityPercentile ?? 88,
+        pendingItems: pendingData?.count ?? 3
       });
-  }, []);
+    }).catch(err => {
+      console.error("Dashboard parallel fetch failed", err);
+    }).finally(() => {
+      setLoading(false);
+    });
+  }, [user?.sub]);
 
   const kpiScore = profile?.prajnaScore || 840;
   const deptRank = profile?.deptRank || 4;

@@ -1,6 +1,6 @@
 import { fetchAuthSession } from 'aws-amplify/auth';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://cov49w67hk.execute-api.us-east-1.amazonaws.com/prod';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 export async function apiRequest(path: string, options: RequestInit = {}) {
   const session = await fetchAuthSession();
@@ -30,4 +30,9 @@ export const facultyApi = {
   updateProfile: (data: any) => apiRequest('/faculty/profile', { method: 'PUT', body: JSON.stringify(data) }),
   lookupDoi: (doi: string) => apiRequest(`/research/lookup?doi=${doi}`),
   submitPublication: (data: any) => apiRequest('/research', { method: 'POST', body: JSON.stringify(data) }),
+  
+  // Business logic routes added for end-to-end integration
+  getScore: (facultyId: string) => apiRequest(`/score/${facultyId}`),
+  getRankings: (facultyId: string) => apiRequest(`/leaderboard/rankings/${facultyId}`),
+  getPendingCount: () => apiRequest('/approval/pending/me/count'),
 };
