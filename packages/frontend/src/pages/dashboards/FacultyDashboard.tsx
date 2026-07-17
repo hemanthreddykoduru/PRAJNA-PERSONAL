@@ -20,15 +20,24 @@ export function FacultyDashboard() {
     if (!user?.sub) return;
     Promise.all([
       facultyApi.getProfile().catch(() => null),
+      // BUG NOTE (Bhanu / M4): /score/{facultyId} and /leaderboard/rankings/{facultyId}
+      // will 500 in prod until the M4 path-param gateway bug is fixed.
+      // The .catch(() => null) below ensures the dashboard still loads gracefully.
       facultyApi.getScore(user.sub).catch(() => null),
       facultyApi.getRankings(user.sub).catch(() => null),
-      facultyApi.getPendingCount().catch(() => null)
+      facultyApi.getPendingCount().catch(() => null)  // returns { count: N } — NOT pendingEvidenceItems
     ]).then(([profileData, scoreData, rankingData, pendingData]) => {
       setProfile({
         ...profileData,
         prajnaScore: scoreData?.totalScore ?? 840,
+        // Trend fields are now live (archive landed 6 Jul). Wire them directly.
+        yearOnYearTrend: scoreData?.yearOnYearTrend ?? null,
+        // rankTrend: prior − current, so POSITIVE = moved UP. Render accordingly.
+        rankTrend: rankingData?.rankTrend ?? null,
+        percentileTrend: rankingData?.percentileTrend ?? null,
         deptRank: rankingData?.departmentRank ?? 4,
         percentile: rankingData?.universityPercentile ?? 88,
+        // Key is `count`, NOT `pendingEvidenceItems` (Bhanu confirmed)
         pendingItems: pendingData?.count ?? 3
       });
     }).catch(err => {
@@ -42,6 +51,11 @@ export function FacultyDashboard() {
   const deptRank = profile?.deptRank || 4;
   const percentile = profile?.percentile || 88;
   const pendingItems = profile?.pendingItems || 3;
+
+  // rankTrend: positive = improved (moved UP in rank). Render arrow direction accordingly.
+  const yearOnYearTrend = profile?.yearOnYearTrend;
+  const rankTrend = profile?.rankTrend;         // positive → fewer → better rank
+  const percentileTrend = profile?.percentileTrend;
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12">
@@ -65,8 +79,16 @@ export function FacultyDashboard() {
             <p className="text-white/80 text-sm mt-1">Academic Year 2024-25</p>
           </div>
           <div className="mt-4 flex items-center gap-2">
-            <span className="bg-white/20 text-white text-xs font-bold px-2 py-1 rounded flex items-center gap-1">↑ 12%</span>
-            <span className="text-white/70 text-xs">vs last year</span>
+            {yearOnYearTrend != null ? (
+              <>
+                <span className="bg-white/20 text-white text-xs font-bold px-2 py-1 rounded flex items-center gap-1">
+                  {yearOnYearTrend >= 0 ? '↑' : '↓'} {Math.abs(yearOnYearTrend)}%
+                </span>
+                <span className="text-white/70 text-xs">vs last year</span>
+              </>
+            ) : (
+              <span className="text-white/50 text-xs">trend loading…</span>
+            )}
           </div>
         </div>
 
@@ -86,8 +108,25 @@ export function FacultyDashboard() {
             <p className="text-textMuted text-sm mt-1">of 45 Faculty</p>
           </div>
           <div className="mt-4 flex items-center gap-2">
-            <span className="bg-primary/20 text-primary border border-primary/20 text-xs font-bold px-2 py-1 rounded">↑ 5%</span>
-            <span className="text-textMuted text-xs">positions up</span>
+            {rankTrend != null ? (
+              <>
+                {/* rankTrend: prior − current → positive = moved UP (fewer = better rank) */}
+                <span className={`text-xs font-bold px-2 py-1 rounded border ${
+                  rankTrend > 0
+                    ? 'bg-primary/20 text-primary border-primary/20'
+                    : rankTrend < 0
+                    ? 'bg-red-50 text-red-600 border-red-100'
+                    : 'bg-gray-100 text-gray-500 border-gray-200'
+                }`}>
+                  {rankTrend > 0 ? '↑' : rankTrend < 0 ? '↓' : '—'} {Math.abs(rankTrend)}
+                </span>
+                <span className="text-textMuted text-xs">
+                  {rankTrend > 0 ? 'positions up' : rankTrend < 0 ? 'positions down' : 'no change'}
+                </span>
+              </>
+            ) : (
+              <span className="text-textMuted text-xs">trend loading…</span>
+            )}
           </div>
         </div>
 
@@ -107,8 +146,22 @@ export function FacultyDashboard() {
             <p className="text-textMuted text-sm mt-1">University-wide</p>
           </div>
           <div className="mt-4 flex items-center gap-2">
-            <span className="bg-primary/20 text-primary border border-primary/20 text-xs font-bold px-2 py-1 rounded">↑ 8%</span>
-            <span className="text-textMuted text-xs">improvement</span>
+            {percentileTrend != null ? (
+              <>
+                <span className={`text-xs font-bold px-2 py-1 rounded border ${
+                  percentileTrend > 0
+                    ? 'bg-primary/20 text-primary border-primary/20'
+                    : percentileTrend < 0
+                    ? 'bg-red-50 text-red-600 border-red-100'
+                    : 'bg-gray-100 text-gray-500 border-gray-200'
+                }`}>
+                  {percentileTrend > 0 ? '↑' : percentileTrend < 0 ? '↓' : '—'} {Math.abs(percentileTrend)}%
+                </span>
+                <span className="text-textMuted text-xs">improvement</span>
+              </>
+            ) : (
+              <span className="text-textMuted text-xs">trend loading…</span>
+            )}
           </div>
         </div>
 
